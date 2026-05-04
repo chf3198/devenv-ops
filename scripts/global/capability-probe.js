@@ -1,8 +1,9 @@
-// Phase 0 capability probe — read-only substrate detection (#788)
+// Phase 0 capability probe — read-only substrate detection (#788, #877)
 // Writes .dashboard/capabilities.json. Never charges tokens. Idempotent.
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const hamr = require('./hamr-probes');
 
 const TIMEOUT_TAILSCALE_MS = 4000;
 const TIMEOUT_FLEET_MS = 4000;
@@ -36,10 +37,7 @@ async function probeProvider(p, env) {
   if (!key) return { available: false, reason: 'no-key' };
   const url = typeof p.url === 'function' ? p.url(key) : p.url;
   const status = await _httpStatus(url, p.headers(key), TIMEOUT_PROVIDER_MS);
-  return {
-    available: status >= HTTP_OK_FLOOR && status < HTTP_OK_CEILING,
-    http_status: status,
-  };
+  return { available: status >= HTTP_OK_FLOOR && status < HTTP_OK_CEILING, http_status: status };
 }
 
 async function probeFleet(devices) {
@@ -72,14 +70,19 @@ async function probe() {
   const inv = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'inventory', 'devices.json'), 'utf8'));
   const providerResults = await Promise.all(PROVIDER_PROBES.map(async p => [p.id, await probeProvider(p, env)]));
   const providers = Object.fromEntries(providerResults);
+  const [cfResult, r2Result, oidcResult] = await Promise.all([hamr.probeCloudflare(), hamr.probeR2(), hamr.probeGithubOidc()]);
   const manifest = {
     probed_at: new Date().toISOString(),
-    schema_version: 1,
+    schema_version: 2,
     tailscale: probeTailscale(),
     fleet: await probeFleet(inv.devices || []),
-    cloudflare: { account: { available: !!env.CLOUDFLARE_API_TOKEN } },
+    cloudflare: { account: { available: !!env.CLOUDFLARE_API_TOKEN }, reachability: cfResult },
+    r2: r2Result,
+    wrangler: hamr.probeWrangler(),
+    github_oidc: oidcResult,
+    mcp: { rag_server: { reachable: false, url: env.MCP_RAG_URL || null }, client: hamr.probeMcp() },
+    npm_trusted_publishing: hamr.probeNpmTrustedPublishing(),
     providers,
-    mcp: { rag_server: { reachable: false, url: env.MCP_RAG_URL || null } },
   };
   const dir = path.join(process.cwd(), '.dashboard');
   fs.mkdirSync(dir, { recursive: true });
@@ -87,6 +90,9 @@ async function probe() {
   return manifest;
 }
 
-if (require.main === module) probe().then(m => process.stdout.write(`✅ probed ${Object.keys(m.providers).length} providers, ${Object.keys(m.fleet).length} fleet hosts\n`));
+if (require.main === module) probe().then(m => {
+  if (process.argv.includes('--json')) process.stdout.write(JSON.stringify(m, null, 2) + '\n');
+  else process.stdout.write(`✅ probed ${Object.keys(m.providers).length} providers, ${Object.keys(m.fleet).length} fleet hosts\n`);
+});
 
-module.exports = { probe, probeProvider, probeFleet, probeTailscale, PROVIDER_PROBES };
+module.exports = { probe, probeProvider, probeFleet, probeTailscale, PROVIDER_PROBES, ...hamr };
