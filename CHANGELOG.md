@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased] — Research: HAMR Spike S1 — Existing Code Audit (#876, EPIC #860)
+
+### Added
+- `research/hamr-spike-s1-code-audit-2026-05-04.md` (~550 lines): per-module REUSE/REFACTOR/REPLACE/MERGE decision matrix for 20 existing harness modules. Revised HAMR MVP child list from 13 → 9 by absorbing four prospective children into refactors of existing code.
+- `raw/articles/hamr-spike-s1-code-audit-2026-05-04.md` + `wiki/sources/hamr-spike-s1-code-audit-2026-05-04.md` + `wiki/log.md` entry.
+
+### Notes
+- Lane: docs-research (Manager + Consultant only).
+- Decisions: 3 REUSE (`matrix-freshness.js`, `agent-signature.js`, `wiki/lint.js`), 11 REFACTOR (cascade-dispatch, state-offload, capability-probe, routing-refresh, rag-search, wiki/ingest, wiki/anneal, litellm-client, token-provider-adapters, fleet-config, model-routing-engine), 3 REPLACE (`agent-coord-remote.js`, `cloudflare/worker.ts`, `cloudflare/durable-object.ts`), 3 MERGE (`free-router.js`, `capability-show.js`, `wiki/search.js`).
+- Audit-internal `(#NNN)` references are placeholders for prospective HAMR MVP children — see §1.1 mapping table in the audit document. The 9 surviving children will be filed only after all 6 HAMR validation spikes (#876–#881) close green.
+- Heavy fleet usage via Implementer subagent. Zero paid LLM tokens for content production.
+
 ## [Unreleased] — Research v3 (HAMR): 5-axis optimization (#873, EPIC #860)
 
 ### Added
