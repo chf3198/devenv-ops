@@ -1,16 +1,12 @@
 # Changelog
 
-## [Unreleased] — Research: HAMR Spike S1 — Existing Code Audit (#876, EPIC #860)
+## [Unreleased] — HAMR S2 spike: capability-probe HAMR substrate checks (#877, EPIC #860)
 
 ### Added
-- `research/hamr-spike-s1-code-audit-2026-05-04.md` (~550 lines): per-module REUSE/REFACTOR/REPLACE/MERGE decision matrix for 20 existing harness modules. Revised HAMR MVP child list from 13 → 9 by absorbing four prospective children into refactors of existing code.
-- `raw/articles/hamr-spike-s1-code-audit-2026-05-04.md` + `wiki/sources/hamr-spike-s1-code-audit-2026-05-04.md` + `wiki/log.md` entry.
-
-### Notes
-- Lane: docs-research (Manager + Consultant only).
-- Decisions: 3 REUSE (`matrix-freshness.js`, `agent-signature.js`, `wiki/lint.js`), 11 REFACTOR (cascade-dispatch, state-offload, capability-probe, routing-refresh, rag-search, wiki/ingest, wiki/anneal, litellm-client, token-provider-adapters, fleet-config, model-routing-engine), 3 REPLACE (`agent-coord-remote.js`, `cloudflare/worker.ts`, `cloudflare/durable-object.ts`), 3 MERGE (`free-router.js`, `capability-show.js`, `wiki/search.js`).
-- Audit-internal `(#NNN)` references are placeholders for prospective HAMR MVP children — see §1.1 mapping table in the audit document. The 9 surviving children will be filed only after all 6 HAMR validation spikes (#876–#881) close green.
-- Heavy fleet usage via Implementer subagent. Zero paid LLM tokens for content production.
+- `scripts/global/hamr-probes.js`: 6 new non-destructive HAMR substrate probes — Cloudflare reachability, R2 bucket list, Wrangler CLI version, GitHub OIDC eligibility heuristic, MCP client detection, npm trusted-publishing eligibility. Each probe times out at 5 s, fails soft, and never logs secrets.
+- `tests/hamr-probes.spec.js`: Playwright-test spec covering schema validation, fail-soft on missing env vars, and timeout-bound enforcement for all 6 HAMR probes.
+- `wiki/concepts/capability-detection.md`: Schema reference for `.dashboard/capabilities.json` (schema_version 2) and HAMR probe table.
+- `capability-probe.js` extended: imports `hamr-probes`, bumps `schema_version` to 2, adds `r2`, `wrangler`, `github_oidc`, `npm_trusted_publishing`, `cloudflare.reachability`, and `mcp.client` fields. Adds `--json` flag for machine-readable output.
 
 ## [Unreleased] — Research v3 (HAMR): 5-axis optimization (#873, EPIC #860)
 
