@@ -1,5 +1,18 @@
 # Changelog
 
+## [Unreleased] — Research v2: fleet harness-awareness — agnostic, multi-repo, redundancy, caching, A2A (#863, EPIC #860)
+
+### Added
+- `research/fleet-harness-awareness-v2-2026-05-04.md` (2199 words): revision of v1 (#861) addressing 6 client considerations — fleet-agnostic three-tier fallback (npm-bundled snapshot → GitHub release asset CDN → runtime degraded mode), bidirectional Wiki via GitHub App + Yjs CRDT, multi-repo bound JWT identity (GitHub OAuth + CF `workers-oauth-provider` + sigstore), independent substrate-health probe, 9-row per-provider native caching matrix, R2-backed Agent Mailbox using Google A2A envelope.
+- `raw/articles/fleet-harness-awareness-v2-2026-05-04.md` + `wiki/sources/fleet-harness-awareness-v2-2026-05-04.md` + `wiki/log.md` entry.
+
+### Notes
+- Lane: docs-research (Manager + Consultant only).
+- v1's CF Worker + R2 + KV + MCP happy-path substrate preserved; v2 hardens six gaps.
+- Implementation children identified: 9 (up from v1's 5). NOT spawned per Manager scope — awaiting client review.
+- 24+ new primary-source citations covering npm scripts/files, GitHub Apps/OAuth/releases, MCP spec sections, Yjs CRDT, sigstore, CF Access, Gemini `cachedContents`, OpenRouter passthrough, vLLM/llama.cpp/Ollama caching, Google A2A.
+- Heavy fleet usage via sub-agent + websearch. Zero paid LLM tokens for content.
+
 ## [Unreleased] — Research: dashboard layout density heuristics + panel sizing (#854, child of EPIC #850)
 
 ### Added
