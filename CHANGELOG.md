@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 4 child 7: constitution compressor + 3-stage rule-coverage gate (#925, EPIC #860)
+
+### Added
+- `scripts/global/constitution-compressor.js` (≤100 lines, CommonJS): deterministic top-k extractive compressor producing all 4 HAMR bundle tiers (`fim-5kb`, `routing-12kb`, `governance-30kb`, `architect-90kb`). Per-line keyword-vocabulary scoring with heading/bullet/short-line bonuses; greedy keep highest-scoring lines while preserving original order; canonical NUL-separated SHA-256.
+- `scripts/global/rule-coverage-gate.js` (≤100 lines): 3-stage gate per v3.2.1 §R6 update. Stage-1 ≥99% deterministic keyword (every build); Stage-2a ≥80% direct + counter-factual via free-fleet 2-of-N quorum (uses `judge-quorum.js` #895); Stage-2b ≥95% with boundary cases via paid-tier judge (operator-cost-gated); Stage-3 operator review for any rule scoring <0.50.
+- `tests/constitution-compressor.spec.js`: 12 deterministic Playwright tests covering all 4 tiers + scoring + ordering + SHA stability + 3-stage gate aggregation.
+- `wiki/concepts/constitution-compressor.md`.
+- `package.json` scripts: `hamr:compress`, `hamr:rule-gate`.
+- README scripts table regenerated.
+
+### Notes
+- Lane: code-change (Manager + Collaborator + Admin + Consultant).
+- Replaces LLMLingua-2 production path with deterministic top-k extractive per S5 #880 finding.
+- Stage-2b paid-tier judge defaults to skipped (`runStage2b: false`); operator-cost authorization required to enable.
+- 12/12 tests pass. Operator-cost: $0.
+- Disjoint from Copilot Team active surface.
+
 ## [Unreleased] — Research: HAMR v3.2.2 patch — R9.2 cwd-vs-branch hook enforcement (#923, EPIC #860)
 
 ### Added
