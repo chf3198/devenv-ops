@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 5 child 4: real /mcp serving (capability dispatch) (#935, EPIC #860)
+
+### Changed
+- `cloudflare/hamr/routes/mcp.ts` (≤100 lines): replaces the Wave 5 placeholder receipt with capability dispatch. Auth + SLSA gate unchanged (still 401/503 paths from #927); post-gate body is parsed for `{capability, params}` and routed.
+- `cloudflare/hamr/routes/mcp-dispatch.ts` (NEW, ≤100 lines): handlers for `bundle:fetch` (R2 read at `bundle/<tier>.txt`), `doctor:probe` (KV read at `substrate-health:latest`), `mailbox:read` (R2 list at `mailbox/`). Unknown capability → 400 with `supported` list.
+
+### Added
+- `tests/mcp-dispatch.spec.js`: 4 live route tests covering auth-first ordering, missing-signature path, unknown-key-id path, and bundle-SHA-with-bogus-key auth-before-SLSA ordering.
+
+### Notes
+- Lane: code-change.
+- Worker redeployed (version `40f689dc-c82a-41b3-99ab-4e08cce7d07c`).
+- Strict-superset preserved: 401/503 contracts unchanged; only post-auth body shape extended.
+- All files ≤100 lines.
+
 ## [Unreleased] — HAMR Wave 5 child 3: R9.2 cwd-vs-branch hook automation (#934, EPIC #860)
 
 ### Added

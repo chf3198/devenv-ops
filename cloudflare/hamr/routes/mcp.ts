@@ -1,6 +1,7 @@
-// HAMR /mcp — MCP gateway with DPoP-style proof verification + SLSA gate (#927).
-// REPLACES Wave 2 #910 503 placeholder with bundle-SHA SLSA verification per v3.2 §R3.
+// HAMR /mcp — DPoP verify + SLSA gate (#927) + capability dispatch (#935).
+// Auth+SLSA layer here; capability handlers in ./mcp-dispatch.
 import type { Env } from '../worker';
+import { dispatch } from './mcp-dispatch';
 
 const SLSA_ATTEST_KEY_PREFIX = 'slsa-attest:';
 
@@ -65,13 +66,6 @@ export async function mcp(request: Request, env: Env): Promise<Response> {
     }
   }
 
-  // MCP serving placeholder for Wave 5 — for now, return 200 with a sanitized acceptance receipt.
-  return new Response(JSON.stringify({
-    accepted: true,
-    key_id: keyId,
-    slsa_gate: bundleSha ? 'verified' : 'skipped_no_bundle_advertised',
-    mcp_serving: 'wave5_placeholder',
-  }), {
-    status: 200, headers: { 'content-type': 'application/json' },
-  });
+  const slsaState = bundleSha ? 'verified' : 'skipped_no_bundle_advertised';
+  return dispatch(request, env, keyId, slsaState);
 }
