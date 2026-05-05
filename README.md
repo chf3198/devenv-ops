@@ -83,6 +83,7 @@ npm run deploy:both:apply
 | `hamr:batch-router` | `node scripts/global/anthropic-batch-router.js` |
 | `hamr:cache-emit` | `node scripts/global/cache-stats-emit.js` |
 | `hamr:cache-gate` | `node scripts/global/cache-hit-gate.js` |
+| `hamr:cache-push` | `node scripts/global/cache-stats-push.js` |
 | `hamr:compress` | `node scripts/global/constitution-compressor.js` |
 | `hamr:deploy` | `bash scripts/global/hamr-deploy.sh` |
 | `hamr:doctor` | `node scripts/global/hamr-doctor.js` |

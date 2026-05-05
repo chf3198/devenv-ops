@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 5 child 2: Worker /cache-stats KV writer + push client (#933, EPIC #860)
+
+### Added
+- `cloudflare/hamr/routes/cache-stats.ts` (≤100 lines): NEW Worker endpoint. POST with Ed25519 DPoP auth (re-uses #927 verification pattern); validates `hit_rate ∈ [0,1]` and timestamp freshness (≤24h); writes `cache-stats:hit-rate-7d` to KV (consumed by `/quota` #927).
+- `cloudflare/hamr/worker.ts`: routes `POST /cache-stats` to new handler.
+- `scripts/global/cache-stats-push.js` (≤100 lines): local push client. Reads operator Ed25519 key from `OPERATOR_KEY_SEED_B64` env or `~/.megingjord/keys/operator-ed25519.pem` PEM file (re-uses #894 4-tier key store). Computes hit-rate from `cache-hit-gate.runGate()`, signs canonical JSON, POSTs to HAMR `/cache-stats`.
+- `tests/cache-stats-push.spec.js`: 5 tests (3 unit + 2 live route smoke).
+- `package.json` script: `hamr:cache-push`.
+
+### Notes
+- Lane: code-change.
+- Worker redeployed (version `d694c47f-343e-4cc8-812f-c7de22d16de9`).
+- Live-verified `/cache-stats` returns 401 `missing_dpop` and 401 `missing_signature_headers` correctly.
+- Closes the producer gap on `/quota.hit_rate_7d`; consumer flow already shipped in Wave 4 #927.
+
 ## [Unreleased] — HAMR Wave 5 child 1: cache-stats.jsonl emit-site wiring (#932, EPIC #860)
 
 ### Added

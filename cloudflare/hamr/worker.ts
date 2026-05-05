@@ -6,6 +6,7 @@ import { bundle } from './routes/bundle';
 import { mcp } from './routes/mcp';
 import { mailboxRead, mailboxWrite } from './routes/mailbox';
 import { quota } from './routes/quota';
+import { cacheStats } from './routes/cache-stats';
 
 export interface Env {
   HAMR_KV: KVNamespace;
@@ -45,6 +46,7 @@ export default {
       else if (url.pathname === '/mailbox/read' && m === 'GET') res = await mailboxRead(request, env);
       else if (url.pathname === '/mailbox/write' && m === 'POST') res = await mailboxWrite(request, env);
       else if (url.pathname === '/quota' && m === 'GET') res = await quota(env);
+      else if (url.pathname === '/cache-stats' && m === 'POST') res = await cacheStats(request, env);
       else res = notFound();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'internal_error';
