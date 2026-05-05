@@ -90,9 +90,18 @@ async function probe() {
   return manifest;
 }
 
-if (require.main === module) probe().then(m => {
-  if (process.argv.includes('--json')) process.stdout.write(JSON.stringify(m, null, 2) + '\n');
-  else process.stdout.write(`✅ probed ${Object.keys(m.providers).length} providers, ${Object.keys(m.fleet).length} fleet hosts\n`);
-});
+if (require.main === module) {
+  if (process.argv.includes('--substrate-health')) {
+    require('./substrate-health').writeSubstrateHealth().then((r) => {
+      if (process.argv.includes('--json')) process.stdout.write(JSON.stringify(r, null, 2) + '\n');
+      else process.stdout.write(`✅ substrate-health: ${r.tier} (${r.reason})\n`);
+    }).catch((e) => { process.stderr.write(e.message + '\n'); process.exit(1); });
+  } else {
+    probe().then(m => {
+      if (process.argv.includes('--json')) process.stdout.write(JSON.stringify(m, null, 2) + '\n');
+      else process.stdout.write(`✅ probed ${Object.keys(m.providers).length} providers, ${Object.keys(m.fleet).length} fleet hosts\n`);
+    });
+  }
+}
 
 module.exports = { probe, probeProvider, probeFleet, probeTailscale, PROVIDER_PROBES, ...hamr };
