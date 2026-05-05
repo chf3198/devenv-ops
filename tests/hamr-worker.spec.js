@@ -1,0 +1,83 @@
+// HAMR core Worker live-route tests (#910).
+// Hits the deployed Worker at hamr.chf3198.workers.dev. Read-only.
+const { test, expect } = require('@playwright/test');
+
+const BASE = process.env.HAMR_WORKER_URL || 'https://hamr.chf3198.workers.dev';
+
+test('/healthz returns 200 with tier classification', async ({ request }) => {
+  const r = await request.get(`${BASE}/healthz`);
+  expect(r.status()).toBe(200);
+  const body = await r.json();
+  expect(body.schema_version).toBe(1);
+  expect(body.ok).toBe(true);
+  expect(['tier1-full', 'tier2-degraded', 'tier3-offline']).toContain(body.tier);
+  expect(typeof body.ts).toBe('number');
+  expect(body.bindings).toHaveProperty('kv');
+  expect(body.bindings).toHaveProperty('r2');
+});
+
+test('/healthz security headers present', async ({ request }) => {
+  const r = await request.get(`${BASE}/healthz`);
+  expect(r.headers()['strict-transport-security']).toContain('max-age');
+  expect(r.headers()['x-content-type-options']).toBe('nosniff');
+  expect(r.headers()['referrer-policy']).toBe('no-referrer');
+  expect(r.headers()['x-hamr-elapsed-ms']).toBeDefined();
+});
+
+test('/bundle/<profile>/<sha> returns 404 for missing bundle', async ({ request }) => {
+  const r = await request.get(`${BASE}/bundle/governance-30kb/abc123def456`);
+  expect(r.status()).toBe(404);
+  const body = await r.json();
+  expect(body.error).toBe('not_found');
+});
+
+test('/bundle rejects unknown profile with 400', async ({ request }) => {
+  const r = await request.get(`${BASE}/bundle/unknown-profile/abc123`);
+  expect(r.status()).toBe(400);
+  const body = await r.json();
+  expect(body.error).toBe('bad_request');
+  expect(body.reason).toBe('unknown_profile');
+});
+
+test('/bundle rejects invalid sha with 400', async ({ request }) => {
+  const r = await request.get(`${BASE}/bundle/governance-30kb/not-a-sha`);
+  expect(r.status()).toBe(400);
+  const body = await r.json();
+  expect(body.reason).toBe('invalid_sha');
+});
+
+test('/mcp returns 401 missing_dpop without authorization header', async ({ request }) => {
+  const r = await request.post(`${BASE}/mcp`, { data: {} });
+  expect(r.status()).toBe(401);
+  const body = await r.json();
+  expect(body.error).toBe('unauthorized');
+  expect(body.reason).toBe('missing_dpop');
+});
+
+test('/mailbox/read returns 501 placeholder', async ({ request }) => {
+  const r = await request.get(`${BASE}/mailbox/read`);
+  expect(r.status()).toBe(501);
+  const body = await r.json();
+  expect(body.placeholder).toBe(true);
+  expect(body.detail).toContain('Wave 3 child 5');
+});
+
+test('/mailbox/write returns 501 placeholder', async ({ request }) => {
+  const r = await request.post(`${BASE}/mailbox/write`, { data: {} });
+  expect(r.status()).toBe(501);
+});
+
+test('/quota returns 200 placeholder body', async ({ request }) => {
+  const r = await request.get(`${BASE}/quota`);
+  expect(r.status()).toBe(200);
+  const body = await r.json();
+  expect(body.placeholder).toBe(true);
+  expect(body.hit_rate_7d).toBeNull();
+});
+
+test('unknown route returns 404 JSON', async ({ request }) => {
+  const r = await request.get(`${BASE}/this-does-not-exist`);
+  expect(r.status()).toBe(404);
+  const body = await r.json();
+  expect(body.error).toBe('not_found');
+});
