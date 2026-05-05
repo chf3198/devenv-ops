@@ -1,5 +1,27 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 2 child 1: HAMR core CF Worker (#910, EPIC #860)
+
+### Added
+- `cloudflare/hamr/worker.ts` (top-level router) + `cloudflare/hamr/routes/{healthz,bundle,mcp,mailbox,quota}.ts` (per-route handlers, all ≤100 lines per project policy).
+- `cloudflare/hamr/wrangler.toml`: production config with R2 binding `HAMR_BUNDLES` (`hamr-bundles` bucket) and KV binding `HAMR_KV`. `PUBLISHER_KEYRING` is a secret set via `wrangler secret put` (NOT committed).
+- `scripts/global/hamr-deploy.sh` (≤100 lines): deploy with v3.2.1 §R9.2 cwd-vs-branch pre-flight and §R9.4 HTTP-200 post-condition on `/healthz`.
+- `scripts/global/hamr-teardown.sh` (≤100 lines): paired tear-down with §R9.4 HTTP-404 verification post-condition.
+- `tests/hamr-worker.spec.js`: 10 live-route Playwright tests; **10/10 pass** against deployed Worker.
+- `wiki/concepts/hamr-core-worker.md`: route reference + bindings + R9 patterns applied + Wave-3/4 evolution path.
+- `package.json` scripts: `hamr:deploy`, `hamr:teardown` (alphabetically sorted).
+- README scripts table regenerated via `docs:compile`.
+
+### Notes
+- Lane: code-change (Manager + Collaborator + Admin + Consultant).
+- **Production deployment live at `https://hamr.chf3198.workers.dev`** with R2 bucket `hamr-bundles` + KV namespace `HAMR_KV` (`a01abe088f454a59973e72736978b5e5`).
+- **Coexists with existing `cloudflare/worker.ts`** (megingjord-coord coordinator service from #740/#785) — HAMR ships as a NEW Worker. The existing coordinator stays in service until Wave 3 child 5 (mailbox) supersedes it. Preserves HAMR's "strict superset, never makes the harness worse" guarantee.
+- **Routes**: `/healthz` (200, tier-aware), `/bundle/<profile>/<sha>` (R2-backed, 200 or 404), `/mcp` (DPoP gateway via baton-signing.js #894 verifier; SLSA gate placeholder returning 503 — Wave 2 child 6 #912 wires real `slsa-verifier`), `/mailbox/{read,write}` (501 placeholders — Wave 3 child 5), `/quota` (200 placeholder — Wave 4 child 9).
+- **Security headers** on every response: HSTS, `x-content-type-options: nosniff`, `referrer-policy: no-referrer`, `x-hamr-elapsed-ms`.
+- **R9 patterns applied**: R9.1 worktree-isolation, R9.2 cwd-vs-branch pre-flight, R9.3 ≤5 s `/healthz` with per-binding 1 s timeouts, R9.4 idempotent deploy/tear-down with HTTP-200/404 verification.
+- **Operator-cost: $0** (Workers-Paid included quota + R2 10 GB free tier + KV included).
+- Disjoint from Copilot Team active surface (no overlap with `dashboard/js/token-reconcile.js`, `scripts/global/token-*.js`, `cost-report.js`, `model-routing-engine.js`, or `instructions/role-baton-routing.instructions.md` v2.0 WIP).
+
 ## [Unreleased] — Research: HAMR v3.2.1 patch (R9 + §R6 update + Copilot coordination) (#907, EPIC #860)
 
 ### Added

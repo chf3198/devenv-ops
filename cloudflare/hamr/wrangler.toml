@@ -1,0 +1,22 @@
+name = "hamr"
+main = "worker.ts"
+compatibility_date = "2026-05-01"
+compatibility_flags = ["nodejs_compat"]
+account_id = "f7705aa5c47e40b9eba04d2ac87ae516"
+
+[observability]
+enabled = true
+
+[vars]
+ENVIRONMENT = "production"
+
+[[r2_buckets]]
+binding = "HAMR_BUNDLES"
+bucket_name = "hamr-bundles"
+
+[[kv_namespaces]]
+binding = "HAMR_KV"
+id = "a01abe088f454a59973e72736978b5e5"
+
+# PUBLISHER_KEYRING is set via `wrangler secret put PUBLISHER_KEYRING`
+# (NOT committed to wrangler.toml; format is JSON {key_id: base64-spki-public-key})
