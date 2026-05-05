@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased] — Research: HAMR v3.2 — post-spike redesign baseline (#890, EPIC #860)
+
+### Added
+- `research/hamr-v3-2-2026-05-04.md` (~400 lines): design baseline after the 6-spike validation gate. Incorporates findings from S1–S6 (#876–#881) and three post-gate-review client clarifications (Q1 OS-agnostic key store, Q2 judge-quorum independence, Q3 failover/redundancy explicitness). 8 remediations (R1–R8); 4-tier OS-agnostic key store (T1 hardware enclave → T2 OS keychain → T3 Age file → T4 ephemeral); quorum-of-2 judge gate with provenance tag; explicit 3-tier graceful-degradation map.
+- `raw/articles/hamr-v3-2-2026-05-04.md` + `wiki/sources/hamr-v3-2-2026-05-04.md` + `wiki/log.md` entry.
+
+### Notes
+- Lane: docs-research (Manager + Consultant only).
+- Supersedes `research/hamr-v3-2026-05-04.md` (#873).
+- Substrate (CF Worker + R2 + KV + MCP + Tailscale fleet) survives unchanged. Latency contract, cache strategy, compression gate, key storage, judge gate, and failover semantics are revised.
+- Wave 1 children filed: #891 (S3 live deploy), #892 (S4 live cache), #893 (S5 Stage-2 quiz), #894 (`baton-signing.js`), #895 (`judge-quorum.js`), #896 (`hamr:doctor` skeleton).
+- Disjoint from Copilot Team active surface (research/, raw/articles/, wiki/sources/, wiki/log.md, CHANGELOG.md only). No interference with Copilot's `dashboard/js/token-reconcile.js` / `scripts/global/token-*.js` / `cost-report.js` / `model-routing-engine.js` work.
+- Heavy fleet usage (websearch + analytical synthesis from prior conversation context). Zero paid LLM tokens for content production.
+
 ## [Unreleased] — Research: HAMR Spike S4 — Anthropic prompt-cache economics (#879, EPIC #860)
 
 ### Added

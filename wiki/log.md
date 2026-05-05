@@ -12,6 +12,18 @@ Brief description of what happened.
 
 ---
 
+## [2026-05-04] research | HAMR v3.2 — post-spike redesign baseline (#890, EPIC #860)
+Design baseline after the 6-spike validation gate. Substrate (CF Worker + R2
++ KV + MCP + Tailscale fleet) survives; trust model, latency contract, cache
+strategy, compression gate, key storage, judge gate, and failover semantics
+are revised. 8 remediations (R1–R8). 4-tier OS-agnostic key store (T1
+hardware enclave → T2 OS keychain → T3 Age file → T4 ephemeral). Quorum-of-2
+judge gate with provenance tag (replaces v3.1 cloud-only wording). Explicit
+3-tier graceful-degradation map (Tier 3 = today's harness; HAMR is strict
+superset). Revised 9-child MVP across 5 waves (~18 working days). Wave 1
+children filed as #891–#896. Source: research/hamr-v3-2-2026-05-04.md.
+Supersedes: research/hamr-v3-2026-05-04.md.
+
 ## [2026-05-04] research | HAMR Spike S4 — Anthropic prompt-cache economics (#879, EPIC #860)
 Lane converted from code-change to docs-research after env check showed no
 `ANTHROPIC_API_KEY`; live measurement deferred. Analytical validation of v3's
