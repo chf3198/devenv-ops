@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 1: hamr:doctor skeleton — capability + tier + remediation CLI (#896, EPIC #860)
+
+### Added
+- `scripts/global/hamr-doctor.js` (91 lines, CommonJS): operator-facing CLI implementing v3.2 R7 (#890). Reads `.dashboard/capabilities.json` (S2 #877 schema_v2), probes baton-signing key tier (#894), enumerates judge-quorum families (#895). Emits 3-tier deployment classification (`tier1-full` / `tier2-degraded` / `tier3-offline`) plus per-capability remediation messages. CLI offers `--json` machine-readable output.
+- `tests/hamr-doctor.spec.js` (74 lines): 8 deterministic tests over fixture capabilities snapshots — tier1/tier2/tier3 classification, remediation list correctness, malformed-input handling, key-tier passthrough, judge-family enumeration. Zero live capability probes during test.
+- `tests/fixtures/capabilities-tier{1,2,3}.json`: minimal fixture snapshots covering full / degraded / offline operator environments.
+- `wiki/concepts/hamr-doctor.md` (91 lines): operator UX guide, 3-tier table, remediation table, read-only invariants, Wave-1 vs MVP scope.
+- `package.json` script: `"hamr:doctor": "node scripts/global/hamr-doctor.js"`. Scripts sorted alphabetically to match project pattern.
+
+### Notes
+- Lane: code-change (Manager + Collaborator + Admin + Consultant).
+- Implements HAMR v3.2 §3.R7 (capability-gated 3-tier deployment) and §4 (failover/redundancy explicitness).
+- **Critical guarantee preserved**: tier3-offline ≡ today's harness (no HAMR features active). HAMR is a strict superset; never makes the harness worse. R9 cross-level recovery patch (deferred to v3.2.1) extends this to in-flight session resumption.
+- Read-only by design: NO state mutation, NO paid resource deployment, NO `npm install`, NO live API calls. Operator authority required for any state change — `hamr:doctor` only emits the recommended commands.
+- Wave 5 child 8 (`hamr:status` operator UX) extends this with `--accept-paid-resources`, OAuth magic-link onboarding, and persistent operator-keyring rotation.
+- Disjoint from Copilot Team active surface (`dashboard/js/token-reconcile.js`, `scripts/global/token-*.js`, `cost-report.js`, `model-routing-engine.js`).
+
 ## [Unreleased] — HAMR Wave 1: judge-quorum.js — 2-of-N independence-based judge gate (#895)
 
 ### Added

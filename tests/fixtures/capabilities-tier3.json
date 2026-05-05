@@ -1,0 +1,9 @@
+{
+  "schema_version": 2,
+  "cloudflare": { "reachability": { "reachable": false, "reason": "no-network-or-blocked" } },
+  "r2": { "available": false },
+  "wrangler": { "available": false },
+  "mcp": { "client": { "available": false } },
+  "github_oidc": { "eligible": false },
+  "npm_trusted_publishing": { "eligible": false }
+}
