@@ -80,6 +80,7 @@ npm run deploy:both:apply
 | `governance:verify` | `node scripts/global/governance-verify.js --json` |
 | `governance:weekly` | `node scripts/global/governance-weekly-report.js` |
 | `governance:worktrees` | `node scripts/global/worktree-governance-audit.js --json` |
+| `hamr:doctor` | `node scripts/global/hamr-doctor.js` |
 | `health` | `node scripts/health-check.js` |
 | `help:topic` | `node scripts/help-topic.js` |
 | `issue:transition` | `node scripts/global/issue-transition.js` |
