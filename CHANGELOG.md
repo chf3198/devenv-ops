@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 5 child 3: R9.2 cwd-vs-branch hook automation (#934, EPIC #860)
+
+### Added
+- `scripts/hooks/pre-push-branch-check.sh` (≤100 lines): v3.2.2 §R9.2.1 enforcement. Reads stdin from git's pre-push hook; exits non-zero with diagnostic when local branch ≠ HEAD; appends every push attempt to `~/.megingjord/branch-ops-audit.log`.
+- `scripts/hooks/branch-ops-audit.sh` (≤100 lines): v3.2.2 §R9.2.3 audit log. Multi-purpose handler for `post-checkout` (only branch checkouts, skips file-only) and `post-commit`. Each event appends a JSON-line record with `{ts, op, cwd, head, head_sha, prev, new}`.
+- `scripts/global/install-hooks.sh` (≤100 lines): idempotent installer. Symlinks `pre-push` to the branch-check; writes wrapper scripts for `post-checkout` and `post-commit` that invoke `branch-ops-audit.sh`. Detects + chains existing pre-push hooks (e.g., readability gate) without overwriting.
+- `tests/r92-hooks.spec.js`: 6 tests covering executability, branch-match pass, branch-mismatch fail, audit-log JSON-line emission for post-checkout (branch op), audit-log skip for post-checkout (file op), audit-log emission for post-commit.
+- `package.json` script: `hooks:install`.
+
+### Notes
+- Lane: code-change.
+- Closes the empirically-recurring cwd-vs-branch hazard (4 occurrences across HAMR Waves 1-4).
+- Hooks are opt-in via `npm run hooks:install`; existing pre-push readability gate is preserved via chain-append.
+
 ## [Unreleased] — HAMR Wave 5 child 2: Worker /cache-stats KV writer + push client (#933, EPIC #860)
 
 ### Added
