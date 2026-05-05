@@ -12,6 +12,27 @@ Brief description of what happened.
 
 ---
 
+## [2026-05-05] validation | HAMR Wave 1 S5 Stage-2 reasoning quiz (#893, EPIC #860)
+60-Q quiz authored across direct (30) / counter-factual (20) / boundary (10);
+20-Q balanced subset run via judge-quorum.js #895 with Cerebras qwen-3-235b
+(family qwen, with Gemini-2.5-flash fallback) and Groq llama-3.3-70b (family
+llama). Direct mean 0.55 (30% ≥0.97 / 80% ≥0.50); counter-factual mean 0.50
+(33% / 67%); boundary 0% (judges did not chain reasoning). Family-fallback
+Cerebras → Gemini covered 14/14 queue-exceeded calls — architecture VALIDATED.
+v3.2 §R6 ≥97% threshold is NOT achievable with free-fleet quorum; REVISE to
+3-stage gate (Stage-2a free-fleet ≥80% direct+counter-factual; Stage-2b paid
+≥95% including boundary; Stage-3 operator review). Net spend $0 (free fleet).
+Source: research/hamr-wave1-s5-stage2-2026-05-05.md.
+
+## [2026-05-05] validation | HAMR Wave 1 S4 — Live Anthropic cache measurement (#892, EPIC #860)
+20 live calls to claude-sonnet-4-5 with 14,073-token HAMR governance bundle
+(instructions/* + 4 wiki concept pages). Total spend $0.18 (under $0.50 cap).
+Measured reductions: 5m ephemeral 83.82% (1 write + 9 reads, 90% hit), 1h
+extended 90.59% (10 reads, 100% hit on warm cache). Both EXCEED v3's 72%
+claim (+11.8 pp / +18.6 pp). CONFIRM v3 §R5: 1-h extended cache as default;
+80% hit-rate floor preserved; ≥5 min bundle-rebuild rate-limit unchanged.
+Source: research/hamr-wave1-s4-live-cache-2026-05-05.md.
+
 ## [2026-05-04] research | HAMR v3.2 — post-spike redesign baseline (#890, EPIC #860)
 Design baseline after the 6-spike validation gate. Substrate (CF Worker + R2
 + KV + MCP + Tailscale fleet) survives; trust model, latency contract, cache

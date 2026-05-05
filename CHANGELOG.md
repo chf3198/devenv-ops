@@ -1,5 +1,54 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 1 validation: S5 Stage-2 reasoning quiz (#893, EPIC #860)
+
+### Added
+- `research/hamr-wave1-s5-stage2-2026-05-05.md`: live execution of v3.2 §R6 Stage-2 reasoning-grounded rule-coverage gate via `judge-quorum.js` (#895). 60-Q quiz authored (30 direct / 20 counter-factual / 10 boundary); 20-Q balanced subset run with Cerebras qwen-3-235b (Gemini-2.5-flash fallback) and Groq llama-3.3-70b. Net free-fleet spend $0.
+- `raw/articles/hamr-wave1-s5-stage2-2026-05-05.md` + `wiki/sources/hamr-wave1-s5-stage2-2026-05-05.md` + `wiki/log.md` entry.
+
+### Measured
+- **Direct rule extraction (n=10):** mean 0.55, ≥0.97 pass 30%, ≥0.50 pass 80%.
+- **Counter-factual reasoning (n=6):** mean 0.50, ≥0.97 pass 33%, ≥0.50 pass 67%.
+- **Boundary cases (n=4):** all 0 (judges returned "not found in bundle" — no chain-of-reasoning).
+- **Family-fallback Cerebras → Gemini:** 14/14 queue-exceeded calls covered seamlessly. Architecture **VALIDATED**.
+- **Quorum-of-2 reachability:** 17/20 grades returned (Groq grader carried).
+
+### Decisions
+- **D1 REVISE v3.2 §R6 Stage-2 threshold from ≥97% to a 3-stage gate**: Stage-1 deterministic ≥99% keyword (unchanged); Stage-2a free-fleet 2-of-N quorum ≥80% on direct + counter-factual; Stage-2b paid-tier OR fine-tuned ≥95% including boundary; Stage-3 operator review for any rule scoring <0.50 in Stage-2b.
+- **D2 `judge-quorum.js` family-fallback architecture VALIDATED.** No code change.
+- **D3 Sequential 3+ s spacing required** for free-fleet path.
+- **D4 Per-family max_tokens calibration**: Gemini ≥256 candidate / ≥48 grader; Groq + Cerebras ≥24 grader OK.
+
+### Notes
+- Lane: code-change (Manager + Collaborator + Admin + Consultant).
+- All keys (CEREBRAS_API_KEY, GROQ_API_KEY, GOOGLE_AI_STUDIO_API_KEY) loaded via dotenv from .env; never logged or committed. Spike artifacts (`tmp/wave1/s5-stage2/`) gitignored.
+- Threats to validity: 20/60 subset (Groq rate-limited), grader strictness varies by family, judges did not chain reasoning reliably for boundary cases.
+
+## [Unreleased] — HAMR Wave 1 validation: S4 live Anthropic prompt-cache measurement (#892, EPIC #860)
+
+### Added
+- `research/hamr-wave1-s4-live-cache-2026-05-05.md`: live measurement deliverable for v3.2 §R5 cache-strategy validation. 20 calls to `claude-sonnet-4-5` with a 14,073-token HAMR governance bundle (instructions/* + 4 wiki concept pages). Total spend **$0.18 (under $0.50 cap)**.
+- `raw/articles/hamr-wave1-s4-live-cache-2026-05-05.md` + `wiki/sources/hamr-wave1-s4-live-cache-2026-05-05.md` + `wiki/log.md` entry.
+
+### Changed
+- `package.json`: added `@anthropic-ai/sdk@^0.93.0` as devDependency for spike scripts.
+- `.gitignore`: added `tmp/` (operator-local spike outputs never committed).
+
+### Measured
+- **5m ephemeral**: 83.82% reduction (1 write + 9 reads, 90% hit rate). **Exceeds v3's 72% claim by +11.8 pp.**
+- **1h extended**: 90.59% reduction (10 reads, 100% hit on still-warm cache). **Exceeds v3 by +18.6 pp.**
+
+### Decisions
+- **CONFIRM v3 §R5**: 1-h extended cache as default for HAMR's 15–60 min baton sessions.
+- **CONFIRM 80% hit-rate floor**: measured 90% (5m) / 100% (1h) bracket the floor on the high side.
+- Bundle-rebuild rate-limit ≥5 min at Worker layer remains required (unchanged).
+
+### Notes
+- Lane: code-change (Manager + Collaborator + Admin + Consultant).
+- Operator authorized live API spend; .env-loaded `ANTHROPIC_API_KEY` consumed via `dotenv` at session start; key never logged or committed.
+- Spike script (`tmp/wave1/s4-cache-spike.js`) and output (`tmp/wave1/s4-output.json`) are gitignored — only sanitized usage counts and computed costs reproduced in research file.
+- Disjoint from Copilot Team active surface.
+
 ## [Unreleased] — HAMR Wave 1: hamr:doctor skeleton — capability + tier + remediation CLI (#896, EPIC #860)
 
 ### Added
