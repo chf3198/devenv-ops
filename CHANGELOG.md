@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 7 child E: sync verification (#955, EPIC #860)
+
+### Added
+- `scripts/global/hamr-sync-verify.js` (≤100 lines): read-only verification that the canonical 14-script HAMR set is present in `~/.copilot/scripts/` and `~/.codex/devenv-ops/scripts/`. Non-zero exit on miss; remediation hint points to `npm run sync:both:apply`.
+- `package.json` script: `hamr:sync-verify`.
+- `tests/hamr-sync-verify.spec.js`: 4 tests.
+
+### Notes
+- Live-verified: post-`deploy:both:apply` returns `ok:true`.
+
 ## [Unreleased] — HAMR Wave 7 child D: hamr:activate one-shot installer (#954, EPIC #860)
 
 ### Added
