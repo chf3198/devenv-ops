@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 6 child 4: Anthropic Batch live validator (#944, EPIC #860)
+
+### Added
+- `scripts/global/batch-validator.js` (≤100 lines): dry-run + opt-in live validator for `submitBatch` (#927). Default mode: builds 1-request 32-token Haiku payload, validates eligibility, exits without submitting (**$0 operator cost**). Live mode: requires both `--live` and `--operator-approved` flags (double-flag cost gate); submits + polls 30s/30min; asserts `status: 'ended'`. Estimated live cost: <$0.0001.
+- `tests/batch-validator.spec.js`: 5 tests (sample-batch shape, dry-run output, CLI dry-run exit 0, CLI live without approval exits 1, eligibility check).
+- `package.json` script: `hamr:batch-validate`.
+
+### Notes
+- Lane: code-change.
+- Cost-gate enforcement verified: `--live` without `--operator-approved` exits 1 with diagnostic.
+
 ## [Unreleased] — HAMR Wave 6 child 3: substrate-health push + Worker /substrate-health KV writer (#943, EPIC #860)
 
 ### Added

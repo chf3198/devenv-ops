@@ -81,6 +81,7 @@ npm run deploy:both:apply
 | `governance:weekly` | `node scripts/global/governance-weekly-report.js` |
 | `governance:worktrees` | `node scripts/global/worktree-governance-audit.js --json` |
 | `hamr:batch-router` | `node scripts/global/anthropic-batch-router.js` |
+| `hamr:batch-validate` | `node scripts/global/batch-validator.js` |
 | `hamr:cache-emit` | `node scripts/global/cache-stats-emit.js` |
 | `hamr:cache-gate` | `node scripts/global/cache-hit-gate.js` |
 | `hamr:cache-push` | `node scripts/global/cache-stats-push.js` |
