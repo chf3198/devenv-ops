@@ -1,5 +1,19 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 6 child 3: substrate-health push + Worker /substrate-health KV writer (#943, EPIC #860)
+
+### Added
+- `cloudflare/hamr/routes/substrate-health.ts` (≤100 lines): NEW Worker endpoint mirroring `/cache-stats` (#933). Ed25519 DPoP auth + freshness validation + writes `substrate-health:latest` to KV (consumed by `/mcp doctor:probe` #935).
+- `scripts/global/substrate-health-push.js` (≤100 lines): local push client. Reads `~/.megingjord/substrate-health.json` (#911); signs canonical JSON; POSTs to HAMR `/substrate-health`.
+- `cloudflare/hamr/worker.ts`: `POST /substrate-health` route.
+- `tests/substrate-health-push.spec.js`: 5 tests (2 unit + 3 live route smoke).
+- `package.json` script: `hamr:health-push`.
+
+### Notes
+- Lane: code-change.
+- Worker redeployed (`91e2b5ea-54d1-49c8-adf6-04667b4bf8e2`).
+- Closes producer/consumer chain: `hamr:health` (#911) → `hamr:health-push` (this) → KV → `/mcp doctor:probe` (#935).
+
 ## [Unreleased] — HAMR Wave 6 child 2: /mcp mailbox:read envelope-content fetch (#942, EPIC #860)
 
 ### Changed
