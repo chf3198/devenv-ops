@@ -52,6 +52,7 @@
     "hamr:rule-gate": "node scripts/global/rule-coverage-gate.js",
     "hamr:spillover": "node scripts/global/header-spillover.js",
     "hamr:sticky-route": "node scripts/global/sticky-route.js",
+    "hamr:sync-verify": "node scripts/global/hamr-sync-verify.js",
     "hamr:teardown": "bash scripts/global/hamr-teardown.sh",
     "health": "node scripts/health-check.js",
     "help:topic": "node scripts/help-topic.js",
