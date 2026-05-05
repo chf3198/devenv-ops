@@ -54,25 +54,29 @@ test('/mcp returns 401 missing_dpop without authorization header', async ({ requ
   expect(body.reason).toBe('missing_dpop');
 });
 
-test('/mailbox/read returns 501 placeholder', async ({ request }) => {
+// /mailbox/read promoted to production by Wave 3 #918 — recipient param required.
+test('/mailbox/read rejects bare GET with 400 missing_recipient', async ({ request }) => {
   const r = await request.get(`${BASE}/mailbox/read`);
-  expect(r.status()).toBe(501);
+  expect(r.status()).toBe(400);
   const body = await r.json();
-  expect(body.placeholder).toBe(true);
-  expect(body.detail).toContain('Wave 3 child 5');
+  expect(body.error).toBe('missing_recipient');
 });
 
-test('/mailbox/write returns 501 placeholder', async ({ request }) => {
+// /mailbox/write promoted to production by Wave 3 #918 — auth required.
+test('/mailbox/write rejects unauthenticated request with 401', async ({ request }) => {
   const r = await request.post(`${BASE}/mailbox/write`, { data: {} });
-  expect(r.status()).toBe(501);
+  expect(r.status()).toBe(401);
 });
 
-test('/quota returns 200 placeholder body', async ({ request }) => {
+// /quota promoted to schema v2 by Wave 4 #927 + stale field by Wave 6 #941.
+test('/quota returns 200 schema_version 2 with placeholder:false', async ({ request }) => {
   const r = await request.get(`${BASE}/quota`);
   expect(r.status()).toBe(200);
   const body = await r.json();
-  expect(body.placeholder).toBe(true);
-  expect(body.hit_rate_7d).toBeNull();
+  expect(body.schema_version).toBe(2);
+  expect(body.placeholder).toBe(false);
+  expect(body).toHaveProperty('hit_rate_7d');
+  expect(typeof body.stale).toBe('boolean');
 });
 
 test('unknown route returns 404 JSON', async ({ request }) => {

@@ -3,6 +3,9 @@
 // Opt-in shim: any provider call routes through cacheHeaders + appendCacheStat + spillover.
 // Pure library — does NOT modify provider call sites (Copilot Team boundary preserved).
 'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
 const { cacheHeaders } = require('./litellm-client');
 const { appendCacheStat } = require('./cache-stats-emit');
 const ADAPTERS = require('./token-provider-adapters');
@@ -10,9 +13,25 @@ const { maybeSpillover } = require('./header-spillover');
 const { pickStickyProvider } = require('./sticky-route');
 
 const HTTP_OK_DEFAULT = 200;
+const TEAM_CONFIG_PATHS = [
+  path.join(os.homedir(), '.claude', 'hamr-config.json'),
+  path.join(os.homedir(), '.copilot', 'hamr-config.json'),
+  path.join(os.homedir(), '.codex', 'devenv-ops', 'hamr-config.json'),
+];
+
+function readTeamConfig() {
+  for (const file of TEAM_CONFIG_PATHS) {
+    if (!fs.existsSync(file)) continue;
+    try { return { file, ...JSON.parse(fs.readFileSync(file, 'utf8')) }; } catch { /* skip malformed */ }
+  }
+  return null;
+}
 
 function isDisabled() {
-  return process.env.MEGINGJORD_HAMR_DISABLED === '1';
+  if (process.env.MEGINGJORD_HAMR_DISABLED === '1') return true;
+  const cfg = readTeamConfig();
+  if (cfg && cfg.enabled === false) return true;
+  return false;
 }
 
 function emitStatSafe(provider, payload) {
@@ -58,4 +77,4 @@ if (require.main === module) {
   console.log(JSON.stringify({ exports: ['wrapProviderCall'], hamr_disabled: isDisabled() }));
 }
 
-module.exports = { wrapProviderCall, isDisabled };
+module.exports = { wrapProviderCall, isDisabled, readTeamConfig, TEAM_CONFIG_PATHS };

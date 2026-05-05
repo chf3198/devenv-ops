@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 7 follow-up: per-team opt-in configuration (#963, EPIC #860)
+
+### Added
+- `~/.claude/hamr-config.json`, `~/.copilot/hamr-config.json`, `~/.codex/devenv-ops/hamr-config.json` (NEW): per-team opt-in markers `{enabled, activated_at, activated_by, team_runtime}`. Written by `HAMR_TEAM=<team> npm run hamr:activate`.
+- `tests/hamr-team-optin.spec.js`: 5 tests covering TEAM_CONFIG_PATHS, readTeamConfig, isDisabled precedence, marker presence, env-override semantics.
+
+### Changed
+- `scripts/global/hamr-provider-wrapper.js`: `isDisabled()` now also reads first-found team config marker; respects `enabled: false` even when env unset. Exports `readTeamConfig`, `TEAM_CONFIG_PATHS`. Env var `MEGINGJORD_HAMR_DISABLED=1` still wins (air-gap escape hatch preserved).
+- `scripts/global/hamr-activate.sh`: 4-step → 5-step. New step 5 writes per-team marker based on `HAMR_TEAM=claude-code|copilot|codex`.
+- `tests/hamr-activate.spec.js`: updated to 5-step expectations.
+- `tests/hamr-worker.spec.js`: 3 stale-stub tests replaced with current production assertions (Wave 3 mailbox 400/401 paths + Wave 4/6 /quota schema v2 + stale field).
+
+### Notes
+- Lane: code-change.
+- All 3 teams now opted in (markers present + `enabled: true`).
+- Full suite: 166/166 pass.
+
 ## [Unreleased] — HAMR Wave 7 child F: cross-team integration test suite (#956, EPIC #860)
 
 ### Added
