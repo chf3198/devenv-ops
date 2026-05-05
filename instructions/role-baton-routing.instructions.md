@@ -81,3 +81,4 @@ A repo may override via `.github/copilot-instructions.md`; local wins on conflic
 Manager: `role-manager-execution` | Collaborator: `role-collaborator-execution`
 Admin: `role-admin-execution` | Consultant: `role-consultant-critique`
 Orchestration: `role-baton-orchestrator`
+
