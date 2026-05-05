@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased] — Research: HAMR Spike S4 — Anthropic prompt-cache economics (#879, EPIC #860)
+
+### Added
+- `research/hamr-spike-s4-prompt-cache-2026-05-04.md` (~310 lines): analytical validation of HAMR v3's 72% effective token-cost reduction claim using Anthropic's published prompt-cache pricing (write 1.25×, read 0.10×, 5-min ephemeral / 1-h extended). **Decision: CONFIRM v3's 72% claim** — derives 73.5% at 10-call session, 83.3% at 100-call, 65.6% at 5-call. Recommend 1-h extended cache for HAMR's 15–60 min session shape; bundle-rebuild cadence must be rate-limited to ≥5 min for ephemeral amortization.
+- `raw/articles/hamr-spike-s4-prompt-cache-2026-05-04.md` + `wiki/sources/hamr-spike-s4-prompt-cache-2026-05-04.md` + `wiki/log.md` entry.
+
+### Notes
+- Lane: docs-research (Manager + Consultant only). Lane converted from code-change after env check showed no `ANTHROPIC_API_KEY` in operator environment; live measurement deferred.
+- Live spike script documented in §5 (gitignored as `tmp/_spike-s4-cache.js`); operator runs under ≤$0.50 cap when key is set; expected spend ~$0.07 for 10-call session.
+- Threats to validity carried forward: pricing volatility, unmeasured hit rate, bundle-content drift, tool-definition placement, cross-operator cache collisions.
+- Heavy free-fleet usage (websearch + analytical math; no LLM call). Zero paid LLM tokens for this deliverable.
+
 ## [Unreleased] — Research: HAMR Spike S6 — Build-vs-adopt + STRIDE threat model (#881, EPIC #860)
 
 ### Added

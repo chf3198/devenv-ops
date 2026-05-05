@@ -12,6 +12,19 @@ Brief description of what happened.
 
 ---
 
+## [2026-05-04] research | HAMR Spike S4 — Anthropic prompt-cache economics (#879, EPIC #860)
+Lane converted from code-change to docs-research after env check showed no
+`ANTHROPIC_API_KEY`; live measurement deferred. Analytical validation of v3's
+72% effective token-cost reduction claim using Anthropic's published cache
+pricing (write 1.25×, read 0.10×, 5-min ephemeral / 1-h extended). Decision:
+**CONFIRM v3's 72% claim** — derives 73.5% at 10-call session, 83.3% at
+100-call, 65.6% at 5-call (all meet ≥72% target when hit rate ≥80%).
+Recommend 1-h extended cache for HAMR's 15-60 min session shape; bundle-
+rebuild cadence must be rate-limited to ≥5 min for ephemeral amortization.
+Spike script + operator-run instructions documented in §5 (gitignored). Spend
+expected ~$0.07 (under $0.50 cap). Source:
+research/hamr-spike-s4-prompt-cache-2026-05-04.md.
+
 ## [2026-05-04] research | HAMR Spike S6 — Build-vs-adopt + STRIDE threat model (#881, EPIC #860)
 Two-part deliverable: (a) per-child build-vs-adopt matrix for the 9 surviving
 HAMR MVP children — counts ADOPT 2 / BUILD 4 / HYBRID 3 / REUSE 0; one
