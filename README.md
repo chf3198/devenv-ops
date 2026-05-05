@@ -94,6 +94,7 @@ npm run deploy:both:apply
 | `hamr:teardown` | `bash scripts/global/hamr-teardown.sh` |
 | `health` | `node scripts/health-check.js` |
 | `help:topic` | `node scripts/help-topic.js` |
+| `hooks:install` | `bash scripts/global/install-hooks.sh` |
 | `issue:transition` | `node scripts/global/issue-transition.js` |
 | `lint` | `node scripts/lint.js` |
 | `lint:all` | `npm run lint:js && npm run lint:py && npm run lint:sh && npm run lint:md` |
