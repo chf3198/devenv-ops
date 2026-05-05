@@ -12,6 +12,18 @@ Brief description of what happened.
 
 ---
 
+## [2026-05-05] validation | HAMR Wave 1 S5 Stage-2 reasoning quiz (#893, EPIC #860)
+60-Q quiz authored across direct (30) / counter-factual (20) / boundary (10);
+20-Q balanced subset run via judge-quorum.js #895 with Cerebras qwen-3-235b
+(family qwen, with Gemini-2.5-flash fallback) and Groq llama-3.3-70b (family
+llama). Direct mean 0.55 (30% ≥0.97 / 80% ≥0.50); counter-factual mean 0.50
+(33% / 67%); boundary 0% (judges did not chain reasoning). Family-fallback
+Cerebras → Gemini covered 14/14 queue-exceeded calls — architecture VALIDATED.
+v3.2 §R6 ≥97% threshold is NOT achievable with free-fleet quorum; REVISE to
+3-stage gate (Stage-2a free-fleet ≥80% direct+counter-factual; Stage-2b paid
+≥95% including boundary; Stage-3 operator review). Net spend $0 (free fleet).
+Source: research/hamr-wave1-s5-stage2-2026-05-05.md.
+
 ## [2026-05-05] validation | HAMR Wave 1 S3 — Live CF Worker + KV latency (#891, EPIC #860)
 Live throwaway Worker + KV deploy at hamr-spike.chf3198.workers.dev. R2 substituted
 with KV (R2 needs one-time operator dashboard ToS; KV is same Workers-Paid plan,

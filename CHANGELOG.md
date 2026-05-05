@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 1 validation: S5 Stage-2 reasoning quiz (#893, EPIC #860)
+
+### Added
+- `research/hamr-wave1-s5-stage2-2026-05-05.md`: live execution of v3.2 §R6 Stage-2 reasoning-grounded rule-coverage gate via `judge-quorum.js` (#895). 60-Q quiz authored (30 direct / 20 counter-factual / 10 boundary); 20-Q balanced subset run with Cerebras qwen-3-235b (Gemini-2.5-flash fallback) and Groq llama-3.3-70b. Net free-fleet spend $0.
+- `raw/articles/hamr-wave1-s5-stage2-2026-05-05.md` + `wiki/sources/hamr-wave1-s5-stage2-2026-05-05.md` + `wiki/log.md` entry.
+
+### Measured
+- **Direct rule extraction (n=10):** mean 0.55, ≥0.97 pass 30%, ≥0.50 pass 80%.
+- **Counter-factual reasoning (n=6):** mean 0.50, ≥0.97 pass 33%, ≥0.50 pass 67%.
+- **Boundary cases (n=4):** all 0 (judges returned "not found in bundle" — no chain-of-reasoning).
+- **Family-fallback Cerebras → Gemini:** 14/14 queue-exceeded calls covered seamlessly. Architecture **VALIDATED**.
+- **Quorum-of-2 reachability:** 17/20 grades returned (Groq grader carried).
+
+### Decisions
+- **D1 REVISE v3.2 §R6 Stage-2 threshold from ≥97% to a 3-stage gate**: Stage-1 deterministic ≥99% keyword (unchanged); Stage-2a free-fleet 2-of-N quorum ≥80% on direct + counter-factual; Stage-2b paid-tier OR fine-tuned ≥95% including boundary; Stage-3 operator review for any rule scoring <0.50 in Stage-2b.
+- **D2 `judge-quorum.js` family-fallback architecture VALIDATED.** No code change.
+- **D3 Sequential 3+ s spacing required** for free-fleet path.
+- **D4 Per-family max_tokens calibration**: Gemini ≥256 candidate / ≥48 grader; Groq + Cerebras ≥24 grader OK.
+
+### Notes
+- Lane: code-change (Manager + Collaborator + Admin + Consultant).
+- All keys (CEREBRAS_API_KEY, GROQ_API_KEY, GOOGLE_AI_STUDIO_API_KEY) loaded via dotenv from .env; never logged or committed. Spike artifacts (`tmp/wave1/s5-stage2/`) gitignored.
+- Threats to validity: 20/60 subset (Groq rate-limited), grader strictness varies by family, judges did not chain reasoning reliably for boundary cases.
+
 ## [Unreleased] — HAMR Wave 1 validation: S3 live CF Worker + KV latency measurement (#891, EPIC #860)
 
 ### Added
