@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 1: baton-signing.js — Ed25519 sign/verify + 4-tier key probe (#894, EPIC #860)
+
+### Added
+- `scripts/global/baton-signing.js`: Ed25519 sign/verify over a simplified JCS-subset canonicalization (NFC + trailing-whitespace strip + collapse). Per-process T4 in-memory keypair (Wave 1 default); `key_id` derives from SHA-256 of SPKI public key.
+- `scripts/global/baton-signing.js` `probeKeyTier()`: 4-tier OS-agnostic key-store probe — T1 hardware enclave (TPM 2.0 / Secure Enclave / Windows certutil), T2 OS keychain (`keytar`), T3 Age-encrypted file (`~/.megingjord/keys/operator-ed25519.age` + `age` CLI), T4 ephemeral. Presence-only in Wave 1; durable binding deferred to Wave 4.
+- `tests/baton-signing.spec.js`: 9 Playwright tests — sign returns required fields, signature length 86–88, verify roundtrip, unknown key_id rejection, tampered-artifact rejection, trailer ordering, key-tier probe non-throwing, no private-key material leak, canonicalization invariance under whitespace.
+- `wiki/concepts/baton-signing.md`: schema + 4-tier probe order + Wave-1 vs MVP scope.
+
+### Notes
+- Lane: code-change (Manager + Collaborator + Admin + Consultant).
+- Implements HAMR v3.2 R1 (signed governance state) — foundation for HAMR children 1, 5, 8.
+- Threat addressed: S6 #881 A3-E HIGH residual (poisoned fleet model fabricates `CONSULTANT_CLOSEOUT`). Verifier enforcement at label-lint deferred to Wave 4 child 8 — Wave 1 ships sign/verify primitives only.
+- Crash-recovery validation: this PR survived a VS Code crash mid-implementation. Pre-crash uncommitted files (module + spec) recovered cleanly from working tree; post-crash remediation added wiki page + CHANGELOG + line-count trim. Architectural note R9 (cross-level recovery) filed for v3.2.1 patch after Wave 1 ships.
+- Disjoint from Copilot Team active surface (no overlap with `dashboard/js/token-reconcile.js`, `scripts/global/token-*.js`, `cost-report.js`, `model-routing-engine.js`).
+
 ## [Unreleased] — Research: HAMR v3.2 — post-spike redesign baseline (#890, EPIC #860)
 
 ### Added
