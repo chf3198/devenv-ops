@@ -12,10 +12,10 @@ test('hamr-activate.sh exists and is executable', () => {
   expect(fs.statSync(ACTIVATE).mode & 0o100).toBeTruthy();
 });
 
-test('hamr-activate.sh runs all 4 steps and exits 0', () => {
+test('hamr-activate.sh runs all 5 steps and exits 0', () => {
   const result = spawnSync('bash', [ACTIVATE], { cwd: REPO_ROOT, encoding: 'utf8' });
   expect(result.status).toBe(0);
-  for (const step of ['1/4', '2/4', '3/4', '4/4']) {
+  for (const step of ['1/5', '2/5', '3/5', '4/5', '5/5']) {
     expect(result.stdout).toContain(step);
   }
   expect(result.stdout).toContain('HAMR activation complete');
