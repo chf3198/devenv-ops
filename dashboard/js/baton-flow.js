@@ -15,7 +15,7 @@ function renderBatonFlow(batonState) {
       <small>Baton activates when issues are assigned to a role.</small></div></div>`;
   }
   const active = tickets.filter(t =>
-    !['done','cancelled'].includes(t.status));
+    !['done','cancelled','closed'].includes(t.status) && !t.closed);
   const html = active.length
     ? active.map(renderBatonRow).join('')
     : `<div class="baton-empty">✅ All active tickets completed — see Ticket Log</div>`;
@@ -68,9 +68,9 @@ function statusBadge(s) {
 }
 function normalizeBaton(state) {
   if (!state) return [];
-  return Array.isArray(state) ? state.filter(t => t.issue) : (state.issue ? [state] : []);
-}
-function renderTimeline(issue) {
+  const ok = t => t.issue && t.status !== 'closed' && !t.closed;
+  return Array.isArray(state) ? state.filter(ok) : (state.issue && state.status !== 'closed' && !state.closed ? [state] : []);
+}function renderTimeline(issue) {
   const tl = typeof getTicketTimeline === 'function'
     ? getTicketTimeline(issue) : [];
   if (!tl.length) return '';

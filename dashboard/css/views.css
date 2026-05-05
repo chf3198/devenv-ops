@@ -72,7 +72,7 @@
 .view-live { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto; }
 .view-logs { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
 .view-fleet { grid-template-columns: 1fr 1fr; }
-#panel-settings { grid-column: 1 / -1; }
+#panel-settings { grid-column: 1 / -1; min-height: 26rem; }
 #panel-devices > div, #panel-services > div { max-height: 12rem; }
 .view-ops { grid-template-columns: 1fr 1fr; grid-template-rows: auto auto auto; }
 .view-wiki { grid-template-columns: 1fr 2fr; } .view-help { grid-template-columns: 1fr; }
@@ -82,7 +82,9 @@
 .panel > div { flex: 1; overflow-y: scroll; min-height: 0; }
 #panel-github { grid-row: 1 / 3; }
 #panel-governance { grid-column: 2; }
-#panel-wiki-health > div { max-height: 10rem; }
+#panel-cost { min-height: 26rem; }
+#panel-agents { min-height: 32rem; }
+.view-ops #panel-quotas > div { max-height: 11rem; }
 @media (max-width:1023px) and (min-width:641px) { .header{padding:0.4rem 0.75rem;} .header-nav button{padding:0.15rem 0.45rem;font-size:0.78rem;} .dashboard-grid{gap:0.35rem;padding:0.35rem;} }
 @media (max-width: 640px) {
   .header { flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0.75rem; }

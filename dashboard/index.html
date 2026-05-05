@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Megingjord — Fleet Operations Center</title>
     <link rel="stylesheet" href="css/app.css"><link rel="stylesheet" href="css/stats.css"><link rel="stylesheet" href="css/router.css"><link rel="stylesheet" href="css/config.css"><link rel="stylesheet" href="css/views.css"><link rel="stylesheet" href="css/topology.css">
-    <link rel="stylesheet" href="css/baton.css"><link rel="stylesheet" href="css/ticket-log.css"><link rel="stylesheet" href="css/activity.css"><link rel="stylesheet" href="css/wiki.css"><link rel="stylesheet" href="css/wiki-metrics.css"><link rel="stylesheet" href="css/fleet-health.css"><link rel="stylesheet" href="css/governance.css"><link rel="stylesheet" href="css/context.css"><link rel="stylesheet" href="css/github.css"><link rel="stylesheet" href="css/settings.css">
+    <link rel="stylesheet" href="css/baton.css"><link rel="stylesheet" href="css/ticket-log.css"><link rel="stylesheet" href="css/activity.css"><link rel="stylesheet" href="css/wiki.css"><link rel="stylesheet" href="css/wiki-metrics.css"><link rel="stylesheet" href="css/fleet-health.css"><link rel="stylesheet" href="css/governance.css"><link rel="stylesheet" href="css/context.css"><link rel="stylesheet" href="css/github.css"><link rel="stylesheet" href="css/settings.css"><link rel="stylesheet" href="css/agents.css">
     <script defer src="js/alpine.min.js"></script>
     <script src="js/health-check.js"></script><script src="js/quota-tracker.js"></script>
     <script src="js/device-monitor.js"></script><script src="js/router-tracker.js"></script>
@@ -21,7 +21,7 @@
     <script src="js/governance-panel.js"></script><script src="js/ticket-log.js"></script>
     <script src="js/tooltips.js"></script><script src="js/app-actions.js"></script>
     <script src="js/credential-store.js"></script><script src="js/provider-presets.js"></script><script src="js/fleet-probe.js"></script><script src="js/settings-panel.js"></script><script src="js/settings-form.js"></script><script src="js/settings-actions.js"></script>
-    <script src="js/event-source.js"></script><script src="js/context-flow-events.js"></script><script src="js/token-telemetry.js"></script><script src="js/token-reconcile.js"></script><script src="js/cost-monitor.js"></script><script src="js/multi-agent-sessions.js"></script><script src="js/tier-c-banner.js"></script><script src="js/app.js"></script>
+    <script src="js/event-source.js"></script><script src="js/context-flow-events.js"></script><script src="js/token-telemetry.js"></script><script src="js/token-reconcile.js"></script><script src="js/cost-monitor.js"></script><script src="js/multi-agent-sessions.js"></script><script src="js/tier-c-banner.js"></script><script src="js/agent-inventory.js"></script><script src="js/app.js"></script>
 </head>
 <body x-cloak x-data="dashboardApp()" x-init="init()">
     <a href="#main-content" class="skip-link">Skip to content</a>
@@ -65,14 +65,12 @@
             <h2>🐙 GitHub <button class="shb" data-tip="github" aria-label="Help: GitHub">?</button></h2><div x-html="renderGitHubMonitor(githubData)"></div></section>
         <section id="panel-quotas" class="panel" x-show="isView('ops')">
             <h2>📊 Quotas <button class="shb" data-tip="quotas" aria-label="Help: Quotas">?</button></h2><div x-html="renderQuotaPanel(liveQuotas, quotas)"></div></section>
-        <section id="panel-router" class="panel" x-show="isView('ops')">
-            <h2>🛣️ Router Lanes <button class="shb" data-tip="router" aria-label="Help: Router">?</button></h2><div x-html="renderRouterPanel(routerStats)"></div></section>
+
         <section id="panel-governance" class="panel" x-show="isView('ops')">
             <h2>🛡️ Governance <button class="shb" data-tip="governance" aria-label="Help: Governance">?</button></h2><div x-html="renderGovernancePanel(governanceState)"></div></section>
         <section id="panel-llm-context" class="panel" x-show="isView('ops')">
             <h2>📐 LLM Context <button class="shb" data-tip="llm-context" aria-label="Help: LLM">?</button></h2><div x-html="renderLLMContext()"></div></section>
-        <section id="panel-wiki-health" class="panel" x-show="isView('ops')">
-            <h2>📚 Wiki Health <button class="shb" data-tip="wiki" aria-label="Help: Wiki">?</button></h2><div x-html="renderWikiPanel(wikiHealth)"></div></section>
+
         <!-- FLEET: 6 panels (inventory + config + health) -->
         <template x-if="isView('fleet')"><section id="panel-fleet-health" class="panel">
             <h2>🏥 Fleet Health <button class="shb" data-tip="fleet-health" aria-label="Help: Health">?</button></h2><div class="log-scroll" x-html="renderFleetHealthLog(fleetHealthLog)"></div></section></template>
@@ -92,7 +90,7 @@
         <template x-if="isView('wiki')"><section id="panel-wiki-reader" class="panel wiki-main">
             <h2>📚 Research Wiki <button class="shb" data-tip="wiki-reader" aria-label="Help: Wiki">?</button></h2><div x-html="renderWikiReader(wikiPages)"></div></section></template>
         <!-- COST: 1 panel --><template x-if="isView('cost')"><section id="panel-cost" class="panel full-width"><h2>💰 Cost + Token Telemetry <button class="shb" data-tip="cost" aria-label="Help: Cost">?</button></h2><div x-html="renderTokenTelemetryPanel(tokenTelemetry)"></div><div x-html="renderTokenReconcilePanel(reconcileData)"></div><div x-html="renderCostMonitor(costData)"></div></section></template>
-        <!-- AGENTS --><template x-if="isView('agents')"><section id="panel-agents" class="panel full-width"><h2>🤖 Agent Sessions <button class="shb" data-tip="agents" aria-label="Help: Agents">?</button></h2><div x-html="renderTierCBanner(agentSessions)"></div><div x-html="renderConflictAlerts(agentSessions)"></div><div x-html="renderAgentSessions(agentSessions)"></div></section></template>
+        <!-- AGENTS --><template x-if="isView('agents')"><section id="panel-agents" class="panel full-width"><h2>🤖 Agents <button class="shb" data-tip="agents" aria-label="Help: Agents">?</button></h2><div x-html="renderAgentInventory()"></div><hr class="panel-divider"><h3 class="panel-subheading">🔴 Live Sessions</h3><div x-html="renderTierCBanner(agentSessions)"></div><div x-html="renderConflictAlerts(agentSessions)"></div><div x-html="renderAgentSessions(agentSessions)"></div></section></template>
         <!-- HELP: 1 panel full-width -->
         <template x-if="isView('help')"><section id="panel-help" class="panel full-width">
             <h2>📘 Help Center</h2><div x-html="renderHelpPanel(helpDevMode)"></div></section></template>
