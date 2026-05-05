@@ -95,7 +95,6 @@
   - **Stage-3** on-demand operator review for any rule scoring <0.50 in Stage-2b.
 - **Wave 2 prerequisites confirmed**: R2 active (10 GB free tier, ToS accepted 2026-05-05); #894/#895/#896 modules in main; R9.1–R9.4 patterns recorded; §R6 calibrated; Copilot v2.0 sync deferred to Wave 5. Wave 2 unblocked.
 - Disjoint from Copilot Team active surface (no overlap with `dashboard/js/token-reconcile.js`, `scripts/global/token-*.js`, `cost-report.js`, `model-routing-engine.js`, or in-flight `instructions/role-baton-routing.instructions.md` v2.0 WIP).
-(docs(changelog): baton-routing v2.0 governance entry (#909))
 
 ## [Unreleased] — HAMR Wave 1 validation: S5 Stage-2 reasoning quiz (#893, EPIC #860)
 

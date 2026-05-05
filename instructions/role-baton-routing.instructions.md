@@ -1,88 +1,83 @@
 ---
 name: Role Baton Routing
-description: Enforce single-thread role handoff across Manager -> Collaborator -> Admin -> Consultant. Prevent concurrent role mixing and require explicit handoff artifacts.
+description: "v2.0 — Single-thread role handoff with GitHub Projects integration, typed collaborators, zero null-role states."
 applyTo: "**"
 ---
 
-# Role Baton Routing
+# Role Baton Routing (v2.0)
 
-The GitHub issue **is** the baton. Execute every task through a single active role at a time. Each role writes a structured comment on the ticket and transitions the status label.
+The GitHub issue **is** the baton. One active role at a time. Every state carries exactly one
+`role:*` label — no exceptions, including closed tickets.
 
-## Status workflow (v1.0 — agent-typed 8-status)
+Authoritative board: **DevEnv Ops Board** (GitHub Projects #3).
+Baton view filter: `status:todo,in-progress,testing,review` (backlog/done/cancelled hidden).
+
+## Status Workflow
 
 ```
-Status       Active Agent   Gate Condition
-──────────────────────────────────────────────────────────────
-backlog      —              Queued; unassigned
-triage       manager        Manager scoping AC + gates
-ready        —              MANAGER_HANDOFF emitted; awaiting Collaborator
-in-progress  collaborator   Implementation active
-testing      admin          COLLABORATOR_HANDOFF emitted; CI/gates running
-review       consultant     ADMIN_HANDOFF emitted; critique + closeout active
-done         —              CONSULTANT_CLOSEOUT emitted; issue closes atomically
-cancelled    —              Abandoned at any stage; Manager authority; reason required
+Status        Role Label          Gate / Trigger
+──────────────────────────────────────────────────────────────────────
+backlog       role:manager        Manager creates + scopes; not yet pulled
+todo          role:collab-{type}  MANAGER_HANDOFF emitted; collab assigned
+in-progress   role:collab-{type}  Branch created OR first commit (Actions auto-detect)
+testing       role:admin          COLLABORATOR_HANDOFF emitted; CI gates running
+review        role:consultant     ADMIN_HANDOFF emitted; critique + closeout active
+done          role:manager        CONSULTANT_CLOSEOUT emitted; closed; Manager re-applied
+cancelled     role:manager        Manager closes as "not planned"; reason comment required
 ```
 
-Transition guards:
-- `backlog → triage`: Manager creates/links issue, writes scope comment.
-- `triage → ready`: MANAGER_HANDOFF emitted with testable ACs; remove `role:manager`.
-- `ready → in-progress`: Collaborator picks up; apply `role:collaborator`.
-- `in-progress → testing`: COLLABORATOR_HANDOFF emitted; all ACs ✅; swap to `role:admin`.
-- `testing → review`: ADMIN_HANDOFF emitted; all gates pass; swap to `role:consultant`.
-- `review → done + closed`: CONSULTANT_CLOSEOUT emitted; remove all `role:*`; close issue atomically.
-- `any → cancelled`: Manager authority only; reason comment required.
+## Transition Guards
 
-## Closed-state rule
+- `backlog → todo`: MANAGER_HANDOFF posted; swap `role:manager` → `role:collab-{type}`.
+- `todo → in-progress`: Branch created; retain `role:collab-{type}`; GitHub Actions updates Status.
+- `in-progress → testing`: COLLABORATOR_HANDOFF; all ACs ✅; swap to `role:admin`.
+- `testing → review`: ADMIN_HANDOFF; all gates pass; swap to `role:consultant`.
+- `review → done`: CONSULTANT_CLOSEOUT; swap `role:consultant` → `role:manager`; close issue.
+- `any → cancelled`: Manager only — remove current `role:*`; apply `role:manager`; post
+  `CANCELLATION: <reason>`; close as "not planned".
+- Manager ticket-health checks, AC edits, and label fixes are out-of-band; no handoff required.
 
-- GitHub `closed` is terminal; must not retain execution-role labels.
-- Closed tickets do not appear in Agent Baton views.
+## Typed Collaborators
 
-## Hard rules
+Type is selected at `backlog → todo`. Each type may queue N `todo` tickets but
+**at most 1 `in-progress`** at a time (enforced by baton-gate Action).
 
-- No concurrent role execution.
-- Do not skip a role when its scope is applicable.
-- Emit the named handoff artifact at each transition before the next role begins.
-- If a role cannot proceed due to missing evidence, stop and request the missing evidence from tooling/research (not from the user by default).
+| Label                  | Capability profile                        |
+|------------------------|-------------------------------------------|
+| role:collab-analyst    | Research, wiki surgery, doc analysis      |
+| role:collab-coder      | Implementation, tests, refactoring        |
+| role:collab-architect  | Design docs, ADRs, interface specs        |
+| role:collab-ops        | Config, deploy, infra, CI changes         |
 
-## Multi-lane Definition of Done
+## Multi-Lane Definition of Done
 
-Select the lane at ticket-creation based on work type. Label the ticket `lane:docs-research` or `lane:config-only` when using a reduced lane; absence implies code-change.
+| Lane         | Work type                      | Role sequence                     | N/A markers                    |
+|--------------|--------------------------------|-----------------------------------|--------------------------------|
+| code-change  | Code, infra, deploy (default)  | Manager→Collab→Admin→Consultant   | none                           |
+| research     | Analysis, wiki — no git branch | Manager→Collab(analyst)→Admin→Consultant | Admin = doc reviewer, not CI |
+| config-only  | Single-value config, no design | Manager→Admin→Consultant          | COLLABORATOR_HANDOFF: N/A      |
 
-| Lane | Work type | Required roles | Artifacts |
-|---|---|---|---|
-| **code-change** | Code, deploy, infra (default) | Manager → Collaborator → Admin → Consultant | All four handoffs |
-| **docs/research** | Research, docs-only, instruction/README/CHANGELOG files | Manager → Consultant | MANAGER_HANDOFF + CONSULTANT_CLOSEOUT |
-| **config-only** | Trivial config (JSON value, label, settings.json) with no design decision | Admin → Consultant | ADMIN_HANDOFF + CONSULTANT_CLOSEOUT |
+Lane set at ticket creation via `lane:*` label and `Lane` Project field. Default: **code-change**.
 
-**Lane selection rules**:
-- Default is **code-change** when in doubt.
-- docs/research: PR changes only documentation/instruction/research files — no executable code.
-- config-only: single well-understood value change; if scoping or risk analysis needed, use code-change.
+## Archival
 
-**Reduced-lane baton-gate compliance**: `baton-gates.yml` checks for all three artifact strings
-in the **linked issue comments** (the issue referenced by `Refs #N` in the PR body).
-For skipped roles, post an N/A marker as a comment on the linked issue, e.g.:
-`COLLABORATOR_HANDOFF: N/A — docs/research lane` and `ADMIN_HANDOFF: N/A — docs/research lane`.
+Closed tickets retain `role:manager`. A nightly Action swaps `role:manager` → `role:archived`
+on issues closed >30 days. Archived tickets are excluded from all dashboard and baton queries.
 
-**Invariants across all lanes**: Every lane requires a GitHub issue, `Refs #N` in the PR body,
-`CONSULTANT_CLOSEOUT` as an issue comment, and explicit N/A comments for any skipped-role artifacts.
+## Hard Rules
 
-## Trivial-task escape
+- `role:*` is never null — exactly one present at all times.
+- No concurrent role execution on a single ticket.
+- Emit the named handoff artifact before transitioning to the next role.
+- All governed work requires a GitHub issue and `Refs #N` in the PR body.
+- Skip baton only for: single Q&A, read-only lookup, no file edits, no state-changing tool calls.
 
-Skip baton only when ALL of these are true:
-- Single Q&A, read-only lookup, or informational response.
-- No file edits, no terminal commands, no state-changing tool calls.
-- Answerable in one response without multi-step research.
-If in doubt, run baton. The Manager phase can be one paragraph.
+## Local Override
 
-## Local override
+A repo may override via `.github/copilot-instructions.md`; local wins on conflict.
 
-A repo may override the baton sequence via `.github/copilot-instructions.md`; local wins on conflict.
+## Skill Mapping
 
-## Skill mapping
-
-- Manager: `role-manager-execution`
-- Collaborator: `role-collaborator-execution`
-- Admin: `role-admin-execution`
-- Consultant: `role-consultant-critique`
-- Orchestration: `role-baton-orchestrator`
+Manager: `role-manager-execution` | Collaborator: `role-collaborator-execution`
+Admin: `role-admin-execution` | Consultant: `role-consultant-critique`
+Orchestration: `role-baton-orchestrator`
