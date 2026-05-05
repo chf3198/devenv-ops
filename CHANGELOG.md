@@ -1,5 +1,29 @@
 # Changelog
 
+## [Unreleased] — HAMR Wave 2 child 2: substrate-health probe (#911, EPIC #860)
+
+### Added
+- `scripts/global/substrate-health.js` (≤100 lines, CommonJS): runtime tier sensor per HAMR v3.2 §R7 + v3.2.1 §R9.3. Probes deployed HAMR core Worker (#910) `/healthz`, fleet hosts, providers, and judge families. Writes `~/.megingjord/substrate-health.json` (operator-local, gitignored). Each individual probe ≤3 s with fail-soft via `Promise.race` + timeout pattern.
+- `scripts/global/capability-probe.js`: extended with `--substrate-health` flag invoking the new probe (REFACTOR per S1 #876 audit, NOT a parallel module).
+- `tests/substrate-health.spec.js`: 8 fixture-based Playwright tests covering tier-derivation rules + worker-unreachable handling + OUT_FILE path invariant. Zero live calls during test.
+- `wiki/concepts/substrate-health.md` (≤100 lines): API reference + tier-derivation rules + JSON schema + R9.3 timeout policy + relationship to capability-probe.js.
+- `package.json` script: `hamr:health` (alphabetically sorted).
+- README scripts table regenerated via `docs:compile`.
+
+### Tier-derivation rules
+
+- `hamr_worker.reachable == false` → `tier3-offline (worker-unreachable)`.
+- `hamr_worker.tier == 'tier3-offline'` → `tier3-offline (worker-self-reported)`.
+- `fleetUp == 0 && providersUp == 0` → `tier3-offline (no-fleet-or-providers)`.
+- 4-component score (worker tier1 + ≥1 fleet + ≥2 providers + ≥2 judge families) all true → `tier1-full`.
+- Otherwise → `tier2-degraded`.
+
+### Notes
+- Lane: code-change (Manager + Collaborator + Admin + Consultant).
+- 8/8 tests pass; readability gate 419 ≤ 420; markdownlint 0 errors.
+- Distinct from #896 `hamr:doctor` (which is the operator-facing CLI surfacing capability + remediation): substrate-health is the **machine-readable runtime state** that HAMR's routing engine reads.
+- Disjoint from Copilot Team active surface.
+
 ## [Unreleased] — HAMR Wave 2 child 6: SLSA-L3 + OIDC + Cosign release pipeline (#912, EPIC #860)
 
 ### Added

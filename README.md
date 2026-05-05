@@ -82,6 +82,7 @@ npm run deploy:both:apply
 | `governance:worktrees` | `node scripts/global/worktree-governance-audit.js --json` |
 | `hamr:deploy` | `bash scripts/global/hamr-deploy.sh` |
 | `hamr:doctor` | `node scripts/global/hamr-doctor.js` |
+| `hamr:health` | `node scripts/global/substrate-health.js` |
 | `hamr:teardown` | `bash scripts/global/hamr-teardown.sh` |
 | `health` | `node scripts/health-check.js` |
 | `help:topic` | `node scripts/help-topic.js` |
