@@ -1,5 +1,18 @@
 # Changelog
 
+## [Unreleased] — Wave 8 child 4: SKILL.md → per-team views derive script (#979, EPIC #968)
+
+### Added
+- `scripts/global/skill-views-derive.js` (≤100 lines): read-only on `SKILL.md` (per Round-4 D4.1 scope cap). Scans `skills/<name>/SKILL.md` frontmatter; writes `docs/skills-agents.md` and `docs/skills-copilot.md`. Idempotent.
+- `docs/skills-agents.md`, `docs/skills-copilot.md`: derived skill index views (35 skills today).
+- `AGENTS.md`, `.github/copilot-instructions.md`: 1-line "Skill index" reference pointing to derived doc.
+- `package.json` script: `hamr:skill-views`.
+- `tests/skill-views-derive.spec.js`: 6 tests (scan, sort order, buildDoc shape, idempotency, missing-frontmatter, line-cap).
+
+### Notes
+- Implements convergence-design item 6.
+- Output written to separate `docs/skills-*.md` files to keep `AGENTS.md` and `copilot-instructions.md` ≤ 100 lines.
+
 ## [Unreleased] — Wave 8 child 3: axis_consumers extension on per-team markers (#978, EPIC #968)
 
 ### Changed

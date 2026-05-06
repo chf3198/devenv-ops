@@ -47,6 +47,10 @@ This repo is the **development workbench** for the DevEnv Ops Harness runtimes:
 - Activate per-checkout: `npm run hamr:activate`. Verify: `npm run hamr:sync-verify`.
 - Canonical contract: `instructions/hamr-routing.instructions.md`.
 
+## Skill index
+
+Auto-derived from `skills/<name>/SKILL.md` frontmatter — see [`docs/skills-agents.md`](docs/skills-agents.md). Regenerate via `node scripts/global/skill-views-derive.js`.
+
 ## Development → Deploy workflow
 
 ```

@@ -95,6 +95,7 @@ npm run deploy:both:apply
 | `hamr:log-rotate` | `node scripts/global/log-rotate.js` |
 | `hamr:policy-overrides` | `node scripts/global/cascade-policy-overrides.js` |
 | `hamr:rule-gate` | `node scripts/global/rule-coverage-gate.js` |
+| `hamr:skill-views` | `node scripts/global/skill-views-derive.js` |
 | `hamr:spillover` | `node scripts/global/header-spillover.js` |
 | `hamr:sticky-route` | `node scripts/global/sticky-route.js` |
 | `hamr:sync-verify` | `node scripts/global/hamr-sync-verify.js` |
