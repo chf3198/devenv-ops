@@ -66,9 +66,14 @@ Every response carries: `strict-transport-security`, `x-content-type-options: no
 - Wave 3 child 5 (#871-equivalent) wires `/mailbox/{read,write}` against R2 JSONL + Google A2A envelopes with R2 signed-envelope verification.
 - Wave 4 child 9 fills `/quota` with header-driven spillover state.
 
+## Observability (C8 #998)
+
+Workers Observability v2 enabled via `[observability] enabled = true` + `head_sampling_rate = 1.0` in `cloudflare/hamr/wrangler.toml`. Cloudflare auto-instruments fetch calls, KV/R2 binding ops, and handler invocations — no code changes required. Backward compat: `x-hamr-elapsed-ms` response header retained as a lightweight client-side timing signal alongside the trace pipeline.
+
 ## References
 
 - HAMR v3.2 §5 child 1: `research/hamr-v3-2-2026-05-04.md` (#890).
 - v3.2.1 §R9 patterns: `research/hamr-v3-2-1-2026-05-05.md` (#907).
 - DPoP verifier (#894): `scripts/global/baton-signing.js`.
 - Implementation: this PR (#910).
+- Observability v2 adoption: tooling C8 (#998).
