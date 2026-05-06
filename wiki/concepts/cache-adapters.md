@@ -22,6 +22,9 @@ that maximizes per-conversation cache hit rates per v3.2 §R5.
   emitting native cache hints per the v3.2 §R5 9-row matrix
   (Anthropic prompt-caching beta + extended-cache-ttl beta;
   Gemini `cachedContent`; Groq/Cerebras/OpenAI `x-cache-control`).
+  **C9 (#1000)**: 5min default + 1h opt-in via `{ extendedTtl: true }`.
+  Cost: 1h write 2.0× vs 5min 1.25×. Use extended only for high-hit
+  workloads (wiki anneal, rule-coverage stage 2b).
 - `scripts/global/token-provider-adapters.js` — adds 3 OAI-shape
   adapters (`openai`, `groq`, `cerebras`) so all 9 supported
   providers extract `cache_read_tokens`. Shared `oaiShape` helper
