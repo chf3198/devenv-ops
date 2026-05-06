@@ -12,6 +12,20 @@
 - `hooks/scripts/hamr_activation_check.py` warns at SessionStart when HAMR activation is missing, disabled, malformed, or older than 24 hours without blocking offline work.
 - Copilot global standards and Codex runtime hooks now run the activation check; HAMR wrapper cache telemetry includes `executed: "hamr-provider-wrapper"`.
 
+## [Unreleased] — Baton marker matching
+
+### Fixed (#1057)
+- `baton-independence.js` now matches `COLLABORATOR_HANDOFF` and `ADMIN_HANDOFF` only as standalone role marker lines, preventing prose references in later comments from corrupting signer checks.
+
+## [Unreleased] — Ollama fleet activation (#1051)
+
+### Operator actions executed
+- Started Ollama daemons on `windows-laptop` (100.78.22.13) and `36gbwinresource` (100.91.113.16) bound to `0.0.0.0:11434`. Mechanism: SSH + Scheduled Task running a launcher batch (`%TEMP%\ollama-tailnet.bat`) that sets `OLLAMA_HOST=0.0.0.0:11434` before `ollama serve`. Survives logoff via `SC ONLOGON`.
+- Verified Tailscale reach + model inventory on both hosts; LiteLLM proxy now reports 13/15 endpoints healthy (was 8/15).
+
+### Fixed
+- `config/litellm-config.yaml` — Ollama `starcoder2:3b` and `qwen2.5-coder:7b` deployments repointed from `36gbwinresource` to `windows-laptop` after empirical latency probe (3b: 5s vs 60s+ timeout; 7b: 51s cold vs 60s+ timeout). 36gbwinresource appears GPU-contended on cold-start; windows-laptop responds reliably.
+
 ## [Unreleased] — Cost-reduction Phase 2 activation corrections
 
 ### Fixed (#1050, resolves #1048)
