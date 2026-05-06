@@ -69,4 +69,6 @@ test('emitStatSafe writes to cache-stats.jsonl on successful call', async () => 
   }));
   const sizeAfter = fs.existsSync(statsFile) ? fs.statSync(statsFile).size : 0;
   expect(sizeAfter).toBeGreaterThan(sizeBefore);
+  const last = fs.readFileSync(statsFile, 'utf8').trim().split('\n').pop();
+  expect(JSON.parse(last).executed).toBe('hamr-provider-wrapper');
 });

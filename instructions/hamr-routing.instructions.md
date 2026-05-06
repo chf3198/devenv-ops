@@ -10,14 +10,17 @@ HAMR (`https://hamr.chf3198.workers.dev`) is the cross-team cost+observability l
 Each team — Claude Code, Copilot, Codex — is a first-class consumer and is
 expected to route governed provider calls through it.
 Activate with `npm run hamr:activate` once per checkout.
+SessionStart runs `hamr_activation_check.py` as an advisory gate. Missing,
+disabled, malformed, or >24h stale activation emits context before governed
+provider calls; offline work remains unblocked.
 
 ## Producer chain (must run periodically)
 
-| Producer (local)            | Pushes to                     | Consumed by              |
-|-----------------------------|-------------------------------|--------------------------|
-| `npm run hamr:cache-push`   | KV `cache-stats:hit-rate-7d`  | `/quota` `hit_rate_7d`   |
-| `npm run hamr:health-push`  | KV `substrate-health:latest`  | `/mcp doctor:probe`      |
-| `npm run hamr:cache-emit`   | `~/.megingjord/cache-stats.jsonl` | `cache-hit-gate.runGate()` |
+| Producer (local)           | Pushes to                         | Consumed by                 |
+|----------------------------|-----------------------------------|-----------------------------|
+| `npm run hamr:cache-push`  | KV `cache-stats:hit-rate-7d`      | `/quota` `hit_rate_7d`      |
+| `npm run hamr:health-push` | KV `substrate-health:latest`      | `/mcp doctor:probe`         |
+| `npm run hamr:cache-emit`  | `~/.megingjord/cache-stats.jsonl` | `cache-hit-gate.runGate()`  |
 
 A 6h cron is installed by `npm run hamr:install-cron`. Operators MAY skip when
 their machine is offline; the Worker scheduled handler advertises staleness via

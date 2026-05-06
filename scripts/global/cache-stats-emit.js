@@ -14,7 +14,7 @@ function ensureDir() {
 }
 
 /** Append a single cache-stat record atomically.
- * Schema: {ts: epoch_ms, provider, model?, cache_read_tokens, input_tokens, output_tokens?}.
+ * Schema: {ts, provider, model?, cache_read_tokens, input_tokens, output_tokens?, executed?}.
  * Atomic strategy: write+rename on temp file when target absent; otherwise plain append
  * (POSIX append is atomic for writes < PIPE_BUF, ~4KB, which JSONL records always are).
  * @param {object} record - Must include provider, cache_read_tokens, input_tokens.
@@ -34,6 +34,7 @@ function appendCacheStat(record, opts = {}) {
     cache_read_tokens: Number(record.cache_read_tokens || 0),
     input_tokens: Number(record.input_tokens || 0),
     output_tokens: Number(record.output_tokens || 0),
+    executed: record.executed ?? null,
   };
   const line = JSON.stringify(normalized) + '\n';
   fs.appendFileSync(file, line, { encoding: 'utf8', flag: 'a' });
@@ -53,6 +54,7 @@ function fromTokenRecord(tokenRecord) {
     cache_read_tokens: Number(tokenRecord.cache_read_tokens || 0),
     input_tokens: Number(tokenRecord.input_tokens || 0),
     output_tokens: Number(tokenRecord.output_tokens || 0),
+    executed: tokenRecord.executed ?? null,
   };
 }
 

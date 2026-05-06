@@ -17,6 +17,11 @@
         "type": "command",
         "command": "python3 ~/.copilot/hooks/scripts/session_context.py",
         "timeout": 10
+      },
+      {
+        "type": "command",
+        "command": "python3 ~/.copilot/hooks/scripts/hamr_activation_check.py",
+        "timeout": 10
       }
     ],
     "UserPromptSubmit": [
