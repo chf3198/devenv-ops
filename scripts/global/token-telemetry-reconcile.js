@@ -7,7 +7,11 @@ const { readTelemetry } = require('./model-routing-telemetry');
 const { buildTokenTelemetryReport } = require('./token-telemetry-report');
 const REPORT_FILE = path.join(__dirname, '..', '..', 'logs', 'token-telemetry-reconcile.json');
 const DEFAULT_THRESHOLDS = { drift_pct: 0.15, drift_pct_fail: 0.35, min_samples: 3 };
-
+const HAMR = (() => { try { return require('./hamr-provider-wrapper'); } catch { return null; } })();
+async function viaHamr(p, fn) {
+  if (!HAMR?.wrapProviderCall || process.env.MEGINGJORD_HAMR_DISABLED === '1') return fn();
+  const r = await HAMR.wrapProviderCall(p, fn, { tier: 'observability' }); return r.response ?? r;
+}
 function loadEnv() { try { require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env') }); } catch {} }
 const EXACT = new Set(['exact_request', 'exact_aggregate']);
 function providerMeta(days) {
@@ -30,15 +34,15 @@ async function fetchProviderAggregate(provider) {
   if (provider === 'openrouter') {
     const key = process.env.OPENROUTER_API_KEY;
     if (!key) return { ok: false, reason: 'no_key', usage_tokens: null };
-    const result = await fetchJson('https://openrouter.ai/api/v1/auth/key', { Authorization: `Bearer ${key}` });
+    const result = await viaHamr('openrouter', () => fetchJson('https://openrouter.ai/api/v1/auth/key', { Authorization: `Bearer ${key}` }));
     return { ok: result.ok, reason: result.reason || null, usage_tokens: pickUsageTokens(result.data) };
   }
   if (provider === 'anthropic' && process.env.ANTHROPIC_USAGE_URL) {
-    const result = await fetchJson(process.env.ANTHROPIC_USAGE_URL, { 'x-api-key': process.env.ANTHROPIC_API_KEY || '', 'anthropic-version': '2023-06-01' });
+    const result = await viaHamr('anthropic', () => fetchJson(process.env.ANTHROPIC_USAGE_URL, { 'x-api-key': process.env.ANTHROPIC_API_KEY || '', 'anthropic-version': '2023-06-01' }));
     return { ok: result.ok, reason: result.reason || null, usage_tokens: pickUsageTokens(result.data) };
   }
   if (provider === 'litellm' && process.env.LITELLM_USAGE_URL) {
-    const result = await fetchJson(process.env.LITELLM_USAGE_URL, { Authorization: `Bearer ${process.env.LITELLM_API_KEY || ''}` });
+    const result = await viaHamr('litellm', () => fetchJson(process.env.LITELLM_USAGE_URL, { Authorization: `Bearer ${process.env.LITELLM_API_KEY || ''}` }));
     return { ok: result.ok, reason: result.reason || null, usage_tokens: pickUsageTokens(result.data) };
   }
   return { ok: false, reason: 'no_aggregate_api', usage_tokens: null };
@@ -56,12 +60,8 @@ async function buildReconciliationReport(days = 30, thresholds = {}) {
   const summary = buildTokenTelemetryReport(days);
   const meta = providerMeta(days);
   const alerts = [], verdicts = [];
-
   for (const row of summary.providers) {
-    if (row.samples < cfg.min_samples) {
-      verdicts.push({ provider: row.provider, verdict: 'SKIP', reason: 'insufficient_samples' });
-      continue;
-    }
+    if (row.samples < cfg.min_samples) { verdicts.push({ provider: row.provider, verdict: 'SKIP', reason: 'insufficient_samples' }); continue; }
     const provider = row.provider;
     const pMeta = meta[provider] || { lanes: new Set(['unknown']), total: 1, exact: 0 };
     const agg = await fetchProviderAggregate(row.provider);
@@ -72,9 +72,7 @@ async function buildReconciliationReport(days = 30, thresholds = {}) {
     const lane = Array.from(pMeta.lanes).join(',');
     const confidenceImpact = +((pMeta.total - pMeta.exact) / pMeta.total).toFixed(3);
     verdicts.push({ provider, lane, confidence_impact: confidenceImpact, verdict, local_tokens: row.total_tokens, remote_tokens: agg.usage_tokens, drift_pct: drift != null ? +drift.toFixed(4) : null, agg_ok: agg.ok });
-    if (verdict === 'FAIL' || verdict === 'WARN') {
-      alerts.push({ provider, lane, confidence_impact: confidenceImpact, verdict, drift_pct: +drift.toFixed(4) });
-    }
+    if (verdict === 'FAIL' || verdict === 'WARN') alerts.push({ provider, lane, confidence_impact: confidenceImpact, verdict, drift_pct: +drift.toFixed(4) });
   }
   return {
     generated_at: new Date().toISOString(), period_days: days, thresholds: cfg,

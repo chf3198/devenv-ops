@@ -36,6 +36,22 @@ test('reconciliation thresholds are configurable', async () => {
   expect(report.thresholds.drift_pct_fail).toBe(0.2);
 });
 
+test('reconcile module exposes wrapper integration via opt-in require', () => {
+  const r = require(path.join(__dirname, '../scripts/global/token-telemetry-reconcile'));
+  const w = require(path.join(__dirname, '../scripts/global/hamr-provider-wrapper'));
+  expect(typeof r.buildReconciliationReport).toBe('function');
+  expect(typeof w.wrapProviderCall).toBe('function');
+});
+
+test('reconcile honors MEGINGJORD_HAMR_DISABLED=1 (no wrapper invocation)', async () => {
+  process.env.MEGINGJORD_HAMR_DISABLED = '1';
+  delete require.cache[require.resolve(path.join(__dirname, '../scripts/global/token-telemetry-reconcile'))];
+  const { buildReconciliationReport } = require(path.join(__dirname, '../scripts/global/token-telemetry-reconcile'));
+  const report = await buildReconciliationReport(30);
+  expect(report).toHaveProperty('overall');
+  delete process.env.MEGINGJORD_HAMR_DISABLED;
+});
+
 test('reconcile panel renders verdict table', () => {
   global.esc = v => String(v);
   const { renderTokenReconcilePanel } = require(

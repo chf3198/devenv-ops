@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased] — Stage 2 cost-reduction: empirical observability
+
+### Added
+- `scripts/global/ide-proxy-quality-parity.js` (81 lines) — Epic #1020 quality-parity AC framework. Compares routed-lane vs baseline (claude-opus-4-7) responses per corpus turn using jaccard + length-ratio. Default DRY-RUN mode ($0 cost); live mode requires `--live --operator-approved` double-flag gate. PARITY_FLOOR = 0.65.
+- `tests/ide-proxy-quality-parity.spec.js` (7 tests) — covers jaccard, lengthRatio, dry-run gate.
+- `tests/token-telemetry-reconcile.spec.js` — 2 new tests: wrapper opt-in require + MEGINGJORD_HAMR_DISABLED=1 no-op.
+
+### Changed (#981)
+- `scripts/global/token-telemetry-reconcile.js` — opt-in import of `hamr-provider-wrapper.js` via `viaHamr()` helper. Wraps openrouter / anthropic / litellm aggregate fetches when wrapper available; falls back to direct fetch when wrapper missing or `MEGINGJORD_HAMR_DISABLED=1`. File stays at 98 lines (≤100).
+- `.codex/AGENTS.md` — added pointer to `instructions/hamr-routing.instructions.md` (#951 final coverage gap).
+
 ## [Unreleased] — Admin signer independence gate
 
 ### Added (#1022)
