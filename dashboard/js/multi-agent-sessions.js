@@ -12,6 +12,13 @@ const AGENT_HEARTBEAT_KEY = 'agent_heartbeats';
 const MAX_VISIBLE = 3;
 const MAX_HEARTBEAT_AGE_SEC = 300;
 
+function getSelfVendor() {
+  const raw = String(window.__AGENT_VENDOR || window.__AGENT_RUNTIME || '').toLowerCase();
+  if (VENDOR_ICONS[raw]) return raw;
+  const agentId = String(window.__AGENT_ID || '').toLowerCase();
+  return Object.keys(VENDOR_ICONS).find(v => agentId.startsWith(v)) || 'copilot';
+}
+
 function getAgentSessionsFromStorage() {
   try {
     const raw = localStorage.getItem(AGENT_HEARTBEAT_KEY);
@@ -28,10 +35,13 @@ function updateAgentHeartbeat(session) {
 }
 
 function broadcastSelfHeartbeat() {
+  const vendor = getSelfVendor();
+  const branch = window.__AGENT_BRANCH || 'unknown';
+  const idBranch = window.__AGENT_BRANCH || 'main';
   const self = {
-    vendor: 'copilot',
-    agentId: 'copilot-' + (window.__AGENT_BRANCH || 'main'),
-    branch: window.__AGENT_BRANCH || 'unknown',
+    vendor,
+    agentId: window.__AGENT_ID || `${vendor}-${idBranch}`,
+    branch,
     ticket: window.__AGENT_TICKET || '',
     activity: 'monitoring',
     ts: Date.now(),
