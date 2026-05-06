@@ -8,6 +8,9 @@ Each entry uses a parseable prefix for CLI filtering.
 Brief description of what happened.
 ```
 
+## [2026-05-06] research | Tooling Update Survey — defects + 8-area ecosystem evolution + Karpathy wiki retro (#987, R&D #988)
+11 defects catalogued; 15 dev-children candidates; Cloudflare Workers Observability v2 + Smart Placement, Anthropic cache TTL choice, Gemini 2.5 Pro 2M context, Oxlint 50-100× faster, GitHub Artifact Attestations GA, Karpathy LLM Wiki 3-layer formalization. Wiki retro: 108 files, 25 concepts (10 HAMR), 68 sources, 6 syntheses, 52 log entries. Missing 3rd-layer answers/.
+
 ## [2026-05-05] convergence | Megingjord Harness Convergence Design v1 (#922, 9-round 3-team SIGN_OFF)
 Approved cross-team architecture: 4 axes (governance / tooling / fleet / HAMR) plus Dashboard as observation/control plane. HAMR is shared substrate maintained by Claude Code Team. substrate-health gates model-routing-engine UPSTREAM of cascade-dispatch via cascade-policy-overrides.json. Per-team config markers extended with axis_consumers. SKILL.md frontmatter is canonical tool-discovery format with auto-derived per-team views. Cross-team edits on shared files via baton + governance-lint warn. megingjord-coord deprecation and Dashboard HAMR opt-in (#966) deferred to downstream Epics. 3 consecutive SIGN_OFFs (Codex/Copilot/Claude Code) at rounds 7/8/9. Authored as fast-track operator-deputy passes per operator authorization.
 

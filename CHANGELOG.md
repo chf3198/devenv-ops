@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased] — Tooling Update Survey: defect audit + ecosystem evolution + wiki retro (#988, EPIC #987)
+
+### Added
+- `research/tooling-update-survey-2026-05-06.md` (212 lines, lane: docs-research): 11 defects catalogued, 8-area ecosystem-evolution survey (Cloudflare Workers, Anthropic, OpenAI/Gemini/Groq/Cerebras, LiteLLM, lint tooling, GitHub Actions, RAG/wiki, Sigstore/SLSA), 15 numbered dev-children recommendations, Karpathy LLM Wiki retrospective.
+- `wiki/sources/tooling-update-survey-2026-05-06.md` + `wiki/log.md` entry.
+
+### Notes
+- Lane: docs-research. Operator-cost: $0.
+- Wiki retrospective shows 10 HAMR concept pages created in May 2026; 26 log entries this month; missing Karpathy 3-layer "saved answers" tier — recommendation C14 in survey.
+- Gates Epic #987: development children may be filed once R&D ticket #988 closes with CONSULTANT_CLOSEOUT.
+
 ## [Unreleased] — Wave 8 child 2: cascade-policy-overrides consumer (#977, EPIC #968)
 
 ### Changed
