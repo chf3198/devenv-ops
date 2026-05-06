@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased] — Wave 8 child 3: axis_consumers extension on per-team markers (#978, EPIC #968)
+
+### Changed
+- `scripts/global/hamr-activate.sh`: marker now includes `axis_consumers: {governance, tooling, fleet, hamr}` (default-on). `HAMR_AXES_OFF=<csv>` env opts out specific axes.
+
+### Added
+- `tests/axis-consumers.spec.js`: 3 tests.
+
+### Notes
+- Implements convergence-design item 5.
+- All 3 team markers re-written with the new field (live-verified on disk).
+
 ## [Unreleased] — Wave 8 child 1: cascade-policy-overrides producer (#976, EPIC #968)
 
 ### Added

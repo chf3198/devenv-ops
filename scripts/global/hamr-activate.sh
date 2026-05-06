@@ -48,9 +48,14 @@ case "$team" in
 esac
 if [ -n "$cfg_dir" ]; then
   mkdir -p "$cfg_dir"
-  printf '{"enabled": true, "activated_at": "%s", "activated_by": "%s", "team_runtime": "%s"}\n' \
-    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$team" "$cfg_dir" > "$cfg_dir/hamr-config.json"
-  echo "✅ wrote $cfg_dir/hamr-config.json"
+  # Wave 8 child 3 (#978): axis_consumers per convergence-design item 5.
+  axes_off="${HAMR_AXES_OFF:-}"
+  axis_val() { case ",$axes_off," in *,$1,*) echo false ;; *) echo true ;; esac }
+  printf '{"enabled":true,"activated_at":"%s","activated_by":"%s","team_runtime":"%s","axis_consumers":{"governance":%s,"tooling":%s,"fleet":%s,"hamr":%s}}\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$team" "$cfg_dir" \
+    "$(axis_val governance)" "$(axis_val tooling)" "$(axis_val fleet)" "$(axis_val hamr)" \
+    > "$cfg_dir/hamr-config.json"
+  echo "✅ wrote $cfg_dir/hamr-config.json (axis_consumers default-on)"
 fi
 
 echo ""
