@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased] — Wave 8 child 1: cascade-policy-overrides producer (#976, EPIC #968)
+
+### Added
+- `scripts/global/cascade-policy-overrides.js` (≤100 lines): producer for `~/.megingjord/cascade-policy-overrides.json`. Fetches HAMR `/quota`, writes `{ts, hit_rate_7d, stale, providers, source, schema_version}`. Graceful skip on Worker unreachable.
+- `package.json` script: `hamr:policy-overrides`.
+- `scripts/global/hamr-periodic-push.sh`: extended to invoke the producer alongside cache-push + health-push.
+- `tests/cascade-policy-overrides.spec.js`: 6 tests.
+
+### Notes
+- Implements convergence-design item 4 (producer side). Consumer side ships in #977.
+
 ## [Unreleased] — Convergence Design v1: harness-wide feature integration (#922, EPIC #922)
 
 ### Added
