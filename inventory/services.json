@@ -30,14 +30,9 @@
       "id": "cloudflare",
       "name": "Cloudflare Workers",
       "cost": "$10/mo",
-      "features": [
-        "pages",
-        "workers-ai",
-        "d1",
-        "r2",
-        "kv"
-      ],
+      "features": ["pages", "workers-ai", "d1", "r2", "kv"],
       "visionModel": "@cf/meta/llama-3.2-11b-vision-instruct",
+      "freeTierModels": ["@cf/qwen/qwen3-30b-a3b-fp8", "@cf/openai/gpt-oss-120b", "@cf/google/gemma-4-26b-a4b-it", "@cf/ibm/granite-micro", "@cf/meta/llama-3.1-8b-instruct"],
       "status": "active"
     }
   ],

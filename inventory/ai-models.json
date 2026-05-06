@@ -60,10 +60,17 @@
     "note": "Windows laptop — available when online"
   },
   "cloudflareAI": {
-    "cost": "included in $10/mo Workers plan",
-    "limits": "10000 neurons/day free",
+    "cost": "10000 neurons/day free, then $0.011 per 1000 neurons",
+    "limits": "10000 neurons/day free tier (~5000-10000 requests/day)",
+    "freeModels": [
+      { "id": "@cf/qwen/qwen3-30b-a3b-fp8", "mult": 0, "tier": "A", "tasks": ["coding", "general"] },
+      { "id": "@cf/openai/gpt-oss-120b", "mult": 0, "tier": "S", "tasks": ["reasoning", "general"] },
+      { "id": "@cf/google/gemma-4-26b-a4b-it", "mult": 0, "tier": "A", "tasks": ["balanced", "fast"] },
+      { "id": "@cf/ibm/granite-micro", "mult": 0, "tier": "B", "tasks": ["inline", "completion"] },
+      { "id": "@cf/meta/llama-3.1-8b-instruct", "mult": 0, "tier": "B", "tasks": ["general"] }
+    ],
     "models": ["@cf/meta/llama-3.2-11b-vision-instruct"],
-    "note": "Vision model for visual QA"
+    "note": "Vision model + 5 free-tier text models registered Wave 9 (#1038)"
   },
   "optimizationStrategy": {
     "rule1": "Default Copilot to GPT-5 mini (0x) for all routine work",

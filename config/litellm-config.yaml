@@ -39,6 +39,38 @@ model_list:
     litellm_params:
       model: claude-sonnet-4-6
       api_key: os.environ/ANTHROPIC_API_KEY
+  # D1 (#1031): IDE proxy backend — Anthropic Opus 4.7 passthrough.
+  # Claude Code IDE points api_endpoint at this proxy's /v1/messages.
+  - model_name: opus
+    litellm_params:
+      model: claude-opus-4-7
+      api_key: os.environ/ANTHROPIC_API_KEY
+  # D1 (#1031): aliases that expose Anthropic-compat /v1/messages route.
+  # LiteLLM auto-translates any alias when called via /v1/messages endpoint.
+  - model_name: claude-opus-4-7
+    litellm_params:
+      model: claude-opus-4-7
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: claude-haiku-4-5
+    litellm_params:
+      model: claude-haiku-4-5-20251001
+      api_key: os.environ/ANTHROPIC_API_KEY
+  # F3 (#1039): Cloudflare AI 2026 free-tier named groups (depends on F2 catalog).
+  - model_name: cloud-fleet-primary
+    litellm_params:
+      model: cloudflare/@cf/qwen/qwen3-30b-a3b-fp8
+      api_key: os.environ/CLOUDFLARE_API_TOKEN
+      cloudflare_account_id: os.environ/CLOUDFLARE_ACCOUNT_ID
+  - model_name: cloud-fleet-quality
+    litellm_params:
+      model: cloudflare/@cf/openai/gpt-oss-120b
+      api_key: os.environ/CLOUDFLARE_API_TOKEN
+      cloudflare_account_id: os.environ/CLOUDFLARE_ACCOUNT_ID
+  - model_name: cloud-fleet-fast
+    litellm_params:
+      model: cloudflare/@cf/google/gemma-4-26b-a4b-it
+      api_key: os.environ/CLOUDFLARE_API_TOKEN
+      cloudflare_account_id: os.environ/CLOUDFLARE_ACCOUNT_ID
 
 router_settings:
   routing_strategy: least-busy
