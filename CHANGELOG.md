@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased] — Cost-reduction Phase 2 foundation (5 of 14 children)
+
+### Added (config + docs + R&D)
+- D1 (#1031) `config/litellm-config.yaml` — Anthropic-compat aliases (`claude-opus-4-7`, `claude-haiku-4-5`) + `opus` named group. LiteLLM proxy can now serve `/v1/messages` for IDE backend.
+- D6 (#1036) `instructions/ide-proxy.instructions.md` + `wiki/concepts/ide-proxy.md` — activation walkthrough + concept page.
+- F2 (#1038) `inventory/services.json` + `inventory/ai-models.json` — 5 CF AI 2026 free-tier models registered (qwen3-30b-a3b-fp8, gpt-oss-120b, gemma-4-26b-a4b-it, granite-micro, llama-3.1-8b).
+- F3 (#1039) `config/litellm-config.yaml` — named groups `cloud-fleet-{primary,quality,fast}` routing to CF AI free tier.
+- F8 (#1044) `research/aperture-integration-evaluation-2026-05-06.md` — DEFER decision documented; re-evaluation triggers (Aperture GA + Tailscale plan upgrade + quarterly cadence).
+
+### Deferred to next session
+- 9 children (~7 day-engineer): D2 classifier, D3 telemetry, D4 activation script, D5 measurement, F1 routing strategy, F4 fleet-config, F5 health probe, F6 fleet-discover, F7 portable-config skill. Each tagged with deferral note + recommended pickup order.
+
+### Notes
+- Lane: code-change (config + docs).
+- Operator-cost: $0.
+- Foundation in place — IDE proxy config ready, CF AI catalog registered, docs published. Phase 2 runtime activation requires deferred children.
+
 ## [Unreleased] — Cost-reduction Phase 1 R&D (Epics #1020 + #949)
 
 ### Added
