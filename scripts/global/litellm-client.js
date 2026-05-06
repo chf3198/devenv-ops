@@ -79,15 +79,18 @@ async function healthCheck() {
   return { ...h, backend: 'ollama' };
 }
 
-// cacheHeaders: native cache-control hints per v3.2 §R5 9-row matrix (#926).
-const DEFAULT_CACHE_TTL_SECONDS = 3600;
-const ANTHROPIC_CACHE_BETAS = 'prompt-caching-2024-07-31,extended-cache-ttl-2025-04-11';
+// cacheHeaders: native cache-control hints (#926). C9 (#1000): Anthropic 5min default + 1h opt-in.
+const DEFAULT_CACHE_TTL_SECONDS = 300;
+const EXTENDED_CACHE_TTL_SECONDS = 3600;
+const ANTHROPIC_BASE_BETA = 'prompt-caching-2024-07-31';
+const ANTHROPIC_EXTENDED_BETA = 'prompt-caching-2024-07-31,extended-cache-ttl-2025-04-11';
 
 function cacheHeaders(provider, opts = {}) {
-  const ttl = opts.ttlSeconds ?? DEFAULT_CACHE_TTL_SECONDS;
+  const useExtended = opts.extendedTtl === true;
+  const ttl = opts.ttlSeconds ?? (useExtended ? EXTENDED_CACHE_TTL_SECONDS : DEFAULT_CACHE_TTL_SECONDS);
   switch (provider) {
     case 'anthropic':
-      return { headers: { 'anthropic-beta': ANTHROPIC_CACHE_BETAS },
+      return { headers: { 'anthropic-beta': useExtended ? ANTHROPIC_EXTENDED_BETA : ANTHROPIC_BASE_BETA },
         bodyExtras: { extra_headers: { 'cache-control': `max-age=${ttl}` } } };
     case 'gemini':
       return { headers: {}, bodyExtras: { cachedContent: opts.cacheKey || null, ttl: `${ttl}s` } };

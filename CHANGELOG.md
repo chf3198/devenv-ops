@@ -1,5 +1,17 @@
 # Changelog
 
+## [Unreleased] — Tooling C9: Anthropic extended_cache_ttl opt-in (#1000, EPIC #987)
+
+### Changed
+- `scripts/global/litellm-client.js`: `cacheHeaders(provider, { extendedTtl: true })` opts into 1h TTL + extended-cache-ttl beta. Default reverted to 5min (matches Anthropic's 2026 default after they reverted from 1h).
+- `wiki/concepts/cache-adapters.md`: added cost-tradeoff note (1h write = 2.0× vs 1.25× for 5min).
+
+### Added
+- `tests/anthropic-extended-ttl.spec.js`: 4 tests covering default + extended + explicit override + universal flag behavior.
+
+### Notes
+- Strict-superset preserved: callers who don't pass `extendedTtl: true` get the new default; callers who explicitly set `ttlSeconds` are unaffected.
+
 ## [Unreleased] — Tooling A6: magic-number lint whitelist for #NNN literals (#991, EPIC #987)
 
 ### Fixed
