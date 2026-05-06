@@ -28,6 +28,9 @@ if run_push health-push "npm run --silent hamr:health-push"; then
   health_status=0
 fi
 
+# Wave 8 child 1 (#976): also refresh the cascade-policy-overrides file.
+run_push policy-overrides "npm run --silent hamr:policy-overrides" || true
+
 # Graceful: succeed if either push went through (one missing snapshot is OK).
 if [ "$cache_status" -eq 0 ] || [ "$health_status" -eq 0 ]; then
   echo "OK: cache=$cache_status health=$health_status (log: $log_file)"

@@ -93,6 +93,7 @@ npm run deploy:both:apply
 | `hamr:health-push` | `node scripts/global/substrate-health-push.js` |
 | `hamr:install-cron` | `bash scripts/global/install-cron.sh` |
 | `hamr:log-rotate` | `node scripts/global/log-rotate.js` |
+| `hamr:policy-overrides` | `node scripts/global/cascade-policy-overrides.js` |
 | `hamr:rule-gate` | `node scripts/global/rule-coverage-gate.js` |
 | `hamr:spillover` | `node scripts/global/header-spillover.js` |
 | `hamr:sticky-route` | `node scripts/global/sticky-route.js` |
