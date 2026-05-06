@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased] — Tooling C8: Cloudflare Workers Observability v2 adoption (#998, EPIC #987)
+
+### Changed
+- `cloudflare/hamr/wrangler.toml`: added `head_sampling_rate = 1.0` to existing `[observability]` block — full sampling on governance routes.
+- `wiki/concepts/hamr-core-worker.md`: Observability section.
+
+### Notes
+- Worker redeployed (`21d6cd57-5d5a-4e6b-949c-02dff49710a8`); live `/healthz` + `/quota` smoke tests pass.
+- Backward compat: `x-hamr-elapsed-ms` response header retained.
+
 ## [Unreleased] — Tooling C9: Anthropic extended_cache_ttl opt-in (#1000, EPIC #987)
 
 ### Changed

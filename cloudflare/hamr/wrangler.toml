@@ -6,6 +6,7 @@ account_id = "f7705aa5c47e40b9eba04d2ac87ae516"
 
 [observability]
 enabled = true
+head_sampling_rate = 1.0  # C8 (#998): full sampling on all routes for governance traceability
 
 [vars]
 ENVIRONMENT = "production"
