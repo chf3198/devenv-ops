@@ -57,12 +57,27 @@ function readCapabilities() {
   try { return JSON.parse(fs.readFileSync(capPath, 'utf8')); } catch { return null; }
 }
 
+// F5 (#1041): Cloudflare AI 2026 free-tier availability probe.
+async function probeCloudflareAI(token, accountId) {
+  if (!token || !accountId) return { reachable: false, reason: 'missing_credentials' };
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/models/search?per_page=1`;
+  try {
+    const t0 = Date.now();
+    const r = await fetch(url, { headers: { authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(3000) });
+    return { reachable: r.ok, http_status: r.status, elapsed_ms: Date.now() - t0 };
+  } catch (err) { return { reachable: false, reason: err?.message || 'fetch_failed' }; }
+}
+
 async function probeSubstrateHealth(opts = {}) {
   const caps = opts.capabilities ?? readCapabilities();
   const probe = {
     schema_version: 1,
     ts: Date.now(),
     hamr_worker: await probeHamrWorker(opts.workerUrl),
+    cloudflare_ai: await probeCloudflareAI(
+      opts.cfToken ?? process.env.CLOUDFLARE_API_TOKEN,
+      opts.cfAccountId ?? process.env.CLOUDFLARE_ACCOUNT_ID,
+    ),
     fleet: caps?.fleet ?? {},
     providers: caps?.providers ?? {},
     judges: { qwen: { available: !!caps?.providers?.cerebras?.available, provenance: 'vendor-attested' },
@@ -88,4 +103,4 @@ if (require.main === module) {
   }).catch((e) => { console.error(e.message); process.exit(1); });
 }
 
-module.exports = { probeSubstrateHealth, writeSubstrateHealth, probeHamrWorker, deriveTier, OUT_FILE };
+module.exports = { probeSubstrateHealth, writeSubstrateHealth, probeHamrWorker, probeCloudflareAI, deriveTier, OUT_FILE };

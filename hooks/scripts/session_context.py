@@ -68,7 +68,8 @@ def main() -> int:
         "2) Manager scope comment BEFORE any file edits. "
         "3) Commits MUST reference ticket (#N) — deny on missing. "
         "4) One branch = one ticket = one PR. No bundling. "
-        "5) Baton sequence: Manager→Collaborator→Admin→Consultant."
+        "5) Baton sequence: Manager→Collaborator→Admin→Consultant. "
+        "6) Goal order: Governance>Quality>ZeroCost>Privacy>Portability>Resilience>Throughput>Observability>Interoperability."
     )
     context_parts = [
         ANCHOR, baton_msg, standards_msg,

@@ -4,6 +4,11 @@ const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
+const TAILSCALE_TIMEOUT_MS = 5000;
+const NETCHECK_TIMEOUT_MS = 3000;
+const OLLAMA_DEFAULT_PORT = 11434;
+const OPENCLAW_DEFAULT_PORT = 4000;
+
 function loadInventory() {
   const inv = path.resolve(__dirname, '..', '..', 'inventory', 'devices.json');
   if (!fs.existsSync(inv)) return [];
@@ -13,7 +18,7 @@ function loadInventory() {
 function detectTailscale() {
   try {
     const out = execSync('tailscale status --json 2>/dev/null || sudo tailscale status --json', {
-      encoding: 'utf8', timeout: 5000
+      encoding: 'utf8', timeout: TAILSCALE_TIMEOUT_MS
     });
     const st = JSON.parse(out);
     const peers = {};
@@ -49,18 +54,42 @@ function getDeviceURL(deviceId, port) {
   const fleet = resolveFleet();
   const d = fleet.find(x => x.id === deviceId);
   if (!d?.resolvedIP) return null;
-  return `http://${d.resolvedIP}:${port || 11434}`;
+  return `http://${d.resolvedIP}:${port || OLLAMA_DEFAULT_PORT}`;
 }
 
 function getOpenClawURL() {
-  return process.env.OPENCLAW_URL || getDeviceURL('windows-laptop', 4000);
+  return process.env.OPENCLAW_URL || getDeviceURL('windows-laptop', OPENCLAW_DEFAULT_PORT);
+}
+
+// F4 (#1040): MagicDNS resolver + relay-vs-direct probe.
+function resolveMagicDNS(deviceId) {
+  const d = loadInventory().find(x => x.id === deviceId);
+  return d?.magicDNS || `${deviceId}.tail-scale.ts.net`;
+}
+
+function isRelayed(deviceId) {
+  try {
+    const out = execSync('tailscale netcheck --format=json 2>/dev/null', {
+      encoding: 'utf8', timeout: NETCHECK_TIMEOUT_MS,
+    });
+    const nc = JSON.parse(out);
+    return !nc.UDP && !nc.IPv4CanSend;
+  } catch { return null; }
+}
+
+function getDeviceURLViaDNS(deviceId, port) {
+  const host = resolveMagicDNS(deviceId);
+  return `http://${host}:${port || OLLAMA_DEFAULT_PORT}`;
 }
 
 if (require.main === module) {
   const cmd = process.argv[2];
   if (cmd === 'profile') console.log(JSON.stringify(getProfile(), null, 2));
   else if (cmd === 'fleet') console.log(JSON.stringify(resolveFleet(), null, 2));
-  else console.log('Usage: fleet-config.js [profile|fleet]');
+  else if (cmd === 'relay') console.log(JSON.stringify({ relayed: isRelayed() }, null, 2));
+  else if (cmd === 'magicdns') console.log(resolveMagicDNS(process.argv[3] || 'windows-laptop'));
+  else console.log('Usage: fleet-config.js [profile|fleet|relay|magicdns <id>]');
 }
 
-module.exports = { loadInventory, resolveFleet, getProfile, getDeviceURL, getOpenClawURL };
+module.exports = { loadInventory, resolveFleet, getProfile, getDeviceURL,
+  getOpenClawURL, resolveMagicDNS, isRelayed, getDeviceURLViaDNS };

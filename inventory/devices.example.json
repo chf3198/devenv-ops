@@ -1,0 +1,26 @@
+{
+  "_note": "F6 (#1042) — generic 2-node example for fleet-portable adoption. New operators can copy + adapt.",
+  "lastUpdated": "2026-05-06",
+  "devices": [
+    {
+      "id": "operator-host",
+      "hostname": "operator-laptop",
+      "magicDNS": "operator-laptop.tail-scale.ts.net",
+      "os": "linux",
+      "local": true,
+      "capabilities": ["coordination", "ide", "dashboard"],
+      "tags": ["operator"]
+    },
+    {
+      "id": "fleet-gpu",
+      "hostname": "fleet-gpu-node",
+      "magicDNS": "fleet-gpu-node.tail-scale.ts.net",
+      "os": "linux",
+      "local": false,
+      "capabilities": ["ollama", "fleet-primary"],
+      "ollamaModels": ["qwen2.5-coder:7b", "qwen2.5:7b-instruct"],
+      "ports": { "ollama": 11434 },
+      "tags": ["fleet", "gpu"]
+    }
+  ]
+}
