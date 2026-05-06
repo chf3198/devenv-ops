@@ -19,6 +19,9 @@ const TEAM_CONFIG_PATHS = [
   path.join(os.homedir(), '.codex', 'devenv-ops', 'hamr-config.json'),
 ];
 
+/** Read the first available HAMR activation config across team runtimes.
+ * @returns {object|null} Parsed config with source file, or null when absent.
+ */
 function readTeamConfig() {
   for (const file of TEAM_CONFIG_PATHS) {
     if (!fs.existsSync(file)) continue;
@@ -27,6 +30,9 @@ function readTeamConfig() {
   return null;
 }
 
+/** Determine whether HAMR wrapping is disabled for the current process.
+ * @returns {boolean} True when wrapper should no-op.
+ */
 function isDisabled() {
   if (process.env.MEGINGJORD_HAMR_DISABLED === '1') return true;
   const cfg = readTeamConfig();
@@ -44,6 +50,7 @@ function emitStatSafe(provider, payload) {
       cache_read_tokens: tokenRecord.cache_read_tokens ?? 0,
       input_tokens: tokenRecord.input_tokens ?? 0,
       output_tokens: tokenRecord.output_tokens ?? 0,
+      executed: 'hamr-provider-wrapper',
     });
   } catch { /* never let stats break the call */ }
 }

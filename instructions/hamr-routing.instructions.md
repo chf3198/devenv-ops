@@ -10,6 +10,9 @@ HAMR (`https://hamr.chf3198.workers.dev`) is the cross-team cost+observability l
 Each team — Claude Code, Copilot, Codex — is a first-class consumer and is
 expected to route governed provider calls through it.
 Activate with `npm run hamr:activate` once per checkout.
+SessionStart runs `hamr_activation_check.py` as an advisory gate. Missing,
+disabled, malformed, or >24h stale activation emits context before governed
+provider calls; offline work remains unblocked.
 
 ## Producer chain (must run periodically)
 

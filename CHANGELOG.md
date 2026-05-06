@@ -6,6 +6,12 @@
 - `baton-gates.yml` admin-gate now blocks identical `COLLABORATOR_HANDOFF` and `ADMIN_HANDOFF` signer identities, with compatibility for AI-Signature, Signed-by, AI-Team-Model, and Team&Model baton fields.
 - `scripts/global/baton-independence.js` and `tests/baton-independence.spec.js` cover same-signer failure, independent-signer pass, and legacy signing fields.
 
+## [Unreleased] — HAMR activation session gate
+
+### Added (#1023)
+- `hooks/scripts/hamr_activation_check.py` warns at SessionStart when HAMR activation is missing, disabled, malformed, or older than 24 hours without blocking offline work.
+- Copilot global standards and Codex runtime hooks now run the activation check; HAMR wrapper cache telemetry includes `executed: "hamr-provider-wrapper"`.
+
 ## [Unreleased] — Cost-reduction Phase 2 activation corrections
 
 ### Fixed (#1050, resolves #1048)
