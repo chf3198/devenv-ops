@@ -73,7 +73,13 @@ model_list:
       cloudflare_account_id: os.environ/CLOUDFLARE_ACCOUNT_ID
 
 router_settings:
-  routing_strategy: least-busy
+  # F1 (#1037): adopt latency-based routing with cooldowns + retry budget.
+  # Replaces simple-shuffle with deployment ordering by p50 latency.
+  routing_strategy: latency-based-routing
+  routing_strategy_args:
+    ttl: 1800   # 30 min cache window for latency observations
+  cooldown_time: 60   # seconds before retrying a failed deployment
+  allowed_fails: 2
   fallbacks:
     - fleet-primary:
       - fleet-fast

@@ -27,3 +27,10 @@ applyTo: "**"
 - For versioned artifacts, enforce version consistency (tag = manifest = changelog).
 - Use deterministic checks and objective pass/fail gates whenever possible.
 - If evidence is incomplete, state uncertainty and gather missing evidence.
+
+## Goal-lens decision lint (required)
+
+- Apply this priority order to all governed decisions:
+	`G1 Governance > G2 Quality > G3 Zero Cost > G4 Privacy > G5 Portability > G6 Resilience > G7 Throughput > G8 Observability > G9 Interoperability`.
+- When tradeoffs occur, explicitly justify why a lower-priority goal overrides a higher one.
+- Keep the justification short and evidence-based in ticket comments, PR body, or closeout notes.

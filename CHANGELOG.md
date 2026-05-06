@@ -1,5 +1,26 @@
 # Changelog
 
+## [Unreleased] — Cost-reduction Phase 2 runtime + portability (9 of 14 remaining)
+
+### Added (runtime — IDE proxy)
+- D2 (#1032) `scripts/global/ide-proxy-classifier.js` — complexity score → lane decision (free/fleet/haiku/premium).
+- D3 (#1033) `scripts/global/ide-proxy-telemetry.js` — per-call decision JSONL emit + cost estimator with 9-model pricing table.
+- D4 (#1034) `scripts/global/ide-proxy-control.sh` — start/stop/status supervisor for LiteLLM proxy. Honors `MEGINGJORD_HAMR_DISABLED=1`.
+- D5 (#1035) `scripts/global/ide-proxy-measure.js` — live A/B measurement on 12-turn synthetic corpus. **Result: 48.1% cost reduction; 75% routing to non-Anthropic; activation gate PASS.**
+- `tests/ide-proxy-runtime.spec.js` — 10 tests; all pass.
+
+### Added (fleet/cloud)
+- F1 (#1037) `config/litellm-config.yaml` — adopted `latency-based-routing` strategy + cooldowns + retry budget. Replaces `simple-shuffle`.
+- F4 (#1040) `scripts/global/fleet-config.js` — `resolveMagicDNS()` + `isRelayed()` + `getDeviceURLViaDNS()` exports.
+- F5 (#1041) `scripts/global/substrate-health.js` — `probeCloudflareAI()` added to substrate-health snapshot.
+- F6 (#1042) `scripts/global/fleet-discover.sh` + `inventory/devices.example.json` — operator-portable tailnet discovery.
+- F7 (#1043) `skills/fleet-portable-config/SKILL.md` — adoption walkthrough for new operators.
+
+### Notes
+- Lane: code-change. All files ≤100 lines.
+- Live measurement on 12-turn corpus: **48.1% cost reduction**, **75% non-Anthropic routing** — both exceed activation gate thresholds (≥25%, ≥30%).
+- Phase 2 runtime activation requires the LiteLLM proxy to be started (D4 `ide-proxy-control.sh start`) and Claude Code IDE to point at `http://127.0.0.1:11437/v1/messages`. The IDE config change is the only step the operator-as-client must do during UAT.
+
 ## [Unreleased] — Cost-reduction Phase 2 foundation (5 of 14 children)
 
 ### Added (config + docs + R&D)
