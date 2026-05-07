@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased] — Epic #1083 Wave-1: Broker MVP + visual-QA classifier (#1088 #1089 #1090 #1091 #1092)
+
+### Added
+- `scripts/global/broker.js` (124 lines, exempt from script-lint per IGNORE_PATHS) — Megingjord Agent Broker with JSON-backed lease registry. Implements Decision C primary (HAMR /teams reconciler) + Decision A failover (local-only on HAMR offline). Commands: `acquire`, `heartbeat`, `release`, `status`, `reconcile`.
+- `scripts/global/visual-qa-classify.js` (67 lines) — diff-aware visual QA classifier. UI patterns: `dashboard/*.html`, `dashboard/css/*.css`, `dashboard/js/*-{panel,view}.js`. Auto-records N/A for safe non-UI diffs to eliminate false positives in stop hook.
+- `tests/broker.spec.js` — 11 Playwright tests covering full acquire/heartbeat/release/reconcile lifecycle + visual-QA classification.
+
 ## [Unreleased] — Epic #866 PR-C: write-safety + Karpathy v2 + known-defects (#871 #1017 #1018)
 
 ### Added
