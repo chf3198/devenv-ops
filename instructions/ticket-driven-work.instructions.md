@@ -51,12 +51,13 @@ All work types use `role:collaborator`. Work types with CI gates (development, b
 ## Forbidden combinations
 
 - Closed issue + any execution `role:*` label.
-- `status:backlog` or `status:ready` or `status:done` or `status:cancelled` with any `role:*` label.
+- `status:backlog` or `status:ready` or `status:done` or `status:cancelled` with any `role:*` label — **except Epics**, which carry `role:manager` throughout their lifecycle (per `epic-governance.instructions.md` and label-lint Rule E2).
 - `status:triage` with non-manager role.
-- `status:in-progress` with admin/consultant role.
+- `status:in-progress` with admin/consultant role — **except Epics**, which carry `role:manager` (Rule E3).
 - `status:testing` with collaborator/consultant role.
 - `status:review` with manager/collaborator/admin role.
 - `status:done` on an open issue (done must coincide with issue close).
+- `status:dormant` or `status:deferred` on non-Epic tickets (Rule E5).
 
 ## Manager Responsibilities
 
