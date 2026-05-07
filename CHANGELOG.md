@@ -7,7 +7,6 @@
 - `.github/workflows/detect-secrets.yml`: CI gate runs on push to main + every PR; fails if a NEW secret is introduced beyond the baseline.
 - `hooks/scripts/detect-secrets-precommit.sh`: optional operator-installable pre-commit hook (scans staged files only). Install: `cp hooks/scripts/detect-secrets-precommit.sh .git/hooks/pre-commit`.
 
-
 ## [Unreleased] — #919: worktree audit detects stale + detached non-sandbox worktrees
 
 ### Added
