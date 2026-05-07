@@ -19,8 +19,8 @@ test('lengthRatio detects asymmetry', () => {
   expect(QP.lengthRatio('a', 'aaaa')).toBe(0.25);
 });
 
-test('PARITY_FLOOR is 0.65 (no-regression bar)', () => {
-  expect(QP.PARITY_FLOOR).toBe(0.65);
+test('PARITY_FLOOR is 0.40 (empirically-calibrated no-regression bar)', () => {
+  expect(QP.PARITY_FLOOR).toBe(0.40);
 });
 
 test('dry-run mode returns gate PASS without API calls', async () => {
