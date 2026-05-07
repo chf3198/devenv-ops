@@ -17,11 +17,21 @@ applyTo: "**"
 | `backlog` | Created; no children started |
 | `triage` | Manager scoping children; at least one child exists |
 | `in-progress` | First child ticket moves to `status:in-progress` |
+| `dormant` | Active goal; no current work; awaits external trigger or 90d review |
+| `deferred` | Active goal; externally blocked; no ETA |
 | `review` | All children are terminal (closed); epic-level closeout pending |
 | `done` + closed | CONSULTANT_CLOSEOUT emitted on epic; all children confirmed terminal |
-| `cancelled` | Manager authority; all children must be cancelled or closed first |
+| `cancelled` | Manager authority; **goal invalidated** (NOT used for stalled work) |
 
 Epic status is advanced by the Manager agent at each gate — it does **not** auto-advance.
+
+### Epic-only states (dormant + deferred)
+
+- `dormant`: Manager pauses an Epic when a milestone closes and no immediate next step exists. Comment must name the trigger that would resume work.
+- `deferred`: Manager marks Epic blocked by external constraint (e.g., third-party beta, plan tier). Comment must name the blocker + ETA condition.
+- Both require `role:manager` (Epic invariant).
+- Both receive a 90-day review: Manager posts an `EPIC_REVIEW` comment with verdict (stay-dormant, reclassify, or cancel).
+- Transitions: `in-progress ↔ dormant`, `in-progress ↔ deferred`, `dormant ↔ deferred`, `dormant → triage` on resume, `deferred → in-progress` when blocker clears, `dormant → cancelled` only after review affirms goal no longer applies.
 
 ## Epic Progress Comment Protocol
 

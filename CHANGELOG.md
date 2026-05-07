@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased] — Epic #1074: Epic-vs-child governance differentiation
+
+### Added
+- **2 new GitHub labels**: `status:dormant` and `status:deferred` — Epic-only states for paused-active and externally-blocked goals (#1077).
+- `instructions/epic-governance.instructions.md` — new Epic-only state diagram with `dormant` + `deferred` rows + transition rules + 90-day `EPIC_REVIEW` cadence (#1079).
+- `instructions/ticket-driven-work.instructions.md` — taxonomy table updated to v1.1 (10-status; 2 Epic-only). Manager role-required notes for Epic in `backlog` and `in-progress` (#1080).
+- `.github/workflows/label-lint.yml` — Epic-aware rule overrides:
+  - Rule 4 skips Epics (Epic invariant: always carries `role:manager`)
+  - Rule E2: Epic at `status:backlog` requires `role:manager`
+  - Rule 8 skips Epics; Rule E3: Epic at `status:in-progress` requires `role:manager` (not `role:collaborator`)
+  - Rule E5: `status:dormant`/`status:deferred` are Epic-only; require `role:manager` (#1078).
+
+### Closed via this Epic
+- R&D #1075: research/epic-vs-child-governance-2026-05-07.md (183 lines) — full state taxonomy + transition rules + label-lint Epic-aware rule design + migration impact analysis (#759/#760 candidates for re-classification; #966 stays cancelled per contract conflict).
+
 ## [Unreleased] — Epic #949 closeout (GPU-node priority-1 routing)
 
 ### Added

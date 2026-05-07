@@ -45,6 +45,8 @@ jobs:
             const statusLabels = currentLabels.filter(l => l.startsWith('status:'));
             const roleLabels   = currentLabels.filter(l => l.startsWith('role:'));
             const laneLabels   = currentLabels.filter(l => l.startsWith('lane:'));
+            const isEpic       = currentLabels.includes('type:epic');
+            const EPIC_ONLY_STATES = ['status:dormant', 'status:deferred'];
             const violations   = [];
             if (statusLabels.length === 0) {
               violations.push('**Rule 1**: No `status:` label found. Every issue must have exactly one.');
@@ -57,8 +59,11 @@ jobs:
             if (statusLabels.includes('status:done') && roleLabels.length > 0) {
               violations.push(`**Rule 3**: \`status:done\` issues must not have a \`role:\` label. Remove: ${roleLabels.join(', ')}.`);
             }
-            if (statusLabels.includes('status:backlog') && roleLabels.length > 0) {
-              violations.push(`**Rule 4**: \`status:backlog\` issues must not have a \`role:\` label. Remove: ${roleLabels.join(', ')}.`);
+            if (statusLabels.includes('status:backlog') && roleLabels.length > 0 && !isEpic) {
+              violations.push(`**Rule 4**: \`status:backlog\` child issues must not have a \`role:\` label. Remove: ${roleLabels.join(', ')}.`);
+            }
+            if (isEpic && statusLabels.includes('status:backlog') && !roleLabels.includes('role:manager')) {
+              violations.push('**Rule E2**: Epic at `status:backlog` requires `role:manager` (Epic invariant).');
             }
             if (statusLabels.includes('status:triage') && !roleLabels.includes('role:manager')) {
               violations.push('**Rule 5**: `status:triage` issues must have `role:manager`. Epics always carry this label.');
@@ -81,11 +86,21 @@ jobs:
               'status:review':      'role:consultant',
             };
             for (const [status, required] of Object.entries(STATUS_ROLE_REQUIRED)) {
-              if (statusLabels.includes(status) && !roleLabels.includes(required)) {
+              if (statusLabels.includes(status) && !roleLabels.includes(required) && !isEpic) {
                 violations.push(`**Rule 8**: \`${status}\` requires \`${required}\`. Add it.`);
               }
             }
-            const isEpic = currentLabels.includes('type:epic');
+            if (isEpic && statusLabels.includes('status:in-progress') && !roleLabels.includes('role:manager')) {
+              violations.push('**Rule E3**: Epic at `status:in-progress` requires `role:manager` (Epic carries manager throughout lifecycle).');
+            }
+            for (const epicState of EPIC_ONLY_STATES) {
+              if (statusLabels.includes(epicState) && !isEpic) {
+                violations.push(`**Rule E5**: \`${epicState}\` is Epic-only. Non-Epic tickets cannot use it.`);
+              }
+              if (statusLabels.includes(epicState) && isEpic && !roleLabels.includes('role:manager')) {
+                violations.push(`**Rule E5**: Epic at \`${epicState}\` requires \`role:manager\`.`);
+              }
+            }
             if (isEpic && statusLabels.includes('status:ready')) {
               violations.push('**Rule 9**: Epics cannot be at `status:ready` — that status is for child tickets only.');
             }
