@@ -19,18 +19,20 @@ applyTo: "**"
 | Doc | Documentation | `type:doc` |
 | Research | Investigation/spike | `type:research` |
 
-## Label taxonomy (v1.0 — agent-typed 8-status)
+## Label taxonomy (v1.1 — agent-typed 10-status; 2 Epic-only)
 
 | Status | Active Agent | Gate Condition |
 |---|---|---|
-| `status:backlog` | — | Queued; unassigned |
+| `status:backlog` | — (Epic: `role:manager`) | Queued; unassigned |
 | `status:triage` | `role:manager` | Manager scoping AC + gates |
 | `status:ready` | — | MANAGER_HANDOFF emitted; awaiting Collaborator pickup |
-| `status:in-progress` | `role:collaborator` | Implementation active |
+| `status:in-progress` | `role:collaborator` (Epic: `role:manager`) | Implementation active |
 | `status:testing` | `role:admin` | COLLABORATOR_HANDOFF emitted; CI/gates running |
 | `status:review` | `role:consultant` | ADMIN_HANDOFF emitted; critique + closeout active |
 | `status:done` | — | CONSULTANT_CLOSEOUT emitted; issue closes |
-| `status:cancelled` | — | Abandoned; Manager authority; reason required |
+| `status:cancelled` | — | Abandoned; Manager authority; **goal invalidated** |
+| `status:dormant` | `role:manager` | **Epic-only**: paused; 90d review |
+| `status:deferred` | `role:manager` | **Epic-only**: blocked, no ETA |
 
 - **Priority**: `priority:P1` (urgent) · `priority:P2` (normal) · `priority:P3` (low)
 - **Area**: `area:dashboard` · `area:hooks` · `area:skills` · `area:instructions` · `area:agents` · `area:scripts` · `area:infra`
@@ -94,4 +96,4 @@ When PR/merge proof is unavailable, use explicit exception fields in evidence bl
 
 ## Epic Rules
 
-See `epic-governance.instructions.md` for epic status advancement, role label, progress tracking, and close conditions.
+See `epic-governance.instructions.md` for epic state diagram + close conditions.
