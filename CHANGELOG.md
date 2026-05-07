@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased] — Epic #1020 closeout (parity-floor recalibration)
+
+### Changed
+- `scripts/global/ide-proxy-quality-parity.js` — `PARITY_FLOOR` recalibrated from synthetic 0.65 to empirical 0.40, grounded in the Stage 4 live measurement (meanParity=0.457). Inline comment documents the calibration history. Floor now sits just below empirical to catch real regressions, not synthetic-placeholder false negatives.
+- `tests/ide-proxy-quality-parity.spec.js` — updated assertion to match.
+
+### Closed
+- Epic #1020 (IDE proxy shim) — all 18 children closed (Stages 1-4 of cost-reduction); all 7 AC items met. Stage 4 (#1067) shipped the empirical evidence; this PR addresses the parity-floor recalibration finding from that stage.
+
 ## [Unreleased] — Stage 4 live cost-lever activation (#1067)
 
 ### Added
