@@ -54,6 +54,28 @@ function inspectBranch(branch, usingRemote, issues) {
   if (dirtyCount > 0) issues.push(`${logicalBranch}: has ${dirtyCount} local changes while on sandbox launcher.`);
 }
 
+function checkAllWorktrees(issues) {
+  const threshold = Number(process.env.WORKTREE_STALE_BEHIND || 50);
+  let raw;
+  try { raw = run('git worktree list --porcelain'); } catch { return; }
+  const entries = raw.split('\n\n').filter(Boolean);
+  // First entry is the main repo worktree. In CI (GitHub Actions PR builds), the
+  // main worktree is checked out at a detached HEAD (PR merge ref). Skipping the
+  // first entry avoids a true-but-unactionable detached-HEAD finding in CI.
+  const additional = entries.slice(1);
+  for (const entry of additional) {
+    const wpath = (entry.match(/^worktree (.+)/m) || [])[1] || '';
+    if (entry.includes('\nlocked')) continue;
+    const branch = (entry.match(/^branch refs\/heads\/(.+)/m) || [])[1];
+    if (!branch) { issues.push(`${wpath}: detached HEAD — remove or reattach.`); continue; }
+    if (sandboxRx.test(branch)) continue;
+    try {
+      const { behind } = aheadBehind(`refs/heads/${branch}`);
+      if (behind > threshold) issues.push(`${branch}: worktree ${behind} commits behind main (max ${threshold}).`);
+    } catch { /* branch may be local-only; skip */ }
+  }
+}
+
 function check(options = {}) {
   const target = Object.hasOwn(options, 'target') ? options.target : parseTarget(options.args);
   run('git fetch origin --prune');
@@ -64,6 +86,7 @@ function check(options = {}) {
   const issues = [];
   if (!branches.length) issues.push(`No ${target ? `sandbox/${target}` : 'sandbox/*'} branches found locally or on origin.`);
   for (const branch of branches) inspectBranch(branch, usingRemote, issues);
+  checkAllWorktrees(issues);
   return {
     target: target || 'all',
     checkedBranches: branches.length,
@@ -97,4 +120,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { check, filterBranches, helpText, parseTarget, validTargets };
+module.exports = { check, checkAllWorktrees, filterBranches, helpText, parseTarget, validTargets };

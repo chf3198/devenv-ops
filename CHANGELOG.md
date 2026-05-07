@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased] — #919: worktree audit detects stale + detached non-sandbox worktrees
+
+### Added
+- `scripts/global/worktree-governance-audit.js` `checkAllWorktrees()` — extends audit to ALL worktrees (not just `sandbox/*`). Detects detached HEAD; flags non-sandbox branches >`WORKTREE_STALE_BEHIND` commits behind main (default 50). Locked worktrees silently skipped.
+
 ## [Unreleased] — Epic #1083 Wave-1: Broker MVP + visual-QA classifier (#1088 #1089 #1090 #1091 #1092)
 
 ### Added
