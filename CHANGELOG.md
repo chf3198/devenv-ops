@@ -1,12 +1,12 @@
 # Changelog
 
-## [Unreleased] — Epic #866 PR-B: hygiene scanners + eval harness (#870 #872)
+## [Unreleased] — Epic #866 PR-C: write-safety + Karpathy v2 + known-defects (#871 #1017 #1018)
 
 ### Added
-- `scripts/wiki/hygiene.js` (85 lines) — wiki content hygiene scanners (#870): stale (180d threshold), duplicate (0.85 jaccard), orphan (no inbound wikilinks), weak-link (<2 outbound). Local-only computation.
-- `scripts/wiki/eval-harness.js` (70 lines) — wiki retrieval eval harness with quality gate (#872). PRECISION_AT=5; QUALITY_FLOOR=0.40. Writes `logs/wiki-eval-report.json`.
-- `scripts/wiki/eval-ground-truth.json` — 5 seed queries with expected slugs.
-- `tests/wiki-hygiene-eval.spec.js` — 9 tests covering hygiene scanners + eval precision/recall.
+- `scripts/wiki/write-safety.js` (73 lines) — multi-repo write-path safety (#871). Local advisory locks via SHA-256 of slug; provenance validation (5 required fields); 5-minute lock TTL. Lock dir: `.megingjord/wiki-locks/`.
+- `scripts/wiki/answer.js` (67 lines) — Karpathy 3rd-layer answer-tier (#1017). Composes long-lived synthesis pages from hybridSearch; tagged `cache_eligible: true` + `extended_cache_ttl: true` per HAMR #1000.
+- `wiki/concepts/known-defects.md` (#1018) — centralized defect tracker with reproduction triggers + resolution status + cross-link pattern.
+- `tests/wiki-safety-answers.spec.js` — 9 Playwright tests covering write-safety + answer slugification.
 
 ## [Unreleased] — Epic #1074: Epic-vs-child governance differentiation
 
