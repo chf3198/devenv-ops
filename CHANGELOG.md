@@ -1,11 +1,12 @@
 # Changelog
 
-## [Unreleased] — #829: detect-secrets baseline + CI gate + optional pre-commit hook
+## [Unreleased] — #837: governance:audit npm script + library
 
 ### Added
-- `.secrets.baseline` (168 lines): generated via detect-secrets v1.5.0; 3 false-positive hits accepted (env-var references in litellm-config.yaml + skills/openrouter-free-failover/SKILL.md).
-- `.github/workflows/detect-secrets.yml`: CI gate runs on push to main + every PR; fails if a NEW secret is introduced beyond the baseline.
-- `hooks/scripts/detect-secrets-precommit.sh`: optional operator-installable pre-commit hook (scans staged files only). Install: `cp hooks/scripts/detect-secrets-precommit.sh .git/hooks/pre-commit`.
+- `scripts/global/governance-audit.js`: productized version of the 2026-05-02 ad-hoc audit pattern. Composes drift/verify/reconcile/worktrees deterministic checks + label-violation detection (Rule 4, Rule 8, Rule E2). Exports library API; CLI emits 1-line summary + writes `/tmp/governance-audit.json` schema_version 1.
+- `package.json` script: `npm run governance:audit`.
+- `tests/governance-audit.spec.js`: 7 Playwright tests covering rule detection + audit() schema.
+
 
 ## [Unreleased] — #919: worktree audit detects stale + detached non-sandbox worktrees
 
