@@ -7,7 +7,6 @@
 - `package.json` script: `npm run governance:audit`.
 - `tests/governance-audit.spec.js`: 7 Playwright tests covering rule detection + audit() schema.
 
-
 ## [Unreleased] — #919: worktree audit detects stale + detached non-sandbox worktrees
 
 ### Added

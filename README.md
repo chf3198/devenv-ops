@@ -72,6 +72,7 @@ npm run deploy:both:apply
 | `docs:lint` | `node scripts/docs-lint.js` |
 | `format` | `prettier --write .prettierrc.json package.json CONTRIBUTING.md .github/workflows/lint.yml lint-configs/README.md lint-configs/ci-lint.yml lint-configs/eslint.config.devenv.js scripts/lint-readability.js scripts/global/install-readability-toolchain.js` |
 | `format:check` | `prettier --check .prettierrc.json package.json CONTRIBUTING.md .github/workflows/lint.yml lint-configs/README.md lint-configs/ci-lint.yml lint-configs/eslint.config.devenv.js scripts/lint-readability.js scripts/global/install-readability-toolchain.js` |
+| `governance:audit` | `node scripts/global/governance-audit.js` |
 | `governance:drift` | `node scripts/global/governance-drift-classifier.js --json` |
 | `governance:epic` | `node scripts/global/epic-evidence.js` |
 | `governance:epics` | `node scripts/global/epic-close-validator.js` |
