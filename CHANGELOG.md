@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — #829: detect-secrets baseline + CI gate + optional pre-commit hook
+
+### Added
+- `.secrets.baseline` (168 lines): generated via detect-secrets v1.5.0; 3 false-positive hits accepted (env-var references in litellm-config.yaml + skills/openrouter-free-failover/SKILL.md).
+- `.github/workflows/detect-secrets.yml`: CI gate runs on push to main + every PR; fails if a NEW secret is introduced beyond the baseline.
+- `hooks/scripts/detect-secrets-precommit.sh`: optional operator-installable pre-commit hook (scans staged files only). Install: `cp hooks/scripts/detect-secrets-precommit.sh .git/hooks/pre-commit`.
+
+
 ## [Unreleased] — #919: worktree audit detects stale + detached non-sandbox worktrees
 
 ### Added
