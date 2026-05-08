@@ -36,6 +36,7 @@ The LLM updates this on every ingest operation.
 - [[fleet-architecture]] — Fleet Architecture Overview
 - [[workspace-write-boundary-discipline]] — Workspace Write-Boundary Discipline
 - [[harness-goals]] — Harness Goal Constitution
+- [[harness-goal-controls]] — G1..G9 enforcement primitives + evidence signals (aggregated map)
 
 ## Source Summaries
 
