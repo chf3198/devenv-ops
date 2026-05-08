@@ -366,3 +366,197 @@ Role: consultant
 last_activity_utc: 2026-05-08T04:38:41Z
 quiescent: true
 ---
+---
+PROTOCOL_ACK: true
+read:
+  - planning/prompts/team-prep.md
+  - planning/prompts/team-init.md
+  - planning/protocol.md
+  - planning/README.md
+  - planning/artifacts/INDEX.md
+  - planning/artifacts/cc-rd.md
+  - planning/artifacts/cp-rd.md
+  - planning/artifacts/cx-rd.md
+  - planning/artifacts/cc-critique.md
+  - planning/status.md
+Signed-by: Nova Harper
+Team&Model: codex:gpt-5@codex-cli
+Role: collaborator
+last_activity_utc: 2026-05-08T04:38:21Z
+---
+---
+decision_ref: D-001
+threads: []
+verdict: agree
+rationale: Verified: harness-goals is not directly included by runtime entrypoints; mirrors and includes are partial.
+evidence:
+  - cf:[CC-RD §0.2]
+  - repo: CLAUDE.md#L10-L14
+  - repo: AGENTS.md#L5
+  - repo: .codex/AGENTS.md#L9
+  - repo: .github/copilot-instructions.md#L91-L93
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-002
+threads: []
+verdict: agree
+rationale: The wiki overstates always-loaded surfaces; runtime loading is per surface plus hook-scoped injection.
+evidence:
+  - cf:[CC-RD §2]
+  - cf:[CX-RD C4]
+  - repo: wiki/concepts/harness-goals.md#L33-L39
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-003
+threads: []
+verdict: agree
+rationale: The shared gap is a single G1-G9 control/evidence map, not a new canonical goal source.
+evidence:
+  - cf:[CC-RD §4]
+  - cf:[CC-RD §5]
+  - cf:[CP-RD seedmap]
+  - cf:[CX-RD C6]
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-004
+threads: []
+verdict: agree
+rationale: Fleet is a zero-cost lane, not goal priority #2; reword under Governance and Quality.
+evidence:
+  - cf:[CX-RD C3]
+  - repo: instructions/global-task-router.instructions.md#L3
+  - repo: instructions/harness-goals.instructions.md#L8-L9
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-005
+threads: []
+verdict: agree
+rationale: Normalize "Zero Cost" unless compact hook display text is explicitly documented as display-only.
+evidence:
+  - cf:[CX-RD C5]
+  - repo: hooks/scripts/session_context.py#L65-L72
+  - repo: instructions/harness-goals.instructions.md#L8-L9
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-006
+threads: []
+verdict: agree
+rationale: Runtime parity needs explicit sync evidence so Claude, Copilot, and Codex run the same harness contract.
+evidence:
+  - cf:[CX-RD C8]
+  - repo: AGENTS.md#L44-L48
+  - repo: package.json#L93-L100
+  - repo: scripts/global/hamr-sync-verify.js#L19-L22
+  - repo: instructions/hamr-routing.instructions.md#L73-L78
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-007
+threads: []
+verdict: agree
+rationale: Use generated JSON only as a lintable mirror contract; Markdown remains the normative source.
+evidence:
+  - cf:[CX-RD canon]
+  - cf:[CP-RD canon]
+  - repo: instructions/harness-goals.instructions.md#L1-L21
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-008
+threads: []
+verdict: agree
+rationale: role-baton-routing carries older board/status vocabulary and should be reconciled with taxonomy v1.1.
+evidence:
+  - cf:[CP-RD conflicts]
+  - repo: instructions/role-baton-routing.instructions.md#L12-L27
+  - repo: instructions/ticket-driven-work.instructions.md#L22-L35
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-009
+threads: []
+verdict: agree
+rationale: Governance justifies full definitions via include or byte-identical equivalent; choose the lowest-token compliant form.
+evidence:
+  - cf:[CC-RD §6.2]
+  - cf:[CX-RD C2]
+  - repo: CLAUDE.md#L10-L14
+  - repo: AGENTS.md#L5
+  - repo: instructions/harness-goals.instructions.md#L13-L21
+  - repo: hooks/scripts/goal_lens.py#L7-L10
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-010
+threads: []
+verdict: disagree-not-blocking
+rationale: 1.2d is tight with sync proof, role-baton drift, and lint, but acceptable as a planning baseline.
+evidence:
+  - cf:[CC-RD §6]
+  - cf:[CP-RD rollout]
+  - cf:[CX-RD rollout]
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
+---
+decision_ref: D-011
+threads: []
+verdict: agree
+rationale: Advisory-first drift lint prevents regression while keeping the Markdown constitution canonical.
+evidence:
+  - cf:[CC-RD §6.1]
+  - cf:[CX-RD C1]
+  - repo: instructions/harness-goals.instructions.md#L8-L9
+  - repo: .codex/AGENTS.md#L9
+  - repo: .github/copilot-instructions.md#L91-L93
+  - repo: hooks/scripts/goal_lens.py#L7-L10
+Signed-by: Nova Vale
+Team&Model: codex:gpt-5@codex-cli
+Role: consultant
+last_activity_utc: 2026-05-08T04:38:21Z
+quiescent: true
+---
