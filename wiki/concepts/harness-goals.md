@@ -43,6 +43,34 @@ These surfaces inject the priority sentence into every governed session at start
 
 - `instructions/harness-goals.instructions.md` — canonical goal constitution with expanded G1..G9 definitions. Contains the full priority sentence + per-goal definitions, but is NOT @-included by any runtime entry point. Read on demand or via `goal_lens.py` keyword trigger. (Per #1105 D-001 cross-team verification: CC + CX both confirmed.)
 
+## Loading Paths (per runtime)
+
+How the priority sentence reaches each runtime session at startup:
+
+| Runtime | Primary load path | Mechanism |
+| --- | --- | --- |
+| Claude Code | `CLAUDE.md` @-includes `instructions/global-standards.instructions.md` (line 34 carries the priority sentence) | `@`-include resolved at session boot |
+| Copilot Chat | `.github/copilot-instructions.md` lines 80-81 carry the priority sentence inline | Repo-rooted Copilot Instructions auto-loaded |
+| Codex CLI | `.codex/AGENTS.md` line 8 carries the priority sentence inline | Codex baseline AGENTS.md auto-loaded |
+| All runtimes (on-demand) | `hooks/scripts/goal_lens.py` injects priority sentence + decision-check note | UserPromptSubmit hook on goal-decision keywords (see below) |
+
+### `goal_lens.py` trigger keywords
+
+The hook activates when the user prompt matches the regex (case-insensitive):
+
+```text
+\b(decide|decision|choose|tradeoff|priority|prioritize|rank|route|
+   policy|architecture|design|should we|which option|compare)\b
+```
+
+(Source: `hooks/scripts/goal_lens.py#L14-L16`)
+
+When a match is found, the hook injects a compact context block containing the priority sentence + a "decision check: justify any lower-priority override with explicit evidence" reminder.
+
+### Verification source
+
+This section reflects empirical verification by Claude Code Team and Codex Team during the #1105 cross-team R&D synthesis (2026-05-07). Prior documentation incorrectly claimed `instructions/harness-goals.instructions.md` was always-loaded; cross-team grep against `CLAUDE.md`, `AGENTS.md`, `.codex/AGENTS.md`, and `.github/copilot-instructions.md` confirmed it is NOT @-included by any runtime entry point. Only the priority sentence reaches sessions — via the inline references above. The expanded G1..G9 definitions are reachable on demand only.
+
 ## Goal Definitions
 
 - Governance: policy, role, provenance, and ticket controls are non-negotiable.
