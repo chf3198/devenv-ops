@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased] — #1117: normalize ZeroCost spelling in session_context.py
+
+### Fixed
+- `hooks/scripts/session_context.py:72` — replace compact "ZeroCost" with canonical "Zero Cost" (with space) per `instructions/harness-goals.instructions.md:8`. Per #1105 D-005 promoted decision (CX-RD C5 LOW-severity finding). Broader compact-format goal chain also normalized to canonical "G > G > G" spacing.
+- `package.json` `lint:md` — exclude `planning/**` from markdownlint (positions files use YAML frontmatter `---` blocks which markdownlint flags as setext headings).
+
 ## [Unreleased] — #837: governance:audit npm script + library
 
 ### Added
