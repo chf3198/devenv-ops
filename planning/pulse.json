@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "epic": 1103,
+  "research_ticket": 1105,
+  "kickoff_utc": "2026-05-07T22:00:00Z",
+  "wall_clock_cap_utc": "2026-05-10T23:59:59Z",
+  "current_snapshot_utc": "2026-05-08T04:30:00Z",
+  "snapshot_interval_hours": 6,
+  "halt": false,
+  "termination": "SYNTHESIS_COMPLETE",
+  "termination_reason": "all teams quiescent on all decisions; PASS pattern on 11/11; no threads opened; no admin tie-break invoked",
+  "termination_utc": "2026-05-08T04:30:00Z",
+  "teams": {
+    "cc": {
+      "code": "cc",
+      "name": "Claude Code Team",
+      "is_admin": true,
+      "last_activity_utc": "2026-05-08T03:16:48Z",
+      "quiescent": true,
+      "verdicts_count": 11,
+      "threads_opened": 0
+    },
+    "cp": {
+      "code": "cp",
+      "name": "Copilot Team",
+      "is_admin": false,
+      "last_activity_utc": "2026-05-08T04:12:13Z",
+      "quiescent": true,
+      "verdicts_count": 11,
+      "threads_opened": 0,
+      "signature_variance": "signed all blocks as chf3198 (operator handle) instead of registry-derived alias; content accepted; flagged in decisions.md"
+    },
+    "cx": {
+      "code": "cx",
+      "name": "Codex Team",
+      "is_admin": false,
+      "last_activity_utc": "2026-05-08T04:13:46Z",
+      "quiescent": true,
+      "verdicts_count": 11,
+      "threads_opened": 0
+    }
+  },
+  "decisions": {
+    "open": 0,
+    "resolved": 11,
+    "stable_pending": 0,
+    "admin_tiebreak_count": 0,
+    "pass": 11,
+    "fail": 0,
+    "escalated": 0
+  },
+  "stability": {
+    "last_position_change_utc": "2026-05-08T04:13:46Z",
+    "consecutive_stable_snapshots": 0,
+    "stability_threshold_snapshots": 2,
+    "stability_unused": "consensus reached without stability detection needed"
+  },
+  "notes": [
+    "CC posted late due to operator session sequencing — original prompt arrived as IDE selection without explicit directive; corrected at 2026-05-08T03:16Z.",
+    "CX completed first pass at 2026-05-08T02:44Z.",
+    "CC posted full pass at 2026-05-08T03:16Z including D-011 proposal.",
+    "CP posted full pass at 2026-05-08T04:12Z; signature variance flagged.",
+    "CX returned at 2026-05-08T04:13Z to add D-011 position (anti-spam-compliant).",
+    "Synthesis lessons codified into planning/prompts/ two-phase prompt structure for future runs."
+  ]
+}
