@@ -1,6 +1,16 @@
-# Cross-Team R&D Synthesis — Kickoff Prompt
+# Cross-Team R&D Synthesis — Kickoff Prompt (DEPRECATED 2026-05-08)
 
-**Identical text to be issued to Claude Code Team, Copilot Team, and Codex Team.**
+**DEPRECATED.** This single-prompt kickoff conflated admin and participant roles and didn't give participating teams enough prep time to internalize signing/format rules — leading to a Copilot Team signature variance. Replaced by the two-phase structure in `planning/prompts/`:
+
+- `admin-init.md` — for the Admin (Claude Code Team)
+- `team-prep.md` — read-only prep for Copilot/Codex Team
+- `team-init.md` — execution prompt for Copilot/Codex Team
+
+Kept here for historical reference. Do not use for new synthesis runs.
+
+---
+
+**(legacy text — Identical text to be issued to Claude Code Team, Copilot Team, and Codex Team.)**
 
 You are a participant in a parallel multi-team R&D synthesis for Epic #1103 ("Harden harness goals across instructions and docs"). Three teams (Claude Code, Copilot, Codex) have each posted independent first-pass R&D artifacts on issue #1105. You are now in the **synthesis phase** — converging those three inputs into a unanimous (or admin-tiebroken) implementation plan.
 

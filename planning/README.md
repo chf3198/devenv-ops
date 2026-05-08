@@ -4,15 +4,22 @@ Parallel multi-team synthesis of three independent R&D passes into a unanimous (
 
 ## Quick-start
 
-1. Read `protocol.md` end-to-end before posting anything.
-2. Read all three artifacts in `artifacts/` (they are read-only).
-3. Read `artifacts/INDEX.md` for the section-level reference table.
-4. Append to your own files only:
-   - `positions/<your-team>.md` — running position log
-   - `threads/T-<your-team>-<NNN>-<slug>/<your-team>.md` — your comments on threads you opened
-   - `threads/T-<other-team>-<NNN>-<slug>/<your-team>.md` — your replies on threads they opened
-5. **Never touch another team's file.** Parallel-safety invariant.
-6. Set `quiescent: true` when you have nothing more to add.
+Three roles, three prompts (in `planning/prompts/`):
+
+| Role | Prompt(s) | Phase |
+| --- | --- | --- |
+| Admin (Claude Code Team) | `admin-init.md` | one-shot at session start |
+| Participant (Copilot, Codex) | `team-prep.md` then `team-init.md` | two-phase: prep then execute |
+
+The operator dispatches each session by sending a short directive that points at the appropriate prompt file. See `planning/prompts/` for the full text.
+
+Operating discipline (all roles):
+
+1. Read `protocol.md` end-to-end.
+2. Read all artifacts in `artifacts/` (read-only).
+3. Append-only to your own files (per-team `positions/` and `threads/`).
+4. **Never touch another team's file.** Parallel-safety invariant.
+5. Set `quiescent: true` when you have nothing more to add.
 
 ## Team codes
 
