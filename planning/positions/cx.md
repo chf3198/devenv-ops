@@ -185,3 +185,21 @@ Role: consultant
 last_activity_utc: 2026-05-08T02:42:34Z
 quiescent: true
 ---
+---
+decision_ref: D-011
+threads: []
+verdict: agree
+rationale: Advisory-first priority drift lint is low-cost protection after fixes; keep Markdown canonical and compare mirrors.
+evidence:
+  - cf:[CC-RD §6.1]
+  - cf:[CX-RD C1]
+  - repo: instructions/harness-goals.instructions.md#L8-L9
+  - repo: .codex/AGENTS.md#L9
+  - repo: .github/copilot-instructions.md#L91-L93
+  - repo: hooks/scripts/goal_lens.py#L7-L10
+Signed-by: Cora Vale
+Team&Model: codex:gpt-5@openai
+Role: consultant
+last_activity_utc: 2026-05-08T04:13:46Z
+quiescent: true
+---
