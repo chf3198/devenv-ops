@@ -213,25 +213,34 @@ implementation_note: lint compares canonical line in instructions/harness-goals.
 
 ---
 
-## Implementation child tickets (recommended; awaiting operator approval)
+## Implementation child tickets (FILED 2026-05-08)
 
-The synthesis decisions imply the following child-ticket plan. Per protocol §10, no child implementation tickets were created in this phase — the operator must approve before tickets are filed.
+Operator approved the plan and chose D-009 hybrid B/B+ tier. All 10 implementation children filed on Epic #1103. Sibling Epic #1113 + R&D #1114 filed for the broader self-annealing goal-governance system. Companion #1111 tracks parallel write-safety enhancement.
 
-| Suggested ticket | Maps to | Effort | Dependencies |
-| --- | --- | --- | --- |
-| Fix wiki "Always-Loaded Surfaces" claim | D-002 | 0.1d | — |
-| Implement D-009 hybrid: byte-identity CI lint + role-aware expanded-definition injection in goal_lens.py for consultant role | D-009 | 0.4d (B + B+ tier) | operator chose hybrid |
-| Reword global-task-router phrasing | D-004 | 0.1d | — |
-| Normalize "ZeroCost" -> "Zero Cost" in session_context.py | D-005 | 0.05d | — |
-| Reconcile role-baton-routing with v1.1 taxonomy | D-008 | 0.3d | — |
-| Build aggregated G1..G9 enforcement+evidence wiki concept | D-003 | 0.3d | — |
-| Build generated JSON contract for goal definitions | D-007 | 0.3d | D-003 |
-| Add CI drift-lint for priority sentence (advisory-first) | D-011 | 0.3d | D-002, D-005 (so lint doesn't fail on day 1) |
-| Document sync-verification requirements in rollout instructions | D-006 | 0.1d | — |
-| Validate @-include actual loading paths (D-001 documentation outcome) | D-001 | 0.1d | — |
-| **Total** | | **~1.5-1.9d** | |
+| Filed | Title | Maps to | Effort | Dependencies |
+| --- | --- | --- | --- | --- |
+| #1115 | Fix wiki "Always-Loaded Surfaces" claim | D-002 | 0.1d | — |
+| #1116 | Reword global-task-router phrasing | D-004 | 0.1d | — |
+| #1117 | Normalize "ZeroCost" → "Zero Cost" in session_context.py | D-005 | 0.05d | — |
+| #1118 | Document sync-verification requirements in rollouts | D-006 | 0.1d | — |
+| #1119 | Reconcile role-baton-routing with v1.1 taxonomy | D-008 | 0.3d | — |
+| #1120 | Aggregated G1..G9 enforcement+evidence wiki concept | D-003 | 0.3d | — |
+| #1121 | Generated JSON contract for goal definitions | D-007 | 0.3d | #1120 |
+| #1122 | CI drift-lint for priority sentence (advisory-first) | D-011 | 0.3d | #1115, #1117 |
+| #1123 | D-009 hybrid (byte-identity lint + role-aware goal_lens) | D-009 | 0.4d | #1115 |
+| #1124 | Document actual @-include loading paths | D-001 | 0.1d | — |
+| **Total** | | | **~1.65-2.0d** | |
 
-This is above the D-010 baseline of 1.0-1.2d, consistent with the 3-team disagree-not-blocking pattern on that decision (all teams said 1.2d was tight). Operator may scope-cut for the first PR and defer items.
+This is above the D-010 baseline of 1.0-1.2d, consistent with the 3-team disagree-not-blocking pattern (all teams said 1.2d was tight). Operator may scope-cut and defer items if needed.
+
+## Related Epics filed
+
+| Epic | Title | Status |
+| --- | --- | --- |
+| #1112 | Productize multi-team parallel R&D collaboration as harness feature | backlog (P2) |
+| #1113 | Multi-layer self-annealing goal-governance system | backlog (P2) |
+| #1114 | Design Goal Health Score and self-annealing actuator matrix (R&D child of #1113) | backlog (P2) |
+| #1111 | Allow parallel cross-team writes in write-safety.js (companion) | backlog (P2) |
 
 ## Synthesis-process learnings (for future runs)
 
