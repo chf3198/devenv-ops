@@ -2,7 +2,7 @@
 
 **Audience**: Copilot Team or Codex Team or Claude Code Team session, producing first-pass independent research for a brand-new R&D ticket.
 
-**Use this prompt FIRST**, before `team-prep.md` and `team-init.md`. The synthesis prep + init phases assume each team's R&D artifact already exists in `planning/artifacts/<team-code>-rd.md`. This Phase-R prompt produces that artifact.
+**Use this prompt FIRST**, before `team-prep.md` and `team-init.md`. The synthesis prep + init phases assume each team's R&D artifact already exists in `planning/<SYNTHESIS-DIR>/artifacts/<team-code>-rd.md`. This Phase-R prompt produces that artifact.
 
 **Important**: Phase-R is independent. You do NOT read other teams' R&D in this phase. You produce your own first-pass against the parent ticket's research questions. Read others' R&D only at Phase-P (prep) onward.
 
@@ -32,11 +32,11 @@ The operator will tell you the R&D ticket number when sending this prompt. Read:
 - Any referenced existing artifacts (`scripts/global/...`, `instructions/...`, prior R&D in `research/`)
 - `inventory/team-model-signatures.json` and any other inventory files relevant to the question
 
-**Do NOT read** other teams' R&D files in `planning/artifacts/` if any exist. They are out of scope for Phase-R.
+**Do NOT read** other teams' R&D files in `planning/<SYNTHESIS-DIR>/artifacts/` if any exist. They are out of scope for Phase-R.
 
 ## Step 4 — Produce your independent first-pass artifact
 
-Create `planning/artifacts/<your-team-code>-rd.md`. **Required sections**:
+Create `planning/<SYNTHESIS-DIR>/artifacts/<your-team-code>-rd.md`. **Required sections**:
 
 1. **Header**: parent Epic, R&D ticket, date, your team, your model, your alias, your role
 2. **Contamination declaration**: explicitly state what you read before producing this artifact (issue threads viewed, files opened, web searches run). Honesty is required — synthesis depends on knowing what each team's perspective drew from.
@@ -76,7 +76,7 @@ After all three teams report `RD-COMPLETE`, the operator sends the prep prompt. 
 
 - Do NOT read other teams' R&D artifacts (preserves independence)
 - Do NOT post positions, threads, or decisions (those are Phase-S/init)
-- Do NOT touch `planning/protocol.md`, `planning/decisions.md`, `planning/status.md`, `planning/pulse.json` (admin-only)
+- Do NOT touch `planning/protocol.md`, `planning/decisions.md`, `planning/<SYNTHESIS-DIR>/status.md`, `planning/pulse.json` (admin-only)
 - Do NOT propose implementation tickets (that's after operator approves the synthesis output)
 
 ## Why Phase-R exists

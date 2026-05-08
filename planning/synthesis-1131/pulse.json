@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "epic": 1130,
+  "research_ticket": 1131,
+  "synthesis_dir": "synthesis-1131",
+  "synthesis_branch": "feat/1131-hamr-synthesis-scaffold",
+  "kickoff_utc": "2026-05-08T19:40:00Z",
+  "wall_clock_cap_utc": "2026-05-11T19:40:00Z",
+  "current_snapshot_utc": "2026-05-08T19:40:00Z",
+  "snapshot_interval_hours": 6,
+  "halt": false,
+  "termination": null,
+  "phase": "awaiting-R",
+  "teams": {
+    "cc": { "code": "cc", "name": "Claude Code Team", "is_admin": true, "phase_r_complete": false, "quiescent": null, "verdicts_count": 0, "threads_opened": 0 },
+    "cp": { "code": "cp", "name": "Copilot Team", "is_admin": false, "phase_r_complete": false, "quiescent": null, "verdicts_count": 0, "threads_opened": 0 },
+    "cx": { "code": "cx", "name": "Codex Team", "is_admin": false, "phase_r_complete": false, "quiescent": null, "verdicts_count": 0, "threads_opened": 0 }
+  },
+  "decisions": { "open": 0, "resolved": 0, "stable_pending": 0, "admin_tiebreak_count": 0 },
+  "stability": { "last_position_change_utc": null, "consecutive_stable_snapshots": 0, "stability_threshold_snapshots": 2 }
+}

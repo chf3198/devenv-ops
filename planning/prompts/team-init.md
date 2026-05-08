@@ -6,11 +6,11 @@
 
 ## Begin posting now
 
-Append your full position pass to `planning/positions/<your-team-code>.md`. One YAML block per decision. Format per `planning/protocol.md` §5.
+Append your full position pass to `planning/<SYNTHESIS-DIR>/positions/<your-team-code>.md`. One YAML block per decision. Format per `planning/protocol.md` §5.
 
 For every block:
 
-- `decision_ref`: D-001..D-011 (the 11 currently in `planning/status.md`), or `null` for new decisions you propose
+- `decision_ref`: D-NNN (currently listed in `planning/<SYNTHESIS-DIR>/status.md`), or `null` for new decisions you propose
 - `verdict`: one of `agree`, `disagree-not-blocking`, `disagree-blocking`, `abstain`
 - `rationale`: ≤200 chars, your reasoning
 - `evidence`: list of `cf:[<ref>]`, `repo: path/file.ext#L<start>-L<end>`, or `websearch: <URL> (accessed <ISO-8601-UTC>)`
@@ -20,16 +20,16 @@ For every block:
 - `last_activity_utc`: current UTC timestamp
 - `quiescent: true` when you have nothing further to add on that decision
 
-If you want to propose a new decision, use a `PROPOSE_DECISION: D-<NNN>` block (see CC's D-011 in `planning/positions/cc.md` for an example). Number it the next available D-NNN.
+If you want to propose a new decision, use a `PROPOSE_DECISION: D-<NNN>` block (see CC's D-011 in `planning/<SYNTHESIS-DIR>/positions/cc.md` for an example). Number it the next available D-NNN.
 
-If you want to open a discussion thread, create `planning/threads/T-<your-team-code>-001-<slug>/<your-team-code>.md` with the opening argument, and reference the thread ID in any position blocks that depend on it.
+If you want to open a discussion thread, create `planning/<SYNTHESIS-DIR>/threads/T-<your-team-code>-001-<slug>/<your-team-code>.md` with the opening argument, and reference the thread ID in any position blocks that depend on it.
 
 ## When done
 
 1. Verify all your blocks are signed correctly and have `quiescent: true` (or are an active thread comment with explicit non-quiescent state).
-2. `git add planning/positions/<your-team-code>.md` and any new thread files.
-3. Commit with message: `feat(governance): <your-team> Team positions for #1105`.
-4. `git push origin feat/1105-synthesis-scaffold`.
+2. `git add planning/<SYNTHESIS-DIR>/positions/<your-team-code>.md` and any new thread files.
+3. Commit with message: `feat(governance): <your-team> Team positions for #<RD-TICKET>`.
+4. `git push origin <SYNTHESIS-BRANCH>`.
 5. Reply to the operator: `POSTED: <team-code>, <N> decisions positioned, quiescent on all`.
 
 ## Re-engagement (waves 2+)

@@ -1,6 +1,6 @@
 # Team Prep — Cross-Team R&D Synthesis
 
-**Audience**: Copilot Team or Codex Team session, preparing to participate in Epic #1103 / R&D #1105 synthesis.
+**Audience**: Copilot Team or Codex Team session, preparing to participate in Epic #<EPIC> / R&D #<RD-TICKET> synthesis.
 
 **This phase is read-only. Do NOT post any positions yet.** You will receive a separate Init prompt when it's time to write.
 
@@ -8,7 +8,7 @@
 
 ```bash
 git fetch origin
-git checkout feat/1105-synthesis-scaffold
+git checkout <SYNTHESIS-BRANCH>
 git pull --ff-only
 ```
 
@@ -41,22 +41,22 @@ In this order:
 
 1. `planning/protocol.md` — full structural protocol (read end-to-end)
 2. `planning/README.md` — quick-start
-3. `planning/artifacts/INDEX.md` — section-level reference table for cross-refs
-4. `planning/artifacts/cc-rd.md` — Claude Code Team R&D
-5. `planning/artifacts/cp-rd.md` — Copilot Team R&D
-6. `planning/artifacts/cx-rd.md` — Codex Team R&D
-7. `planning/artifacts/cc-critique.md` — Claude Code earlier critique (contains a known factual error corrected in [CC-RD §0.2])
-8. `planning/positions/cc.md` — existing Claude Code positions (reference only — do NOT touch)
-9. `planning/positions/cx.md` — existing Codex positions (reference only — do NOT touch)
-10. `planning/positions/cp.md` — your team's file (will be written in Init phase)
-11. `planning/status.md` — current synthesis state + 11 provisional decisions D-001..D-011
+3. `planning/<SYNTHESIS-DIR>/artifacts/INDEX.md` — section-level reference table for cross-refs
+4. `planning/<SYNTHESIS-DIR>/artifacts/cc-rd.md` — Claude Code Team R&D
+5. `planning/<SYNTHESIS-DIR>/artifacts/cp-rd.md` — Copilot Team R&D
+6. `planning/<SYNTHESIS-DIR>/artifacts/cx-rd.md` — Codex Team R&D
+7. `planning/<SYNTHESIS-DIR>/artifacts/cc-critique.md` — Claude Code earlier critique (if present; not all syntheses have one)
+8. `planning/<SYNTHESIS-DIR>/positions/cc.md` — existing Claude Code positions (reference only — do NOT touch)
+9. `planning/<SYNTHESIS-DIR>/positions/cx.md` — existing Codex positions (reference only — do NOT touch)
+10. `planning/<SYNTHESIS-DIR>/positions/cp.md` — your team's file (will be written in Init phase)
+11. `planning/<SYNTHESIS-DIR>/status.md` — current synthesis state + provisional decisions in status.md
 
 ## Step 4 — Internalize the rules
 
 Before posting anything in the Init phase:
 
-- **Files you may write**: `planning/positions/<your-team-code>.md` only (append-only). And `planning/threads/T-<your-team-code>-NNN-*/<your-team-code>.md` if you open threads (none currently exist).
-- **Files you must NEVER touch**: any other team's position or thread file; anything in `planning/artifacts/`; the admin-maintained `status.md`, `decisions.md`, `pulse.json`.
+- **Files you may write**: `planning/<SYNTHESIS-DIR>/positions/<your-team-code>.md` only (append-only). And `planning/<SYNTHESIS-DIR>/threads/T-<your-team-code>-NNN-*/<your-team-code>.md` if you open threads (none currently exist).
+- **Files you must NEVER touch**: any other team's position or thread file; anything in `planning/<SYNTHESIS-DIR>/artifacts/`; the admin-maintained `status.md`, `decisions.md`, `pulse.json`.
 - **Sign-off format**: per `protocol.md` §5. YAML block per decision. Evidence MUST use `repo: path/file.ext#L<start>-L<end>` line anchors and `websearch: <URL> (accessed <UTC>)` timestamps.
 - **Anti-spam**: once you post `quiescent: true` on a decision, do not post again on that decision unless **new evidence changes your verdict**.
 
