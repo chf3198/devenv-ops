@@ -13,6 +13,12 @@ When asked to "complete" a feature-add, all four baton roles are required. Tests
 - Publish/release work (if applicable)
 - Release integrity verification
 - Issue closure comment with released version evidence
+- **Runtime-deploy sync verification** (per #1105 D-006 / Codex Team CX-RD C8 HIGH-severity finding) — for changes that affect deployed runtime artifacts (`~/.copilot/`, `~/.codex/`, `~/.agents/skills/`), the closeout MUST include outputs of:
+  - `npm run sync:codex` (Codex runtime parity)
+  - `npm run sync:claude` (Claude Code runtime parity)
+  - `npm run hamr:sync-verify` (HAMR substrate verification)
+
+  If a change does NOT affect deployed runtime artifacts (e.g., wiki-only edits, research files), state explicitly: `sync-verification: N/A — change does not touch deployed runtime targets.`
 
 ## Documentation coverage matrix (required)
 

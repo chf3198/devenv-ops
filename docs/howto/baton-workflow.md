@@ -114,7 +114,14 @@ CI evidence:
 - collaborator-gate: pass (run #...)
 - lint-required: pass
 - All required checks green
+
+Runtime-deploy sync verification (per #1105 D-006):
+- npm run sync:codex      → ok / N/A — reason
+- npm run sync:claude     → ok / N/A — reason
+- npm run hamr:sync-verify → ok / N/A — reason
 ```
+
+**Sync-verification rule** (per `instructions/feature-completion-governance.instructions.md`): for changes that touch deployed runtime artifacts (`~/.copilot/`, `~/.codex/`, `~/.agents/skills/`, HAMR Worker), Admin closeout MUST include the three sync-verify outputs above. For wiki-only / research / docs changes that don't deploy, state explicitly: `sync-verification: N/A — change does not touch deployed runtime targets.`
 
 Rerun any failed gates after posting:
 
