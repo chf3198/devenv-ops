@@ -1,55 +1,55 @@
 # Synthesis Status — Epic #1103 / #1105
 
-Admin-maintained live state. Refreshed at each admin snapshot.
+Admin-maintained live state.
 
 ## Current state
 
-- **Phase**: Active — first wave
-- **Snapshot**: 2026-05-08T03:17:00Z
-- **Wall-clock cap**: 2026-05-10T23:59:59Z (72h from 2026-05-07T22:00Z kickoff)
-- **Quiescent teams**: 2 / 3 (cx, cc)
-- **Decisions resolved**: 0 / 11 (awaiting CP positions for promotion)
+- **Phase**: SYNTHESIS_COMPLETE
+- **Snapshot**: 2026-05-08T04:30:00Z
+- **Wall-clock cap**: 2026-05-10T23:59:59Z (not reached; consensus reached early)
+- **Quiescent teams**: 3 / 3 (cc, cx, cp)
+- **Decisions resolved**: 11 / 11
 - **Threads open**: 0
+- **Threads opened (lifetime)**: 0
 - **Emergency halt**: false
+- **Admin tie-break invoked**: 0 / 11 (0%)
 
-## Team activity
+## Team activity (final)
 
 | Team | Last activity | Quiescent | Threads opened | Decisions positioned |
 | --- | --- | --- | --- | --- |
 | `cc` (Claude Code, admin) | 2026-05-08T03:16:48Z | true (all 11) | 0 | 11 (D-001..D-010 + proposed D-011) |
-| `cp` (Copilot) | — | — | 0 | 0 |
-| `cx` (Codex) | 2026-05-08T02:44:32Z | true (all 10) | 0 | 10 (D-001..D-010) |
+| `cp` (Copilot) | 2026-05-08T04:12:13Z | true (all 11) | 0 | 11 (D-001..D-011) |
+| `cx` (Codex) | 2026-05-08T04:13:46Z | true (all 11) | 0 | 11 (D-001..D-011) |
 
-## Open decisions (with current 2-team partial tally)
+## Resolution outcomes (consensus tally per protocol §6)
 
-D-011 was added by CC as a new proposal. Total now 11.
-
-| ID | Title | CC | CX | CP | Status |
+| ID | Title | CC | CX | CP | Final |
 | --- | --- | --- | --- | --- | --- |
-| D-001 | @-include claim verification | agree | agree | — | awaiting CP |
-| D-002 | Wiki "Always-Loaded Surfaces" claim is wrong | agree | agree | — | awaiting CP |
-| D-003 | Aggregated G1..G9 enforcement+evidence map | agree | agree | — | awaiting CP |
-| D-004 | global-task-router "second-highest priority goal" reword | agree | agree | — | awaiting CP |
-| D-005 | session_context.py "ZeroCost" normalize | agree | agree | — | awaiting CP |
-| D-006 | Runtime-deploy sync gap — require sync evidence | agree | agree | — | awaiting CP |
-| D-007 | JSON contract for goal definitions (generated/derived only) | agree | agree | — | awaiting CP |
-| D-008 | role-baton-routing as primary drift surface | agree | agree | — | awaiting CP |
-| D-009 | Include harness-goals.instructions.md in CLAUDE.md (G1>G3) | agree | agree | — | awaiting CP |
-| D-010 | Effort estimate revision (1.2d planning baseline) | disagree-not-blocking | disagree-not-blocking | — | awaiting CP (already passes per §6) |
-| D-011 | CI drift-lint for priority sentence (proposed by CC) | agree | — | — | awaiting CP, CX |
+| D-001 | @-include claim verified false | agree | agree | agree | PASS |
+| D-002 | Wiki "Always-Loaded Surfaces" fix | agree | agree | agree | PASS |
+| D-003 | Aggregated G1..G9 enforcement+evidence map | agree | agree | agree | PASS |
+| D-004 | global-task-router phrasing fix | agree | agree | agree | PASS |
+| D-005 | session_context.py "ZeroCost" normalize | agree | agree | agree | PASS |
+| D-006 | Runtime-deploy sync verification required | agree | agree | agree | PASS |
+| D-007 | Generated JSON contract (caveat: not second-canonical) | agree | agree | agree | PASS |
+| D-008 | role-baton-routing reconciliation | agree | agree | agree | PASS |
+| D-009 | harness-goals auto-load (A or B at scoping) | agree | agree | agree | PASS |
+| D-010 | 1.0-1.2d effort baseline (revisable) | disagree-not-blocking | disagree-not-blocking | disagree-not-blocking | PASS |
+| D-011 | CI drift-lint (advisory-first) | agree | agree | agree | PASS |
 
-## Promotion status
+## Signature variance
 
-Per protocol §6: 2 agree + 1 abstain = PASS; 2 agree + 1 disagree-not-blocking = PASS. Most decisions will reach PASS as soon as CP weighs in (or stability triggers in 2 admin snapshots without CP activity).
+Copilot Team (`cp`) signed all blocks as `Signed-by: chf3198` instead of registry-derived alias. Verdicts accepted; flagged in `decisions.md` with `signature_variance: cp` per `planning/prompts/admin-init.md` handling protocol.
 
-If CP fails to post by 2026-05-08T15:17Z (12h quiescence floor), admin will treat CP positions as `abstain` for stability-detection purposes (per §7.2 stability rule, not §7.1 quiescence).
+## Next steps (operator authority)
 
-## Open threads
+1. Review `planning/decisions.md` end-to-end.
+2. Decide D-009 implementation choice: option A (@-include in CLAUDE.md+AGENTS.md) or option B (goal_lens.py-only + byte-identity CI lint). Cost vs governance tradeoff.
+3. Approve / amend the suggested child-ticket plan in `decisions.md` "Implementation child tickets" section.
+4. Authorize child-ticket filing on Epic #1103.
+5. Close #1105 with CONSULTANT_CLOSEOUT after operator approval.
 
-(none — first wave produced direct agreement; no thread escalations needed yet)
+## Termination signal
 
-## Stability tracker
-
-- D-001..D-009: 2 consecutive snapshots with current state will mark stable → auto-promote
-- D-010: 2 disagree-not-blocking + abstain still resolves to PASS (passing pattern)
-- D-011: needs CX position before stability counts begin
+`SYNTHESIS_COMPLETE` posted to #1105 by admin.
