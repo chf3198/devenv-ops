@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "epic": 1103,
+  "research_ticket": 1105,
+  "kickoff_utc": "2026-05-07T22:00:00Z",
+  "wall_clock_cap_utc": "2026-05-10T23:59:59Z",
+  "current_snapshot_utc": "2026-05-08T03:17:00Z",
+  "snapshot_interval_hours": 6,
+  "halt": false,
+  "termination": null,
+  "teams": {
+    "cc": {
+      "code": "cc",
+      "name": "Claude Code Team",
+      "is_admin": true,
+      "last_activity_utc": "2026-05-08T03:16:48Z",
+      "quiescent": true,
+      "verdicts_count": 11,
+      "threads_opened": 0
+    },
+    "cp": {
+      "code": "cp",
+      "name": "Copilot Team",
+      "is_admin": false,
+      "last_activity_utc": null,
+      "quiescent": null,
+      "verdicts_count": 0,
+      "threads_opened": 0
+    },
+    "cx": {
+      "code": "cx",
+      "name": "Codex Team",
+      "is_admin": false,
+      "last_activity_utc": "2026-05-08T02:44:32Z",
+      "quiescent": true,
+      "verdicts_count": 10,
+      "threads_opened": 0
+    }
+  },
+  "decisions": {
+    "open": 11,
+    "resolved": 0,
+    "stable_pending": 9,
+    "admin_tiebreak_count": 0
+  },
+  "stability": {
+    "last_position_change_utc": "2026-05-08T03:16:48Z",
+    "consecutive_stable_snapshots": 0,
+    "stability_threshold_snapshots": 2
+  },
+  "notes": [
+    "CC posted late due to operator session sequencing — kickoff prompt was first issued to CC but session interpreted as IDE-selection review rather than directive; corrected at 2026-05-08T03:16Z.",
+    "CX completed full pass at 2026-05-08T02:44Z (all 10 quiescent agree).",
+    "CC posted full pass at 2026-05-08T03:16Z (10 positions on D-001..D-010 + proposed D-011).",
+    "CP not yet started as of current snapshot."
+  ]
+}
