@@ -1,0 +1,32 @@
+name: HAMR Bypass Lint (advisory)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - 'dashboard/**'
+      - 'hooks/**'
+      - 'tests/**'
+  schedule:
+    - cron: '23 7 * * *'
+
+permissions:
+  contents: read
+
+jobs:
+  hamr-bypass-lint:
+    name: HAMR-bypass detection (advisory)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run HAMR-bypass lint
+        run: node scripts/global/lint-hamr-bypass.js
+        continue-on-error: true
+      - name: Note
+        run: |
+          echo "Per #1150 / #1130 D-1148-003: advisory-first."
+          echo "Promote to required (HAMR_BYPASS_GATE=1) after #1158 + 2w stable."
