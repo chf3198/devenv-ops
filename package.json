@@ -63,6 +63,7 @@
     "health": "node scripts/health-check.js",
     "help:topic": "node scripts/help-topic.js",
     "issue:transition": "node scripts/global/issue-transition.js",
+    "pr:merge-target": "node scripts/global/pr-merge-target-check.js",
     "lint": "node scripts/lint.js",
     "lint:all": "npm run lint:js && npm run lint:py && npm run lint:sh && npm run lint:md",
     "lint:js": "eslint -c lint-configs/eslint.config.devenv.js --max-warnings 9999 dashboard/js scripts/global scripts/wiki",
