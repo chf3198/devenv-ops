@@ -19,6 +19,7 @@ function getHostInfo() {
 }
 const { getWikiHealth, getWikiPages } = require('./dashboard-wiki');
 const { recordAccess, getWikiMetrics } = require('./wiki-metrics');
+const GOVERNANCE_AUDIT_FILE = '/tmp/governance-audit.json';
 
 const DASH = path.join(ROOT, 'dashboard');
 function serveStatic(req, res) {
@@ -85,12 +86,33 @@ async function handleApi(req, res) {
   if (u === '/api/governance') {
     try { const rs = JSON.parse(fs.readFileSync(path.join(ROOT, 'hooks', 'repo-scope.json'), 'utf8')); const gh = JSON.parse(fs.readFileSync(path.join(ROOT, 'hooks', 'global-standards.json'), 'utf8')); return jsonRes(res, 200, { enabled: rs.default_enabled, repoScope: rs, hooks: gh.hooks }); } catch (e) { return jsonRes(res, 500, { error: e.message }); }
   }
+  if (u === '/api/governance-audit') {
+    try {
+      if (!fs.existsSync(GOVERNANCE_AUDIT_FILE)) {
+        return jsonRes(res, 200, {
+          overall: 'UNAVAILABLE',
+          goal_health: { score: null, stale: true, reason: 'governance audit report unavailable', contributing: {}, weights_used: {}, computed_utc: null },
+          actuator_state: null,
+          violations: [],
+        });
+      }
+      return jsonRes(res, 200, JSON.parse(fs.readFileSync(GOVERNANCE_AUDIT_FILE, 'utf8')));
+    } catch (error) { return jsonRes(res, 500, { error: error.message }); }
+  }
   if (u === '/api/host-info') { return jsonRes(res, 200, getHostInfo()); }
   if (u.startsWith('/api/fleet-health')) { const { readLog } = require('./fleet-health-log'); return jsonRes(res, 200, readLog(100)); }
   if (u === '/api/quota-probes') { const { probeAll } = require('./quota-probes'); return jsonRes(res, 200, await probeAll()); }
   if (u === '/api/copilot-usage') { const { getCopilotQuota } = require('./copilot-tracker'); return jsonRes(res, 200, getCopilotQuota()); }
   if (u === '/api/copilot-usage/sync' && req.method === 'POST') { let b=''; req.on('data',c=>b+=c); req.on('end',()=>{ try { const d=JSON.parse(b); const { setManualUsage } = require('./copilot-tracker'); return jsonRes(res,200,setManualUsage(d.cost,d.requests)); } catch(e){ return jsonRes(res,400,{error:e.message}); } }); return; }
   if (u === '/api/logs/token-telemetry-summary') { const { writeTokenTelemetryReport } = require('./global/token-telemetry-report'); return jsonRes(res, 200, writeTokenTelemetryReport(30)); }
+  if (u === '/api/logs/quality-parity') {
+    const { writeQualityParityReport } = require('./global/quality-parity-report');
+    const url = new URL(req.url, 'http://localhost');
+    const live = url.searchParams.get('live') === '1' || process.env.QUALITY_PARITY_LIVE === '1';
+    return writeQualityParityReport({ mode: live ? 'live' : 'dry-run' })
+      .then(report => jsonRes(res, 200, report))
+      .catch(error => jsonRes(res, 500, { error: error.message }));
+  }
   if (u === '/api/logs/token-telemetry-reconcile') { const { writeReconciliationReport } = require('./global/token-telemetry-reconcile'); writeReconciliationReport(30).then(r => jsonRes(res, 200, r)).catch(e => jsonRes(res, 500, { error: e.message })); return; }
   if (u === '/api/logs/cost-telemetry') { const lf=path.join(ROOT,'logs','cost-telemetry.jsonl'); const txt=fs.existsSync(lf)?fs.readFileSync(lf,'utf8'):''; res.setHeader('Content-Type','text/plain'); return res.end(txt); }
   jsonRes(res, 404, { error: 'not found' });

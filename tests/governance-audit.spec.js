@@ -43,13 +43,15 @@ test('REPORT_FILE points at /tmp', () => {
   expect(A.REPORT_FILE).toBe('/tmp/governance-audit.json');
 });
 
-test('audit() returns schema_version 1 result with required fields', async () => {
+test('audit() returns schema_version 4 result with required fields', async () => {
   const r = await A.audit();
-  expect(r.schema_version).toBe(1);
+  expect(r.schema_version).toBe(4);
   expect(r).toHaveProperty('started_at');
   expect(r).toHaveProperty('checks');
   expect(r).toHaveProperty('violations');
   expect(r).toHaveProperty('dependency_health');
+  expect(r).toHaveProperty('goal_health');
+  expect(r).toHaveProperty('actuator_state');
   expect(['PASS', 'FAIL']).toContain(r.overall);
 });
 

@@ -2,9 +2,30 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { execSync } = require('node:child_process');
 const { compute, freshness, worktree, target } = require('../scripts/global/git-state-drift-sensor');
 
-test('git-state-drift: freshness returns fresh when compliant', () => {
+function withTempRepo(setup, run) {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'git-drift-'));
+  const previousCwd = process.cwd();
+  try {
+    execSync('git init', { cwd: tempRoot, stdio: 'ignore' });
+    execSync('git config user.email test@example.com', { cwd: tempRoot, stdio: 'ignore' });
+    execSync('git config user.name Test User', { cwd: tempRoot, stdio: 'ignore' });
+    fs.writeFileSync(path.join(tempRoot, 'README.md'), '# temp repo\n');
+    execSync('git add README.md && git commit -m init', { cwd: tempRoot, stdio: 'ignore' });
+    if (setup) setup(tempRoot);
+    process.chdir(tempRoot);
+    return run(tempRoot);
+  } finally {
+    process.chdir(previousCwd);
+  }
+}
+
+test('git-state-drift: freshness returns a status field', () => {
   assert.ok(freshness().status, 'should have status field');
 });
 
@@ -16,6 +37,39 @@ test('git-state-drift: worktree detects single vs multi worktree', () => {
 test('git-state-drift: target validates branch naming compliance', () => {
   const result = target();
   assert.ok(result.detail, 'should have detail message');
+});
+
+test('git-state-drift: invalid branch prefix is flagged', () => {
+  withTempRepo(tempRoot => {
+    execSync('git checkout -b topic/feature', { cwd: tempRoot, stdio: 'ignore' });
+  }, tempRoot => {
+    const sensor = require('../scripts/global/git-state-drift-sensor');
+    const result = sensor.freshness();
+    assert.strictEqual(result.status, 'invalid-prefix');
+    assert.match(result.detail, /invalid/);
+  });
+});
+
+test('git-state-drift: detached HEAD is detected', () => {
+  withTempRepo(tempRoot => {
+    execSync('git checkout --detach', { cwd: tempRoot, stdio: 'ignore' });
+  }, tempRoot => {
+    const sensor = require('../scripts/global/git-state-drift-sensor');
+    const result = sensor.freshness();
+    assert.strictEqual(result.status, 'detached');
+    assert.match(result.detail, /HEAD detached/);
+  });
+});
+
+test('git-state-drift: orphaned main branch is detected', () => {
+  withTempRepo(tempRoot => {
+    execSync('git checkout -b feat/test', { cwd: tempRoot, stdio: 'ignore' });
+  }, tempRoot => {
+    const sensor = require('../scripts/global/git-state-drift-sensor');
+    const result = sensor.freshness();
+    assert.strictEqual(result.status, 'orphaned');
+    assert.match(result.detail, /orphaned/);
+  });
 });
 
 test('git-state-drift: compute returns PASS/FAIL with violation count', () => {
