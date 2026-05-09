@@ -66,6 +66,7 @@ npm run deploy:both:apply
 | `deploy:claude:apply` | `bash scripts/deploy.sh --apply --target claude` |
 | `deploy:codex` | `bash scripts/deploy.sh --target codex` |
 | `deploy:codex:apply` | `bash scripts/deploy.sh --apply --target codex` |
+| `deps:aggregate` | `node scripts/global/dep-graph-aggregate.js` |
 | `docs:anchors` | `node scripts/global/docs-anchors.js` |
 | `docs:compile` | `node scripts/docs-compile.js` |
 | `docs:exec` | `node scripts/global/docs-exec.js` |
