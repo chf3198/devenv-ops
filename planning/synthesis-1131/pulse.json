@@ -3,19 +3,25 @@
   "epic": 1130,
   "research_ticket": 1131,
   "synthesis_dir": "synthesis-1131",
-  "synthesis_branch": "feat/1131-hamr-synthesis-scaffold",
+  "synthesis_branch": "chore/synthesis-1131-bootstrap",
   "kickoff_utc": "2026-05-08T19:40:00Z",
   "wall_clock_cap_utc": "2026-05-11T19:40:00Z",
-  "current_snapshot_utc": "2026-05-08T19:40:00Z",
+  "current_snapshot_utc": "2026-05-08T20:08:00Z",
   "snapshot_interval_hours": 6,
   "halt": false,
   "termination": null,
-  "phase": "awaiting-R",
+  "phase": "S-wave-1",
   "teams": {
-    "cc": { "code": "cc", "name": "Claude Code Team", "is_admin": true, "phase_r_complete": false, "quiescent": null, "verdicts_count": 0, "threads_opened": 0 },
-    "cp": { "code": "cp", "name": "Copilot Team", "is_admin": false, "phase_r_complete": false, "quiescent": null, "verdicts_count": 0, "threads_opened": 0 },
-    "cx": { "code": "cx", "name": "Codex Team", "is_admin": false, "phase_r_complete": false, "quiescent": null, "verdicts_count": 0, "threads_opened": 0 }
+    "cc": { "code": "cc", "name": "Claude Code Team", "is_admin": true, "phase_r_complete": true, "rd_lines": 155, "phase_p_ready": true, "quiescent": true, "verdicts_count": 16, "threads_opened": 0, "last_activity_utc": "2026-05-08T20:05:00Z" },
+    "cp": { "code": "cp", "name": "Copilot Team", "is_admin": false, "phase_r_complete": true, "rd_lines": 76, "phase_p_ready": true, "quiescent": null, "verdicts_count": 0, "threads_opened": 0, "last_activity_utc": "2026-05-08T19:30:00Z", "signature_variance": "internal sign-off codex:gpt-5.3-codex@codex-cli (Auto-routed model); substrate-correct team is cp; tracked in #1145" },
+    "cx": { "code": "cx", "name": "Codex Team", "is_admin": false, "phase_r_complete": true, "rd_lines": 143, "phase_p_ready": true, "quiescent": null, "verdicts_count": 0, "threads_opened": 0, "last_activity_utc": "2026-05-08T19:35:00Z" }
   },
-  "decisions": { "open": 0, "resolved": 0, "stable_pending": 0, "admin_tiebreak_count": 0 },
-  "stability": { "last_position_change_utc": null, "consecutive_stable_snapshots": 0, "stability_threshold_snapshots": 2 }
+  "decisions": { "open": 16, "resolved": 0, "stable_pending": 0, "admin_tiebreak_count": 0 },
+  "stability": { "last_position_change_utc": "2026-05-08T20:05:00Z", "consecutive_stable_snapshots": 0, "stability_threshold_snapshots": 2 },
+  "notes": [
+    "Phase-R complete for all 3 teams.",
+    "Provenance correction: Copilot's 76-line Phase-R was overwritten by Codex's 143-line in cx-rd.md. Recovered via git history into cp-rd.md.",
+    "CC posted Phase-S Wave-1 with 16 PROPOSE_DECISION blocks (D-001..D-016) all marked quiescent. CP and CX await positions.",
+    "Substrate-vs-model registry bug tracked in #1145 (P2 follow-up). Does NOT block this synthesis."
+  ]
 }
