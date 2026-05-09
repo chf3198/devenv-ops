@@ -1,0 +1,77 @@
+# D-1133-05 & AC8: Nightly anneal cron with scheduler resilience — Epic #1133
+name: Anneal Nightly
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: anneal-nightly
+  cancel-in-progress: false
+
+jobs:
+  health-check:
+    name: health-check
+    runs-on: ubuntu-latest
+    outputs:
+      actor-ok: ${{ steps.health.outputs.actor-ok }}
+    steps:
+      - name: Check schedule actor health
+        id: health
+        run: |
+          if [ -z "${{ github.actor }}" ]; then
+            echo "❌ Schedule actor undefined (workflow not running as expected)"
+            echo "actor-ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "✅ Actor: ${{ github.actor }}"
+            echo "actor-ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  detect:
+    name: detect
+    needs: health-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Run anneal detection
+        id: detect
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          OUT=$(node scripts/global/workflow-anneal-detect.js 2>&1)
+          EXIT=$?
+          echo "output<<EOF_OUT" >> "$GITHUB_OUTPUT"
+          echo "$OUT" >> "$GITHUB_OUTPUT"
+          echo "EOF_OUT" >> "$GITHUB_OUTPUT"
+          echo "exit=$EXIT" >> "$GITHUB_OUTPUT"
+
+      - name: Post digest to Epic #1133
+        if: steps.detect.outputs.exit != '0'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BODY: ${{ steps.detect.outputs.output }}
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          gh issue comment 1133 \
+            --repo chf3198/megingjord-harness \
+            --body "### 🔍 Anneal Nightly — $DATE
+**Actor health**: ${{ needs.health-check.outputs.actor-ok }}
+\`\`\`
+$BODY
+\`\`\`
+
+_Auto-posted by anneal-nightly.yml (AC8 resilience check)_"
+
+      - name: Log clean run
+        if: steps.detect.outputs.exit == '0'
+        run: |
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          echo "✅ Anneal clean run $DATE"
+          echo "actor_ok=${{ needs.health-check.outputs.actor-ok }}"
