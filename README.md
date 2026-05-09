@@ -76,6 +76,7 @@ npm run deploy:both:apply
 | `docs:lint` | `node scripts/docs-lint.js` |
 | `format` | `prettier --write .prettierrc.json package.json CONTRIBUTING.md .github/workflows/lint.yml lint-configs/README.md lint-configs/ci-lint.yml lint-configs/eslint.config.devenv.js scripts/lint-readability.js scripts/global/install-readability-toolchain.js` |
 | `format:check` | `prettier --check .prettierrc.json package.json CONTRIBUTING.md .github/workflows/lint.yml lint-configs/README.md lint-configs/ci-lint.yml lint-configs/eslint.config.devenv.js scripts/lint-readability.js scripts/global/install-readability-toolchain.js` |
+| `git-state:drift` | `node scripts/global/git-state-drift-sensor.js` |
 | `goals:regen` | `node scripts/global/goals-contract-generate.js` |
 | `governance:audit` | `node scripts/global/governance-audit.js` |
 | `governance:drift` | `node scripts/global/governance-drift-classifier.js --json` |
@@ -123,6 +124,7 @@ npm run deploy:both:apply
 | `mailbox:poll` | `node scripts/global/mailbox-client.js poll` |
 | `mailbox:send` | `node scripts/global/mailbox-client.js send` |
 | `prepare` | `bash scripts/install-git-hooks.sh` |
+| `quality:parity` | `node scripts/global/quality-parity-report.js --json` |
 | `rag:search` | `node scripts/global/rag-search.js` |
 | `readability:snapshot` | `bash scripts/readability-snapshot.sh` |
 | `repo:scope` | `node scripts/global/repo-scope.js` |

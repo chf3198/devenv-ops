@@ -20,8 +20,6 @@ function getHostInfo() {
 const { getWikiHealth, getWikiPages } = require('./dashboard-wiki');
 const { recordAccess, getWikiMetrics } = require('./wiki-metrics');
 const GOVERNANCE_AUDIT_FILE = '/tmp/governance-audit.json';
-
-const DASH = path.join(ROOT, 'dashboard');
 function serveStatic(req, res) {
   const pn = req.url.split('?')[0];
   let fp = path.join(ROOT, pn === '/' ? 'dashboard/index.html' : pn.startsWith('/dashboard/') || pn.startsWith('/inventory/') ? pn : 'dashboard' + pn);
@@ -31,12 +29,10 @@ function serveStatic(req, res) {
   if(fp.endsWith('/')||fp.endsWith(path.sep)) fp=path.join(fp,'index.html');
   const ext=path.extname(fp); fs.readFile(fp,(err,data)=>{ if(err){res.writeHead(404);res.end('Not found');return;} res.writeHead(200,{'Content-Type':MIME[ext]||'application/octet-stream','Cache-Control':'no-cache'}); res.end(data); });
 }
-
 function proxyGet(url, headers, timeout = 5000) {
   if (!url || !url.startsWith('http')) return Promise.resolve({status:502,body:'{}'});
   return new Promise(resolve=>{ const mod=url.startsWith('https')?require('https'):http; const req=mod.get(url,{headers,timeout},r=>{let body=''; r.on('data',c=>body+=c); r.on('end',()=>resolve({status:r.statusCode,body}));}); req.on('error',()=>resolve({status:502,body:'{}'})); req.on('timeout',()=>{req.destroy();resolve({status:504,body:'{}'})}); });
 }
-
 function jsonRes(res, status, body) {
   res.writeHead(status,{'Content-Type':'application/json'}); res.end(typeof body==='string'?body:JSON.stringify(body));
 }
@@ -56,20 +52,14 @@ async function handleApi(req, res) {
   }
   // OpenRouter credits
   if (u === '/api/openrouter/credits') {
-    const key = process.env.OPENROUTER_API_KEY;
-    if (!key) return jsonRes(res, 503, { error: 'no key' });
-    const r = await proxyGet('https://openrouter.ai/api/v1/auth/key', {
-      Authorization: `Bearer ${key}`
-    });
+    const key = process.env.OPENROUTER_API_KEY; if (!key) return jsonRes(res, 503, { error: 'no key' });
+    const r = await proxyGet('https://openrouter.ai/api/v1/auth/key', { Authorization: `Bearer ${key}` });
     return jsonRes(res, r.status, r.body);
   }
   // Cloudflare AI gateway usage
   if (u === '/api/cloudflare/ai-usage') {
-    const tok = process.env.CLOUDFLARE_API_TOKEN;
-    const acct = process.env.CLOUDFLARE_ACCOUNT_ID;
-    if (!tok || !acct) return jsonRes(res, 503, { error: 'no key' });
-    const ep = `https://api.cloudflare.com/client/v4/accounts/${acct}/ai/runs`;
-    const r = await proxyGet(ep, { Authorization: `Bearer ${tok}` });
+    const tok = process.env.CLOUDFLARE_API_TOKEN; const acct = process.env.CLOUDFLARE_ACCOUNT_ID;
+    if (!tok || !acct) return jsonRes(res, 503, { error: 'no key' }); const ep = `https://api.cloudflare.com/client/v4/accounts/${acct}/ai/runs`; const r = await proxyGet(ep, { Authorization: `Bearer ${tok}` });
     return jsonRes(res, r.status, r.body);
   }
   if (u === '/api/router/metrics') { try { const { getRouterMetrics } = require('./global/router-metrics'); return jsonRes(res,200,getRouterMetrics()); } catch(e){ return jsonRes(res,200,{timestamp:new Date().toISOString(),lanes:{free:0,fleet:0,premium:0}}); } }
@@ -88,14 +78,7 @@ async function handleApi(req, res) {
   }
   if (u === '/api/governance-audit') {
     try {
-      if (!fs.existsSync(GOVERNANCE_AUDIT_FILE)) {
-        return jsonRes(res, 200, {
-          overall: 'UNAVAILABLE',
-          goal_health: { score: null, stale: true, reason: 'governance audit report unavailable', contributing: {}, weights_used: {}, computed_utc: null },
-          actuator_state: null,
-          violations: [],
-        });
-      }
+      if (!fs.existsSync(GOVERNANCE_AUDIT_FILE)) return jsonRes(res, 200, { overall: 'UNAVAILABLE', goal_health: { score: null, stale: true, reason: 'governance audit report unavailable', contributing: {}, weights_used: {}, computed_utc: null }, actuator_state: null, violations: [] });
       return jsonRes(res, 200, JSON.parse(fs.readFileSync(GOVERNANCE_AUDIT_FILE, 'utf8')));
     } catch (error) { return jsonRes(res, 500, { error: error.message }); }
   }
@@ -106,12 +89,8 @@ async function handleApi(req, res) {
   if (u === '/api/copilot-usage/sync' && req.method === 'POST') { let b=''; req.on('data',c=>b+=c); req.on('end',()=>{ try { const d=JSON.parse(b); const { setManualUsage } = require('./copilot-tracker'); return jsonRes(res,200,setManualUsage(d.cost,d.requests)); } catch(e){ return jsonRes(res,400,{error:e.message}); } }); return; }
   if (u === '/api/logs/token-telemetry-summary') { const { writeTokenTelemetryReport } = require('./global/token-telemetry-report'); return jsonRes(res, 200, writeTokenTelemetryReport(30)); }
   if (u === '/api/logs/quality-parity') {
-    const { writeQualityParityReport } = require('./global/quality-parity-report');
-    const url = new URL(req.url, 'http://localhost');
-    const live = url.searchParams.get('live') === '1' || process.env.QUALITY_PARITY_LIVE === '1';
-    return writeQualityParityReport({ mode: live ? 'live' : 'dry-run' })
-      .then(report => jsonRes(res, 200, report))
-      .catch(error => jsonRes(res, 500, { error: error.message }));
+    const { writeQualityParityReport } = require('./global/quality-parity-report'); const url = new URL(req.url, 'http://localhost'); const live = url.searchParams.get('live') === '1' || process.env.QUALITY_PARITY_LIVE === '1';
+    return writeQualityParityReport({ mode: live ? 'live' : 'dry-run' }).then(report => jsonRes(res, 200, report)).catch(error => jsonRes(res, 500, { error: error.message }));
   }
   if (u === '/api/logs/token-telemetry-reconcile') { const { writeReconciliationReport } = require('./global/token-telemetry-reconcile'); writeReconciliationReport(30).then(r => jsonRes(res, 200, r)).catch(e => jsonRes(res, 500, { error: e.message })); return; }
   if (u === '/api/logs/cost-telemetry') { const lf=path.join(ROOT,'logs','cost-telemetry.jsonl'); const txt=fs.existsSync(lf)?fs.readFileSync(lf,'utf8'):''; res.setHeader('Content-Type','text/plain'); return res.end(txt); }
