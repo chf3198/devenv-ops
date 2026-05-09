@@ -51,31 +51,42 @@ function detectViolations(tickets) {
   return violations;
 }
 
+function computeGoalHealth(violationCount) {
+  try {
+    const { computeGHS } = require('./goal-health-score');
+    const sensorValues = { ga: Math.min(1, violationCount / 14), ll: null, cf: null, pr: null,
+      rp: null, oo: null };
+    return computeGHS({ sensorValues });
+  } catch { return null; }
+}
+
+function loadHamrSensor(violations) {
+  let hamrSensor = null;
+  try { hamrSensor = require('./hamr-utilization-sensor').compute(); } catch { /* optional */ }
+  const rules = { violation: ['utilization-floor', 'floor'], escalation: ['utilization-escalation', 'escalation'] };
+  if (hamrSensor && rules[hamrSensor.status]) {
+    const [rule, label] = rules[hamrSensor.status], limit = hamrSensor.thresholds[hamrSensor.status];
+    violations.push({ ticket: 'HAMR', rule,
+      detail: `production_hamr_utilization_rate_7d=${hamrSensor.rate?.toFixed(2)} below ${label} ${limit}` });
+  }
+  return hamrSensor;
+}
+
 async function audit(opts = {}) {
   const startedAt = new Date().toISOString();
   const checks = CHECKS.map(runCheck);
   const tickets = listOpenTickets();
   const violations = detectViolations(tickets);
-  let hamrSensor = null;
-  try { hamrSensor = require('./hamr-utilization-sensor').compute(); } catch { /* sensor optional */ }
-  const hamrRules = { violation: ['utilization-floor', 'floor'], escalation: ['utilization-escalation', 'escalation'] };
-  if (hamrSensor && hamrRules[hamrSensor.status]) {
-    const [rule, label] = hamrRules[hamrSensor.status], limit = hamrSensor.thresholds[hamrSensor.status];
-    violations.push({ ticket: 'HAMR', rule,
-      detail: `production_hamr_utilization_rate_7d=${hamrSensor.rate?.toFixed(2)} below ${label} ${limit}` });
-  }
+  const hamrSensor = loadHamrSensor(violations);
   const dependencyHealth = DEP_HEALTH.compute(opts.dependencyHealth || {});
   dependencyHealth.cycles.forEach(cycle =>
     violations.push({ ticket: 'DEP-GRAPH', rule: 'dependency-cycle', detail: cycle }));
+  const goalHealth = computeGoalHealth(violations.length);
   const summary = {
-    schema_version: 1,
-    started_at: startedAt,
-    completed_at: new Date().toISOString(),
+    schema_version: 2, started_at: startedAt, completed_at: new Date().toISOString(),
     checks: checks.map(c => ({ name: c.name, ok: c.ok, error: c.error || null })),
-    open_tickets: tickets.length,
-    violations,
-    hamr_utilization: hamrSensor,
-    dependency_health: dependencyHealth,
+    open_tickets: tickets.length, violations, hamr_utilization: hamrSensor,
+    dependency_health: dependencyHealth, goal_health: goalHealth,
     overall: violations.length === 0 && checks.every(c => c.ok) ? 'PASS' : 'FAIL',
   };
   fs.writeFileSync(REPORT_FILE, JSON.stringify(summary, null, 2));
