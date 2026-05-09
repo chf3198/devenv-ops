@@ -89,6 +89,14 @@ test('git-state-drift: compute includes all three signals', () => {
 test('git-state-drift: violation detail includes reconciliation guidance', () => {
   const result = compute();
   result.violations.forEach(v => {
-    assert.ok(v.detail, `violation for ${v.signal} should have reconciliation guidance`);
+    assert.ok(v.guidance, `violation for ${v.signal} should have reconciliation guidance`);
   });
+});
+
+test('git-state-drift: compute exposes PASS/FAIL thresholds and escalation policy', () => {
+  const result = compute();
+  assert.ok(result.policy, 'policy should be present');
+  assert.ok(result.policy.thresholds, 'thresholds should be present');
+  assert.ok(result.policy.escalation, 'escalation policy should be present');
+  assert.strictEqual(result.policy.escalation.fail_when_violation_count_gte, 1);
 });

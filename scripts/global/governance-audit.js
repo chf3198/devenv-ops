@@ -6,6 +6,7 @@ const fs = require('node:fs');
 
 const REPORT_FILE = '/tmp/governance-audit.json';
 const DEP_HEALTH = require('./dep-graph-health');
+const GIT_STATE_DRIFT = require('./git-state-drift-sensor');
 const CHECKS = ['governance:drift', 'governance:verify', 'governance:reconcile', 'governance:worktrees'];
 const TIMEOUT_MS = 60_000;
 const RAW_PREVIEW_MAX = 500;
@@ -87,8 +88,16 @@ function loadHamrSensor(violations) {
 async function audit(opts = {}) {
   const startedAt = new Date().toISOString();
   const checks = CHECKS.map(runCheck);
+  const gitStateDrift = GIT_STATE_DRIFT.compute();
   const tickets = listOpenTickets();
   const violations = detectViolations(tickets);
+  for (const driftViolation of gitStateDrift.violations || []) {
+    violations.push({
+      ticket: 'GIT-STATE',
+      rule: `git_state_drift:${driftViolation.signal}`,
+      detail: `${driftViolation.status} — ${driftViolation.detail}. ${driftViolation.guidance}`,
+    });
+  }
   const hamrSensor = loadHamrSensor(violations);
   const dependencyHealth = DEP_HEALTH.compute(opts.dependencyHealth || {});
   dependencyHealth.cycles.forEach(cycle =>
@@ -100,6 +109,7 @@ async function audit(opts = {}) {
     schema_version: 4, started_at: startedAt, completed_at: new Date().toISOString(),
     checks: checks.map(c => ({ name: c.name, ok: c.ok, error: c.error || null })),
     open_tickets: tickets.length, violations, hamr_utilization: hamrSensor,
+    git_state_drift: gitStateDrift,
     dependency_health: dependencyHealth, goal_health: goalHealth,
     operator_overrides_active: operatorOverridesActive,
     actuator_state: actuatorState,

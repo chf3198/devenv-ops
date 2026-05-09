@@ -1,23 +1,29 @@
-# Governance Work Token Impact — May 9, 2026
+# Governance Work Token Impact — 2026-05-09
 
-## Observed telemetry
+## Summary
 
-- Current local usage log: [logs/copilot-usage.json](../logs/copilot-usage.json)
-- Snapshot values: `requests = 0`, `estimatedCost = 0`
-- Manual override: `null`
+| Metric | Value | Source |
+|---|---:|---|
+| Local requests (May 2026) | 0 | [logs/copilot-usage.json](../logs/copilot-usage.json) |
+| Local estimated cost (May 2026) | 0 | [logs/copilot-usage.json](../logs/copilot-usage.json) |
+| Ticket baseline context | HAMR utilization governance gap (not paid-usage spend data) | [Issue #1130](https://github.com/chf3198/megingjord-harness/issues/1130) |
 
-## Interpretation
+## Findings
 
-- The governance-audit and dashboard work in this checkout did not generate any paid Copilot usage in the local usage ledger.
-- That means there is no measurable increase in paid-token spend attributable to the Phase-A4/Phase-B edits from the current telemetry snapshot.
-- Because the local ledger is currently zeroed for the period, a before/after delta cannot be computed from this checkout alone.
+- Current local telemetry for this checkout is zeroed (`requests = 0`, `estimatedCost = 0`, `manualOverride = null`).
+- The Phase-A4 / Phase-B governance implementation work therefore shows no measurable paid-token increase in the local ledger snapshot.
+- Issue #1130 provides governance and utilization context but does not provide a numeric paid-token before/after series for direct spend delta computation.
 
-## Practical takeaway
+## Last updated
 
-- The implementation path stayed within the existing free/local workflow budget.
-- For a true spend delta, the next step would be to compare this checkout against the prior month’s telemetry baseline already documented in [research/cost-efficiency-self-anneal-2026-04-23.md](cost-efficiency-self-anneal-2026-04-23.md).
+- 2026-05-09T22:30:00Z
+
+## Actionable next steps
+
+1. Compare this zeroed checkout snapshot with a non-zero historical telemetry window in [research/cost-efficiency-self-anneal-2026-04-23.md](cost-efficiency-self-anneal-2026-04-23.md).
+2. Keep `routing:telemetry` and reconciliation reports archived per PR to make future deltas auditable.
 
 ## Team&Model
 
 - Human alias: curtisfranks
-- Team&Model: GitHub Copilot + GPT-5.4 mini
+- Team&Model: copilot:gpt-5.3-codex@github
