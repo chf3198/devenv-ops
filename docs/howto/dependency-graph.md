@@ -63,6 +63,19 @@ graph with edge types and proposal status annotations, critical path summary,
 cycle summary, pending proposals, and stale review decisions. It is deterministic
 for the same graph, proposal, and decision inputs.
 
+Include dependency health in the daily governance audit:
+
+```bash
+npm run governance:audit
+```
+
+The audit reads the same graph, proposal, and decision files. It writes
+`dependency_health` into `/tmp/governance-audit.json` with cycle count,
+critical-path length, unresolved mismatch count, stale proposal age, and
+augmentation cost/fallback counters. Missing dependency files produce warnings in
+the audit JSON instead of failing the command before aggregation has run. Any
+detected cycle is also promoted to a governance violation.
+
 Signed-by: Nova Harper
 Team&Model: codex:gpt-5@codex-cli
 Role: collaborator

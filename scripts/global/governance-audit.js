@@ -1,15 +1,11 @@
 #!/usr/bin/env node
-// governance-audit.js — Productized Manager-side ticket audit (#837).
-// Composes deterministic governance checks + optional fleet-LLM ticket review.
-// Output: /tmp/governance-audit.json + 1-line stdout summary.
 'use strict';
 
 const { execSync } = require('node:child_process');
 const fs = require('node:fs');
-const path = require('node:path');
 
 const REPORT_FILE = '/tmp/governance-audit.json';
-const HAMR = (() => { try { return require('./hamr-provider-wrapper'); } catch { return null; } })();
+const DEP_HEALTH = require('./dep-graph-health');
 const CHECKS = ['governance:drift', 'governance:verify', 'governance:reconcile', 'governance:worktrees'];
 const TIMEOUT_MS = 60_000;
 const RAW_PREVIEW_MAX = 500;
@@ -62,14 +58,15 @@ async function audit(opts = {}) {
   const violations = detectViolations(tickets);
   let hamrSensor = null;
   try { hamrSensor = require('./hamr-utilization-sensor').compute(); } catch { /* sensor optional */ }
-  if (hamrSensor && hamrSensor.status === 'violation') {
-    violations.push({ ticket: 'HAMR', rule: 'utilization-floor',
-      detail: `production_hamr_utilization_rate_7d=${hamrSensor.rate?.toFixed(2)} below floor ${hamrSensor.thresholds.violation}` });
+  const hamrRules = { violation: ['utilization-floor', 'floor'], escalation: ['utilization-escalation', 'escalation'] };
+  if (hamrSensor && hamrRules[hamrSensor.status]) {
+    const [rule, label] = hamrRules[hamrSensor.status], limit = hamrSensor.thresholds[hamrSensor.status];
+    violations.push({ ticket: 'HAMR', rule,
+      detail: `production_hamr_utilization_rate_7d=${hamrSensor.rate?.toFixed(2)} below ${label} ${limit}` });
   }
-  if (hamrSensor && hamrSensor.status === 'escalation') {
-    violations.push({ ticket: 'HAMR', rule: 'utilization-escalation',
-      detail: `production_hamr_utilization_rate_7d=${hamrSensor.rate?.toFixed(2)} below escalation ${hamrSensor.thresholds.escalation}` });
-  }
+  const dependencyHealth = DEP_HEALTH.compute(opts.dependencyHealth || {});
+  dependencyHealth.cycles.forEach(cycle =>
+    violations.push({ ticket: 'DEP-GRAPH', rule: 'dependency-cycle', detail: cycle }));
   const summary = {
     schema_version: 1,
     started_at: startedAt,
@@ -78,6 +75,7 @@ async function audit(opts = {}) {
     open_tickets: tickets.length,
     violations,
     hamr_utilization: hamrSensor,
+    dependency_health: dependencyHealth,
     overall: violations.length === 0 && checks.every(c => c.ok) ? 'PASS' : 'FAIL',
   };
   fs.writeFileSync(REPORT_FILE, JSON.stringify(summary, null, 2));
@@ -89,14 +87,12 @@ if (require.main === module) {
     const status = s.overall;
     const failed = s.checks.filter(c => !c.ok).length;
     console.log(`governance-audit: ${status} | open=${s.open_tickets} violations=${s.violations.length} failed-checks=${failed} → ${REPORT_FILE}`);
-    if (s.violations.length) {
-      const MAX_PRINTED = 10;
-      for (const violation of s.violations.slice(0, MAX_PRINTED)) {
-        console.log(`  ! #${violation.ticket} ${violation.rule}: ${violation.detail}`);
-      }
+    const MAX_PRINTED = 10;
+    for (const violation of s.violations.slice(0, MAX_PRINTED)) {
+      console.log(`  ! #${violation.ticket} ${violation.rule}: ${violation.detail}`);
     }
     process.exit(status === 'PASS' ? 0 : 1);
   }).catch(err => { console.error('governance-audit error:', err.message); process.exit(2); });
 }
 
-module.exports = { audit, runCheck, listOpenTickets, detectViolations, REPORT_FILE, CHECKS };
+module.exports = { audit, runCheck, listOpenTickets, detectViolations, REPORT_FILE, CHECKS, DEP_HEALTH };
