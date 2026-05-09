@@ -75,6 +75,19 @@ on issues closed >30 days. Archived tickets are excluded from all dashboard and 
 | Rule | Enforcement |
 |------|-------------|
 | Collaborator/Admin signer independence | `baton-gates.yml` admin-gate blocks identical signer identity |
+| Test strategy declared per matrix | `test-evidence.yml` gate consumes `test_strategy` from `MANAGER_HANDOFF` |
+
+## MANAGER_HANDOFF schema (with test_strategy)
+
+Required fields on every `MANAGER_HANDOFF` comment:
+- `scope:` — what changes
+- `lane:` — `lane:code-change | lane:docs-research | lane:config-only | lane:trivial`
+- `test_strategy:` — one of `tdd-pyramid | tdd-trophy | contract-test | golden-file | eval-harness | visual-regression | drift-lint | peer-review | manual-verify | none`
+- `acceptance:` — AC checklist
+- `gates:` — CI/governance gates that must pass
+
+`test_strategy` is selected per `instructions/test-methodology-matrix.instructions.md`.
+Soft default: missing field on legacy/pre-rollout tickets is treated as `none` with a Manager-warning advisory comment. New tickets with `none` on a non-permitted lane fail the `test-evidence` gate.
 
 ## Local Override
 
