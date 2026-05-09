@@ -10,7 +10,9 @@ function reason(status, text = '', e = '') {
 }
 async function req(method, host, api, body, timeoutMs) {
   const ac = new AbortController(); const t = setTimeout(() => ac.abort(), timeoutMs);
-  try { const r = await fetch(`http://${host}:11434${api}`, { method, body: body ? JSON.stringify(body) : undefined, headers: { 'content-type': 'application/json' }, signal: ac.signal });
+  try {
+    // hamr-bypass-ok: diagnostic — fleet model-management endpoints (/api/pull etc.) not production inference; metrics excluded via tier='diagnostic' in upstream callers
+    const r = await fetch(`http://${host}:11434${api}`, { method, body: body ? JSON.stringify(body) : undefined, headers: { 'content-type': 'application/json' }, signal: ac.signal });
     const text = await r.text(); let data = {}; try { data = JSON.parse(text); } catch { data = { raw: text }; }
     return { ok: r.ok, status: r.status, data, text }; } finally { clearTimeout(t); }
 }
