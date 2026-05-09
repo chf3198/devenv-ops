@@ -5,6 +5,9 @@ import type { Env } from '../worker';
 const HIT_RATE_KEY = 'cache-stats:hit-rate-7d';
 const STALE_KEY = 'cache-stats:hit-rate-7d:stale';
 const PROVIDER_PREFIX = 'provider-spillover:';
+const LAST_UPDATE_KEY = 'cache-stats:last-update-ms';
+const PUSH_FAILURE_KEY = 'cache-stats:push-failure-count-24h';
+const FRESHNESS_SLO_MS = 12 * 60 * 60 * 1000;
 
 interface ProviderState {
   rate_limited: boolean;
@@ -38,16 +41,39 @@ async function readStale(env: Env): Promise<boolean> {
   return raw === 'true';
 }
 
+async function readLastUpdateMs(env: Env): Promise<number | null> {
+  const raw = await env.HAMR_KV.get(LAST_UPDATE_KEY);
+  if (!raw) return null;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+async function readPushFailureCount(env: Env): Promise<number> {
+  const raw = await env.HAMR_KV.get(PUSH_FAILURE_KEY);
+  if (!raw) return 0;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export async function quota(env: Env): Promise<Response> {
-  const [hit_rate_7d, providers, stale] = await Promise.all([
+  const now = Date.now();
+  const [hit_rate_7d, providers, stale, last_update_ms, push_failure_count_24h] = await Promise.all([
     readHitRate(env), readProviderStates(env), readStale(env),
+    readLastUpdateMs(env), readPushFailureCount(env),
   ]);
+  const stale_age_ms = last_update_ms ? now - last_update_ms : null;
+  const slo_breach = stale_age_ms !== null && stale_age_ms > FRESHNESS_SLO_MS;
   return new Response(JSON.stringify({
-    schema_version: 2,
-    ts: Date.now(),
+    schema_version: 3,
+    ts: now,
     hit_rate_7d,
     providers,
     stale,
+    last_update_ms,
+    freshness_slo_ms: FRESHNESS_SLO_MS,
+    stale_age_ms,
+    slo_breach,
+    push_failure_count_24h,
     placeholder: false,
   }), {
     status: 200,

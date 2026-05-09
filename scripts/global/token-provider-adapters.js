@@ -17,7 +17,8 @@ function anthropic(payload = {}, base = {}) {
     cache_read_tokens: n(usage.cache_read_input_tokens),
     cache_write_tokens: n(usage.cache_creation_input_tokens),
     confidence_level: 'exact_request', request_id: payload.id || base.request_id,
-    source_kind: 'anthropic_messages'
+    source_kind: 'anthropic_messages',
+    raw_usage: usage,
   });
 }
 
