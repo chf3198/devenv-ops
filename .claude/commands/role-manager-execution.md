@@ -87,4 +87,5 @@ acceptance_criteria:
 required_gates:
 planned_change_surfaces:
 risk_class:
+anneal_tier:    # tier-1|tier-2|tier-3|null — populate when ticket originated from Tier-2 anneal auto-file (Epic #1308); default null
 ```

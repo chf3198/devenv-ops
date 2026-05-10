@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased] — #1312: anneal_tier field in MANAGER_HANDOFF schema (Epic #1308 Workstream A)
+
+### Changed
+- `instructions/role-baton-routing.instructions.md` — extended MANAGER_HANDOFF schema with optional `anneal_tier:` field (`tier-1 | tier-2 | tier-3 | null`). Populated when ticket originates from a Tier-2 anneal auto-file event per Epic #1308. Default `null` / omitted for non-anneal tickets. Backward-compatible — existing handoffs without the field remain valid. Soft-default paragraph condensed to single line for line-cap compliance.
+- `.claude/commands/role-manager-execution.md` — added `anneal_tier:` to the Output contract template with inline comment explaining when to populate.
+
 ## [Unreleased] — #1311: Consultant goal-failure escalation (Epic #1308 Workstream A)
 
 ### Changed
