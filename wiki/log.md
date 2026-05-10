@@ -37,6 +37,13 @@ pattern when OpenClaw ingest was unreachable. New page:
 `wiki/sources/epic-1271-cp-rd-plan-2026-05-09.md`. Updated concept linkage in
 `wiki/concepts/epic-state-truthfulness.md` and index entries in `wiki/index.md`.
 
+## [2026-05-10] research | Epic #1271 Codex FDPR (#1286)
+Added the Codex final development plan recommendation after peer critique from
+Claude Code and Copilot. New source page:
+`wiki/sources/epic-1271-codex-fdpr-2026-05-10.md`. The FDPR recommends
+governance-first Wave 1 controls with a portable AC schema as canonical truth,
+and GitHub 2026 platform features as adapters.
+
 **Tip**: `grep "^## \[" log.md | tail -5` shows last 5 entries.
 
 ---
