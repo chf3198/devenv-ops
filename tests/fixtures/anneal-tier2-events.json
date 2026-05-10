@@ -1,0 +1,7 @@
+{
+  "events": [
+    { "tier": 1, "pattern_id": "pattern-alpha", "trigger_type": "sensor-driven" },
+    { "tier": 1, "pattern_id": "pattern-alpha", "trigger_type": "sensor-driven" },
+    { "tier": 1, "pattern_id": "pattern-beta", "trigger_type": "goal-failure" }
+  ]
+}
