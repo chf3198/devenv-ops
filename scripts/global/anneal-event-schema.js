@@ -42,8 +42,8 @@ function isValidV1(event) {
   if (!event || typeof event !== 'object') {
     return { ok: false, errors: ['event must be an object'] };
   }
-  for (const f of V1_REQUIRED) {
-    if (event[f] === undefined) errors.push(`missing required v1 field: ${f}`);
+  for (const field of V1_REQUIRED) {
+    if (event[field] === undefined) errors.push(`missing required v1 field: ${field}`);
   }
   return { ok: errors.length === 0, errors };
 }
@@ -61,8 +61,8 @@ function isValidV2(event) {
     return { ok: false, errors: ['event must be an object'] };
   }
   if (event.version !== 2) errors.push('version must be 2');
-  for (const f of V2_REQUIRED) {
-    if (event[f] === undefined) errors.push(`missing required v2 field: ${f}`);
+  for (const field of V2_REQUIRED) {
+    if (event[field] === undefined) errors.push(`missing required v2 field: ${field}`);
   }
   if (event.tier !== undefined && !VALID_TIERS.includes(event.tier)) {
     errors.push(`tier must be one of ${VALID_TIERS.join('|')}`);

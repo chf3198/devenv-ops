@@ -23,14 +23,17 @@ function test(name, fn) {
   catch (e) { console.error(`  ✗ ${name}\n      ${e.message}`); failed++; }
 }
 
+// Shared timestamp fixture (avoids magic-number warnings)
+const TS_FIXTURE = '2026-01-01T00:00:00Z';
+
 // Minimal valid v1 event (matches fields used by anneal-goal-sensor.js)
-const V1_MIN = { timestamp: '2026-01-01T00:00:00Z', status: 'proposed',
-  pattern_id: 'p-001', count: 3, window_start: '2026-01-01T00:00:00Z',
+const V1_MIN = { timestamp: TS_FIXTURE, status: 'proposed',
+  pattern_id: 'p-001', count: 3, window_start: TS_FIXTURE,
   evidence: ['#100'], suppression_until: null };
 
 // Minimal valid v2 event
 const V2_MIN = {
-  version: 2, timestamp: '2026-01-01T00:00:00Z', tier: 1,
+  version: 2, timestamp: TS_FIXTURE, tier: 1,
   trigger_role: 'collaborator', trigger_type: 'manual-pull',
   pattern_id: 'p-001', severity: 'medium', evidence: ['#100'],
   ticket_ref: '#100', epic_ref: '#1308', session_id: 'ses-abc',
@@ -53,7 +56,7 @@ test('rejects event missing timestamp', () => {
   assert.deepStrictEqual(isValidV1(e).ok, false);
 });
 test('accepts event with only timestamp (absolute minimum)', () => {
-  assert.deepStrictEqual(isValidV1({ timestamp: '2026-01-01T00:00:00Z' }).ok, true);
+  assert.deepStrictEqual(isValidV1({ timestamp: TS_FIXTURE }).ok, true);
 });
 
 // ─── isValidV2 ───────────────────────────────────────────────────────────────
@@ -84,13 +87,13 @@ test('accepts unknown extra fields (forward-compat)', () => {
   assert.deepStrictEqual(isValidV2({ ...V2_MIN, future_field: 'x' }).ok, true);
 });
 test('accepts all valid tier values', () => {
-  for (const t of VALID_TIERS) {
-    assert.ok(isValidV2({ ...V2_MIN, tier: t }).ok, `tier ${t} should be valid`);
+  for (const tierVal of VALID_TIERS) {
+    assert.ok(isValidV2({ ...V2_MIN, tier: tierVal }).ok, `tier ${tierVal} should be valid`);
   }
 });
 test('accepts all valid severities', () => {
-  for (const s of VALID_SEVERITIES) {
-    assert.ok(isValidV2({ ...V2_MIN, severity: s }).ok, `severity ${s} should be valid`);
+  for (const sevVal of VALID_SEVERITIES) {
+    assert.ok(isValidV2({ ...V2_MIN, severity: sevVal }).ok, `severity ${sevVal} should be valid`);
   }
 });
 
@@ -129,9 +132,9 @@ test('v2 event passes through unchanged', () => {
   assert.deepStrictEqual(normalise(V2_MIN), V2_MIN);
 });
 test('v1 event is upgraded to v2', () => {
-  const n = normalise(V1_MIN);
-  assert.strictEqual(n.version, 2);
-  assert.deepStrictEqual(isValidV2(n).ok, true);
+  const normalised = normalise(V1_MIN);
+  assert.strictEqual(normalised.version, 2);
+  assert.deepStrictEqual(isValidV2(normalised).ok, true);
 });
 
 // ─── emitEvent + readEvents (file I/O integration) ───────────────────────────
@@ -144,7 +147,7 @@ test('emitEvent writes a v2 event to file', () => {
   assert.deepStrictEqual(JSON.parse(lines[0]).version, 2);
 });
 test('emitEvent rejects invalid v2 event', () => {
-  assert.throws(() => emitEvent({ timestamp: '2026-01-01T00:00:00Z' }, TMP));
+  assert.throws(() => emitEvent({ timestamp: TS_FIXTURE }, TMP));
 });
 test('readEvents returns empty array for non-existent file', () => {
   assert.deepStrictEqual(readEvents('/tmp/no-such-file-' + Date.now()), []);
@@ -186,7 +189,7 @@ test('v2 event has timestamp and status fields (v1 reader can read)', () => {
   assert.strictEqual(up.status, 'resolved');
 });
 test('v2 event without status field does not break v1 reader (status is optional in v1)', () => {
-  const up = upgradeV1ToV2({ timestamp: '2026-01-01T00:00:00Z' });
+  const up = upgradeV1ToV2({ timestamp: TS_FIXTURE });
   // v1 reader filters on status; undefined is not === 'resolved' — safe.
   assert.ok(!['resolved', 'suppressed'].includes(up.status));
 });
