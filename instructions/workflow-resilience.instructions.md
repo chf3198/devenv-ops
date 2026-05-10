@@ -36,6 +36,39 @@ Ready-stall blocker note required fields: `BLOCKER_NOTE`, `owner`, `unblock_cond
 4. Propose minimal docs/workflow delta that prevents recurrence.
 5. Define objective verification gate confirming the fix works.
 
+## Three-tier escalation model
+
+Anneal triggers route through one of three tiers per Epic #1308. See `[[distributed-self-anneal]]` for full design and `[[andon-pull-protocol]]` for any-role pull mechanics. The base protocol above is the Tier-2 mid-flight pivot phase.
+
+### Tier 1 — Observation (any role)
+
+Append a drift event to `~/.megingjord/incidents.jsonl` (schema v2). No threshold, no ticket. Pure trend capture for the recurrence detector.
+
+### Tier 2 — Mid-flight pivot (auto-ticket)
+
+Triggers when `severity ≥ medium` AND (recurrence ≥ 2 in 7d OR `trigger_type == manual-pull`) AND no active session-pivot AND no matching suppression entry. Effect: orchestrator pauses current baton step, snapshots state, runs the protocol above, files Manager ticket(s) to backlog, restores baton.
+
+### Tier 3 — Consultant goal-failure escalation
+
+Authority: Consultant only. Triggered when consultant rubric finds G1–G9 goal violation post-implementation. Effect: invoke Manager to (a) reopen failed AC/ticket via baton, (b) file new self-anneal Epic for systemic patterns.
+
+### Authority matrix
+
+| Action | Authority |
+|---|---|
+| Append Tier-1 event | Any role |
+| Request Tier-2 pivot | Any role (router classifies) |
+| Invoke Tier-3 escalation | Consultant only |
+| File Manager ticket from anneal | Manager (auto-routed via Tier-2 workflow) |
+
+### Bounded-loop guards (kill switches)
+
+- Max 1 active pivot per session (single-flight)
+- Max 3 pivots per 24h per session (rate-limit)
+- Max 5 anneal tickets per 7-day window per `pattern_id` (suppression cooperation with #1220)
+- Anneal step counter aborts with `decision: defer` if >50 tool calls
+- All trips emit `event:kill-switch-trip` for dashboard observability
+
 ## Documentation drift detection
 
 Run `docs-drift-maintenance` skill after any change to:
