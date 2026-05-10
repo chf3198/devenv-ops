@@ -1,0 +1,35 @@
+name: Anneal Tier2 Autofile
+on:
+  schedule:
+    - cron: '30 */6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: anneal-tier2-autofile-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  tier2:
+    name: tier2-autofile
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.npm
+          key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'npm-shrinkwrap.json') }}
+          restore-keys: |
+            npm-${{ runner.os }}-
+      - run: npm ci
+      - name: Tier2 classifier fixture tests
+        run: node scripts/global/anneal-tier2-autofile.spec.js
+      - name: Tier2 autofile run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/global/anneal-tier2-autofile.js --apply

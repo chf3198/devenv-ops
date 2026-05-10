@@ -1,0 +1,6 @@
+{
+  "records": [
+    { "pattern_id": "pattern-alpha", "severity": "medium" },
+    { "pattern_id": "pattern-beta", "severity": "critical" }
+  ]
+}
