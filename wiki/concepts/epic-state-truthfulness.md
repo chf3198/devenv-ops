@@ -4,7 +4,7 @@ type: concept
 created: 2026-05-09
 updated: 2026-05-09
 tags: [governance, epic, acceptance-criteria, drift]
-sources: ["[[epic-1271-cx-rd-plan-2026-05-09]]"]
+sources: ["[[epic-1271-cx-rd-plan-2026-05-09]]", "[[epic-1271-cp-rd-plan-2026-05-09]]"]
 related: ["[[epic-governance]]", "[[governance-enforcement]]", "[[baton-protocol]]", "[[self-annealing]]", "[[harness-goal-controls]]"]
 status: draft
 ---
@@ -30,12 +30,16 @@ The Codex #1274 plan recommends seven controls:
 6. Consultant-only final Epic verification.
 7. GHS sensor for declared-complete-but-unmet-AC drift.
 
+The Copilot #1273 plan corroborates the same seven-control shape with newer
+2026 GitHub issue/project/ruleset capability references and adds explicit
+narrative-state lint as an implementation gate.
+
 The design follows the Karpathy wiki pattern by storing raw research, a source
 summary, and this distilled concept separately, then cross-linking the concept
 to existing governance pages.
 
 ## Related
 
-[[epic-1271-cx-rd-plan-2026-05-09]], [[epic-governance]],
+[[epic-1271-cx-rd-plan-2026-05-09]], [[epic-1271-cp-rd-plan-2026-05-09]], [[epic-governance]],
 [[governance-enforcement]], [[baton-protocol]], [[self-annealing]],
 [[harness-goal-controls]]
