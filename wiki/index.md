@@ -42,6 +42,7 @@ The LLM updates this on every ingest operation.
 
 ## Source Summaries
 
+- [[epic-1271-codex-fdpr-2026-05-10]] — Codex final development plan recommendation for Epic #1271
 - [[epic-1271-cx-rd-plan-2026-05-09]] — Epic #1271 Codex R&D plan for state truthfulness
 - [[epic-1271-cp-rd-plan-2026-05-09]] — Epic #1271 Copilot R&D plan for state truthfulness
 - [[karpathy-llm-wiki-pattern]] — Karpathy LLM Wiki Pattern
@@ -100,6 +101,7 @@ The LLM updates this on every ingest operation.
 
 ## Recent Additions
 
+- [[epic-1271-codex-fdpr-2026-05-10]] — Codex FDPR for Epic #1271 (2026-05-10)
 - [[epic-1271-cp-rd-plan-2026-05-09]] — Epic #1271 Copilot R&D plan for state truthfulness (2026-05-09)
 - [[harness-goals]] — Harness Goal Constitution (2026-05-06)
 - [[dashboard-live-data-methodology-2026-05-05]] — Dashboard Live-Data Methodology (2026-05-05)
@@ -114,4 +116,4 @@ The LLM updates this on every ingest operation.
 
 ---
 
-**Pages**: 72 | **Last updated**: 2026-05-09
+**Pages**: 73 | **Last updated**: 2026-05-10
