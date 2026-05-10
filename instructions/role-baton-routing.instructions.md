@@ -85,9 +85,9 @@ Required fields on every `MANAGER_HANDOFF` comment:
 - `test_strategy:` — one of `tdd-pyramid | tdd-trophy | contract-test | golden-file | eval-harness | visual-regression | drift-lint | peer-review | manual-verify | none`
 - `acceptance:` — AC checklist
 - `gates:` — CI/governance gates that must pass
+- `anneal_tier:` (optional) — `tier-1 | tier-2 | tier-3 | null`; populate when ticket originated from a Tier-2 anneal auto-file event per Epic #1308. Default `null` / omitted for non-anneal tickets.
 
-`test_strategy` is selected per `instructions/test-methodology-matrix.instructions.md`.
-Soft default: missing field on legacy/pre-rollout tickets is treated as `none` with a Manager-warning advisory comment. New tickets with `none` on a non-permitted lane fail the `test-evidence` gate.
+`test_strategy` selected per `instructions/test-methodology-matrix.instructions.md`; missing on legacy tickets defaults to `none` (advisory). New tickets with `none` on non-permitted lane fail `test-evidence`.
 
 ## Local Override
 

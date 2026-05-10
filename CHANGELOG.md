@@ -1,5 +1,24 @@
 # Changelog
 
+## [Unreleased] — #1312: anneal_tier field in MANAGER_HANDOFF schema (Epic #1308 Workstream A)
+
+### Changed
+- `instructions/role-baton-routing.instructions.md` — extended MANAGER_HANDOFF schema with optional `anneal_tier:` field (`tier-1 | tier-2 | tier-3 | null`). Populated when ticket originates from a Tier-2 anneal auto-file event per Epic #1308. Default `null` / omitted for non-anneal tickets. Backward-compatible — existing handoffs without the field remain valid. Soft-default paragraph condensed to single line for line-cap compliance.
+- `.claude/commands/role-manager-execution.md` — added `anneal_tier:` to the Output contract template with inline comment explaining when to populate.
+
+## [Unreleased] — #1311: Consultant goal-failure escalation (Epic #1308 Workstream A)
+
+### Changed
+- `.claude/commands/role-consultant-critique.md` — added "Tier-3 goal-failure escalation (Epic #1308)" section. If rubric scores below threshold against any G1–G9 goal, Consultant may invoke Manager for Tier-3 actions via `anneal-trigger-router`: reopen failed AC, reopen failed ticket, or file new self-anneal Epic. Each emits `event:goal-failure-escalation` per Epic #1308 schema v2. Authority: Consultant only; other roles rejected with `kill_switch_trip:authority`.
+
+## [Unreleased] — #1310: anneal-trigger-router skill + baton-orchestrator pivot extension (Epic #1308 Workstream A)
+
+### Added
+- `.claude/commands/anneal-trigger-router.md` — new skill that classifies drift signals and trigger phrases (`pull anneal`, `andon`, `drift anneal #N`, `report drift`) into tier-1/2/3 routing decisions. Defines routing-decision JSON shape, classification rules, authority matrix (Consultant-only tier:3), pivot semantics, kill switches (single-flight, rate-limit, suppression, step-counter, ticket-cap, authority), and anti-patterns. Conforms to Epic #1308 architecture contract.
+
+### Changed
+- `.claude/commands/role-baton-orchestrator.md` — Required references section augmented to integrate `anneal-trigger-router` as the mid-flight pivot dispatcher. Specifies the pivot sequence (snapshot → assume Manager → `workflow-self-anneal` → file Manager tickets → restore baton), single-flight rule, and kill-switch-clean-abort behavior.
+
 ## [Unreleased] — #1309: codify three-tier anneal protocol (Epic #1308 Workstream A)
 
 ### Added
