@@ -43,6 +43,7 @@ The LLM updates this on every ingest operation.
 ## Source Summaries
 
 - [[epic-1271-cx-rd-plan-2026-05-09]] — Epic #1271 Codex R&D plan for state truthfulness
+- [[epic-1271-cp-rd-plan-2026-05-09]] — Epic #1271 Copilot R&D plan for state truthfulness
 - [[karpathy-llm-wiki-pattern]] — Karpathy LLM Wiki Pattern
 - [[devenv-fleet-topology]] — DevEnv Fleet Topology
 - [[copilot-skills-system]] — Copilot Skills System
@@ -99,6 +100,7 @@ The LLM updates this on every ingest operation.
 
 ## Recent Additions
 
+- [[epic-1271-cp-rd-plan-2026-05-09]] — Epic #1271 Copilot R&D plan for state truthfulness (2026-05-09)
 - [[harness-goals]] — Harness Goal Constitution (2026-05-06)
 - [[dashboard-live-data-methodology-2026-05-05]] — Dashboard Live-Data Methodology (2026-05-05)
 - [[workspace-write-boundary-discipline]] — Workspace Write-Boundary Discipline (2026-05-05)
@@ -112,4 +114,4 @@ The LLM updates this on every ingest operation.
 
 ---
 
-**Pages**: 71 | **Last updated**: 2026-05-06
+**Pages**: 72 | **Last updated**: 2026-05-09

@@ -31,6 +31,12 @@ Codex completed the source summary and concept page manually using the same
 Karpathy wiki structure. New pages: `wiki/sources/epic-1271-cx-rd-plan-2026-05-09.md`
 and `wiki/concepts/epic-state-truthfulness.md`.
 
+## [2026-05-09] ingest | Epic #1271 Copilot R&D plan (#1273)
+Added raw/source coverage for Epic-state truthfulness with the same fallback
+pattern when OpenClaw ingest was unreachable. New page:
+`wiki/sources/epic-1271-cp-rd-plan-2026-05-09.md`. Updated concept linkage in
+`wiki/concepts/epic-state-truthfulness.md` and index entries in `wiki/index.md`.
+
 **Tip**: `grep "^## \[" log.md | tail -5` shows last 5 entries.
 
 ---
