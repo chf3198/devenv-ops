@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased] — #1311: Consultant goal-failure escalation (Epic #1308 Workstream A)
+
+### Changed
+- `.claude/commands/role-consultant-critique.md` — added "Tier-3 goal-failure escalation (Epic #1308)" section. If rubric scores below threshold against any G1–G9 goal, Consultant may invoke Manager for Tier-3 actions via `anneal-trigger-router`: reopen failed AC, reopen failed ticket, or file new self-anneal Epic. Each emits `event:goal-failure-escalation` per Epic #1308 schema v2. Authority: Consultant only; other roles rejected with `kill_switch_trip:authority`.
+
 ## [Unreleased] — #1310: anneal-trigger-router skill + baton-orchestrator pivot extension (Epic #1308 Workstream A)
 
 ### Added
