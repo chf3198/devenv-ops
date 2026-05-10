@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — #1310: anneal-trigger-router skill + baton-orchestrator pivot extension (Epic #1308 Workstream A)
+
+### Added
+- `.claude/commands/anneal-trigger-router.md` — new skill that classifies drift signals and trigger phrases (`pull anneal`, `andon`, `drift anneal #N`, `report drift`) into tier-1/2/3 routing decisions. Defines routing-decision JSON shape, classification rules, authority matrix (Consultant-only tier:3), pivot semantics, kill switches (single-flight, rate-limit, suppression, step-counter, ticket-cap, authority), and anti-patterns. Conforms to Epic #1308 architecture contract.
+
+### Changed
+- `.claude/commands/role-baton-orchestrator.md` — Required references section augmented to integrate `anneal-trigger-router` as the mid-flight pivot dispatcher. Specifies the pivot sequence (snapshot → assume Manager → `workflow-self-anneal` → file Manager tickets → restore baton), single-flight rule, and kill-switch-clean-abort behavior.
+
 ## [Unreleased] — #1309: codify three-tier anneal protocol (Epic #1308 Workstream A)
 
 ### Added
