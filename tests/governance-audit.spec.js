@@ -43,14 +43,26 @@ test('REPORT_FILE points at /tmp', () => {
   expect(A.REPORT_FILE).toBe('/tmp/governance-audit.json');
 });
 
-test('audit() returns schema_version 1 result with required fields', async () => {
+test('audit() returns schema_version 4 result with required fields', async () => {
   const r = await A.audit();
-  expect(r.schema_version).toBe(1);
+  expect(r.schema_version).toBe(4);
   expect(r).toHaveProperty('started_at');
   expect(r).toHaveProperty('checks');
   expect(r).toHaveProperty('violations');
+  expect(r).toHaveProperty('git_state_drift');
   expect(r).toHaveProperty('dependency_health');
+  expect(r).toHaveProperty('goal_health');
+  expect(r).toHaveProperty('actuator_state');
   expect(['PASS', 'FAIL']).toContain(r.overall);
+});
+
+test('audit() includes branch freshness, worktree isolation, and target integrity signals', async () => {
+  const r = await A.audit();
+  expect(r.git_state_drift).toBeTruthy();
+  expect(r.git_state_drift.signals).toBeTruthy();
+  expect(r.git_state_drift.signals.freshness).toBeTruthy();
+  expect(r.git_state_drift.signals.worktree).toBeTruthy();
+  expect(r.git_state_drift.signals.target).toBeTruthy();
 });
 
 

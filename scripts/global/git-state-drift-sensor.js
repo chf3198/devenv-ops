@@ -4,8 +4,29 @@ const { execSync } = require('child_process');
 const MAX_BEHIND = Number(process.env.GIT_DRIFT_MAX_BEHIND || 5);
 const FRESHNESS_HR = Number(process.env.GIT_DRIFT_FRESHNESS_HOURS || 24);
 const VALID_PFX = ['main', 'sandbox', 'release', 'hotfix', 'feat', 'fix'];
+const POLICY = {
+  thresholds: { max_behind_commits: MAX_BEHIND, freshness_hours: FRESHNESS_HR, max_concurrent_worktrees: 1 },
+  pass_statuses: { freshness: ['fresh'], worktree: ['isolated'], target: ['compliant', 'unknown'] },
+  escalation: {
+    fail_when_violation_count_gte: 1,
+    actions: ['run npm run git-state:drift', 'reconcile branch prefix and upstream target', 'prune/close excess worktrees'],
+  },
+};
 const run = cmd => { try { return execSync(cmd, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim(); } catch { return ''; } };
 const curBranch = () => run('git rev-parse --abbrev-ref HEAD');
+const guidance = (signal, status) => {
+  const key = `${signal}:${status}`;
+  const map = {
+    'freshness:detached': 'Check out a named branch before continuing work.',
+    'freshness:invalid-prefix': `Rename to an approved prefix: ${VALID_PFX.join(', ')}.`,
+    'freshness:orphaned': 'Set upstream and rebase against origin/main or approved target.',
+    'freshness:stale': `Rebase/merge to keep behind count <= ${MAX_BEHIND}.`,
+    'freshness:old': `Push or refresh commits within ${FRESHNESS_HR}h freshness window.`,
+    'worktree:collision': 'Close redundant worktrees or isolate work to one active worktree.',
+    'target:invalid-target': 'Retarget branch to an allowed base branch for its prefix.',
+  };
+  return map[key] || 'Reconcile branch/worktree state to satisfy governance policy.';
+};
 const freshness = () => {
   const branch = curBranch();
   if (branch === 'HEAD') return { status: 'detached', detail: 'HEAD detached' };
@@ -20,7 +41,7 @@ const freshness = () => {
 };
 const worktree = () => {
   try {
-    const count = run('git worktree list --porcelain').split('\n').filter(Boolean).length;
+    const count = run('git worktree list --porcelain').split('\n').filter(line => line.startsWith('worktree ')).length;
     if (count <= 1) return { status: 'isolated', detail: 'single worktree' };
     return { status: 'collision', detail: `${count} concurrent worktrees` };
   } catch { return { status: 'unknown', detail: 'unavailable' }; }
@@ -28,12 +49,24 @@ const worktree = () => {
 const target = () => {
   const [prefix] = curBranch().split('/');
   const rules = { release: 'main', hotfix: 'main', sandbox: 'sandbox', feat: 'develop|main|sandbox', fix: 'develop|main|sandbox' };
-  return rules[prefix] ? { status: 'compliant', detail: `"${prefix}" compliant` } : { status: 'unknown', detail: `no rule for "${prefix}"` };
+  if (!rules[prefix]) return { status: 'unknown', detail: `no rule for "${prefix}"` };
+  const allowed = rules[prefix].split('|');
+  const hasTarget = allowed.some(name => run(`git show-ref --verify --quiet refs/remotes/origin/${name}; echo $?`) === '0');
+  return hasTarget ? { status: 'compliant', detail: `"${prefix}" compliant` }
+    : { status: 'invalid-target', detail: `missing allowed targets in origin: ${rules[prefix]}` };
 };
 const compute = () => {
   const sigs = { freshness: freshness(), worktree: worktree(), target: target() };
-  const fails = Object.entries(sigs).filter(([, sig]) => !['fresh', 'isolated', 'compliant', 'unknown'].includes(sig.status));
-  return { status: fails.length === 0 ? 'PASS' : 'FAIL', timestamp: new Date().toISOString(), signals: sigs, violation_count: fails.length, violations: fails.map(([sig, data]) => ({ signal: sig, ...data })) };
+  const fails = Object.entries(sigs).filter(([signal, sig]) => !POLICY.pass_statuses[signal].includes(sig.status));
+  const violations = fails.map(([signal, data]) => ({ signal, ...data, guidance: guidance(signal, data.status) }));
+  return {
+    status: violations.length >= POLICY.escalation.fail_when_violation_count_gte ? 'FAIL' : 'PASS',
+    timestamp: new Date().toISOString(),
+    policy: POLICY,
+    signals: sigs,
+    violation_count: violations.length,
+    violations,
+  };
 };
 if (require.main === module) { const result = compute(); console.log(JSON.stringify(result, null, 2)); process.exit(result.status === 'PASS' ? 0 : 1); }
 module.exports = { compute, freshness, worktree, target };
