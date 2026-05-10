@@ -27,6 +27,8 @@ The LLM updates this on every ingest operation.
 - [[epic-governance]] — Epic Lifecycle Governance Rules
 - [[agent-drift]] — Agent Drift
 - [[self-annealing]] — Self-Annealing Protocol
+- [[distributed-self-anneal]] — Three-tier distributed self-anneal (Epic #1308)
+- [[andon-pull-protocol]] — Any-role pull mechanics + pivot semantics (Epic #1308)
 - [[wiki-pattern]] — Karpathy LLM Wiki Pattern
 - [[governance-enforcement]] — Governance Enforcement
 - [[protocol-enforcement]] — Protocol Enforcement Architecture
@@ -101,6 +103,8 @@ The LLM updates this on every ingest operation.
 
 ## Recent Additions
 
+- [[distributed-self-anneal]] — Three-tier distributed self-anneal (2026-05-10)
+- [[andon-pull-protocol]] — Any-role pull protocol (2026-05-10)
 - [[epic-1271-codex-fdpr-2026-05-10]] — Codex FDPR for Epic #1271 (2026-05-10)
 - [[epic-1271-cp-rd-plan-2026-05-09]] — Epic #1271 Copilot R&D plan for state truthfulness (2026-05-09)
 - [[harness-goals]] — Harness Goal Constitution (2026-05-06)
@@ -116,4 +120,4 @@ The LLM updates this on every ingest operation.
 
 ---
 
-**Pages**: 73 | **Last updated**: 2026-05-10
+**Pages**: 75 | **Last updated**: 2026-05-10
