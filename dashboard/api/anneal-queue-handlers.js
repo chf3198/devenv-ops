@@ -7,11 +7,16 @@ const path = require('node:path');
 
 const INCIDENTS = path.join(os.homedir(), '.megingjord', 'incidents.jsonl');
 
+function isAnnealQueueEvent(event) {
+  const tier = Number(event.tier || '0');
+  return String(event.epic_ref || '') === '#1308' && [1, 2, 3].includes(tier);
+}
+
 function readAnnealEvents() {
   if (!fs.existsSync(INCIDENTS)) return [];
   return fs.readFileSync(INCIDENTS, 'utf8').split('\n').filter(Boolean).map((line) => {
     try { return JSON.parse(line); } catch { return null; }
-  }).filter(Boolean).filter((event) => String(event.epic_ref || '') === '#1308' || Number(event.tier || '0') > Number('0'));
+  }).filter(Boolean).filter(isAnnealQueueEvent);
 }
 
 function handleAnnealQueue(_request, response) {

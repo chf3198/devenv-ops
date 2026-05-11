@@ -63,6 +63,10 @@ async function handleApi(req, res, copilotHome) {
     const r = await proxyGet('https://openrouter.ai/api/v1/auth/key', { Authorization: `Bearer ${key}` });
     return jsonRes(res, r.status, r.body);
   }
+  if (u === '/api/anneal/queue') {
+    const handler = require(path.join(process.cwd(), 'dashboard', 'api', 'anneal-queue-handlers.js'));
+    return handler.handleAnnealQueue(req, res);
+  }
   if (u === '/api/host-info') return jsonRes(res, 200, getHostInfo());
   if (u === '/api/governance') {
     try {

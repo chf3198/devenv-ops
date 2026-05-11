@@ -50,9 +50,14 @@ function sensorEvents(sensors, timestamp, sessionId) {
   }));
 }
 
+function buildEventKey(item) {
+  const evidence = Array.isArray(item.evidence) ? item.evidence.join('||') : '';
+  return [item.pattern_id || '', item.timestamp || '', item.trigger_type || '', item.severity || '', evidence].join('|');
+}
+
 function dedupe(newEvents, filePath) {
-  const prior = new Set(readEvents(filePath).map((item) => `${item.pattern_id}|${item.timestamp}`));
-  return newEvents.filter((item) => !prior.has(`${item.pattern_id}|${item.timestamp}`));
+  const prior = new Set(readEvents(filePath).map(buildEventKey));
+  return newEvents.filter((item) => !prior.has(buildEventKey(item)));
 }
 
 function run(argv) {
