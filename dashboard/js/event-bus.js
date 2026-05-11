@@ -66,7 +66,7 @@ function mergeBatonEvents(events) {
 
 const _STALE_MS = 30 * 60 * 1000;
 function pruneClosedFromGitHub(issues) {
-  (issues||[]).filter(i=>i.state==='closed').forEach(i=>delete _batonTickets[String(i.number)]);
+  (issues||[]).filter(i=>/^(CLOSED|MERGED)$/i.test(i.state)).forEach(i=>delete _batonTickets[String(i.number)]);
 }
 function getBatonState() {
   const now = Date.now();
