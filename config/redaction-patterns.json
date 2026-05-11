@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "description": "Redaction patterns for harness logging. Used by scripts/global/log-redaction.js. Each entry: {id, regex, action, replacement?}. Actions: redact|hash|drop.",
+  "patterns": [
+    {
+      "id": "anthropic-key",
+      "regex": "sk-ant-[a-zA-Z0-9_-]{32,}",
+      "action": "redact",
+      "replacement": "<ANTHROPIC_KEY_REDACTED>"
+    },
+    {
+      "id": "openai-key",
+      "regex": "sk-(?!ant-)[a-zA-Z0-9_-]{32,}",
+      "action": "redact",
+      "replacement": "<OPENAI_KEY_REDACTED>"
+    },
+    {
+      "id": "github-pat",
+      "regex": "gh[pousr]_[a-zA-Z0-9]{36,}",
+      "action": "redact",
+      "replacement": "<GITHUB_PAT_REDACTED>"
+    },
+    {
+      "id": "github-fine-grained-pat",
+      "regex": "github_pat_[a-zA-Z0-9_]{60,}",
+      "action": "redact",
+      "replacement": "<GITHUB_PAT_REDACTED>"
+    },
+    {
+      "id": "aws-access-key",
+      "regex": "AKIA[0-9A-Z]{16}",
+      "action": "redact",
+      "replacement": "<AWS_ACCESS_KEY_REDACTED>"
+    },
+    {
+      "id": "jwt",
+      "regex": "eyJ[A-Za-z0-9_-]+\\.eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+",
+      "action": "redact",
+      "replacement": "<JWT_REDACTED>"
+    },
+    {
+      "id": "bearer-token",
+      "regex": "Bearer\\s+[A-Za-z0-9_.\\-+/=]{16,}",
+      "action": "redact",
+      "replacement": "Bearer <TOKEN_REDACTED>"
+    },
+    {
+      "id": "email",
+      "regex": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+      "action": "hash",
+      "replacement": null
+    },
+    {
+      "id": "ipv4",
+      "regex": "\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b",
+      "action": "redact",
+      "replacement": "<IPV4_REDACTED>"
+    }
+  ]
+}
