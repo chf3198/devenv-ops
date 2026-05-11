@@ -4,6 +4,8 @@
   "description": "Megingjord: Governance-first AI agent harness for Copilot, Claude Code, and Codex — multi-runtime skills, hooks, agents, wiki, and install tooling",
   "private": true,
   "scripts": {
+    "anneal:detect": "node scripts/global/workflow-anneal-detect.js",
+    "anneal:review": "node scripts/global/anneal-review.js",
     "adr:build": "log4brains build",
     "adr:new": "log4brains adr new",
     "adr:preview": "log4brains preview",

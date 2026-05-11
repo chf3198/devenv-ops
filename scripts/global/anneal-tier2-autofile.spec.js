@@ -5,7 +5,7 @@ const assert = require('node:assert');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { buildCandidates } = require('./anneal-tier2-autofile');
+const { buildCandidates, proposalMeta, isSuppressed } = require('./anneal-tier2-autofile');
 
 const FIXTURE = path.join(__dirname, '../../tests/fixtures/anneal-tier2-events.json');
 const EXPECTED = path.join(__dirname, '../../tests/fixtures/anneal-tier2-expected.json');
@@ -24,6 +24,21 @@ function testFixtureReadable() {
   fs.unlinkSync(TMP);
 }
 
+function testProposalMetaDeterministic() {
+  const nowIso = '2026-05-11T00:00:00.000Z';
+  const meta = proposalMeta({ pattern_id: 'changelog-conflict', severity: 'high' }, nowIso);
+  assert.strictEqual(meta.dedupe_key, 'anneal:changelog-conflict:high');
+  assert.strictEqual(meta.proposal_id, 'anneal:changelog-conflict:high:2026-05-11');
+}
+
+function testSuppressionMatch() {
+  const rows = [{ pattern_id: 'x' }, { pattern_id: 'y' }];
+  assert.strictEqual(isSuppressed('x', rows), true);
+  assert.strictEqual(isSuppressed('z', rows), false);
+}
+
 testCandidates();
 testFixtureReadable();
+testProposalMetaDeterministic();
+testSuppressionMatch();
 process.stdout.write('anneal-tier2-autofile.spec: PASS\n');

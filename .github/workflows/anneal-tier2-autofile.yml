@@ -1,7 +1,7 @@
 name: Anneal Tier2 Autofile
 on:
   schedule:
-    - cron: '30 */6 * * *'
+    - cron: '37 3 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -57,7 +57,9 @@ jobs:
           name: anneal-tier1-fixture
       - name: Tier2 classifier fixture tests
         run: node scripts/global/anneal-tier2-autofile.spec.js
+      - name: Review suppression contract tests
+        run: node scripts/global/anneal-review.spec.js
       - name: Tier2 autofile run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/global/anneal-tier2-autofile.js --apply --fixture anneal-tier1.json
+        run: node scripts/global/workflow-anneal-detect.js --apply --fixture anneal-tier1.json
