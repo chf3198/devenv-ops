@@ -30,6 +30,9 @@ The LLM updates this on every ingest operation.
 - [[distributed-self-anneal]] — Three-tier distributed self-anneal (Epic #1308)
 - [[andon-pull-protocol]] — Any-role pull mechanics + pivot semantics (Epic #1308)
 - [[harness-logging-inventory]] — Logging surface inventory + G1..G9 coverage map (Epic #1339)
+- [[megingjord-harness]] — Megingjord Harness top-level overview (rebranded from DevEnv Ops 2026-04-29)
+- [[cascade-dispatch]] — Bounded escalation pattern (Free → Fleet → Haiku → Premium)
+- [[free-router]] — Lane-selection layer above cascade-dispatch
 - [[wiki-pattern]] — Karpathy LLM Wiki Pattern
 - [[governance-enforcement]] — Governance Enforcement
 - [[protocol-enforcement]] — Protocol Enforcement Architecture

@@ -1,5 +1,18 @@
 # Changelog
 
+## [Unreleased] — #1207: wiki-orphan-check fix — resolve 80 broken wikilinks (tool-002 PASS)
+
+### Added
+- 34 stub wiki concept pages under `wiki/concepts/` resolving all `[[X]] (not found)` broken wikilinks reported by `npm run wiki:lint`. Includes 3 high-leverage pages (`cascade-dispatch`, `free-router`, `megingjord-harness`) plus 31 stubs for HAMR, caching, routing, security, and gate concepts referenced from existing research pages.
+
+### Changed
+- `wiki/index.md` — registered 4 representative new pages in the Concepts section (`megingjord-harness`, `cascade-dispatch`, `free-router`, `harness-logging-inventory` had already been added in #1352).
+- `scripts/global/consultant-checks.js` `tool-002` (wiki-orphan-check) now **PASSES** (was FAIL with 80 broken-wikilink instances across 34 unique missing targets).
+
+### Notes
+- Picked up from the Codex Team's planned-next queue. Codex was rate-limited mid-session and had identified this as the highest-priority safe-parallel work after #1286 (Codex's FDPR) shipped.
+- 99 `wiki:lint` "missing from index.md" issues remain (separate class — orphan source-page registration, not broken wikilinks). Out of scope for #1207 (`tool-002` is specifically the broken-wikilink check). Tracked for follow-up.
+
 ## [Unreleased] — #1360: codify observability standard (Epic #1339 C9 capstone)
 
 ### Added
