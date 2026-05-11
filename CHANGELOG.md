@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased] — #1355: Context Flow animation layer (Epic #1339 C4)
+
+### Added
+- `dashboard/css/context-flow-anim.css` — enhanced `cf-pulse-v2` keyframe (opacity + transform + filter; GPU-accelerated, no layout shift); new `cf-edge-active`/`cf-edge-flow` for arrow flow; `prefers-reduced-motion: reduce` fallback snaps to state.
+- `tests/context-flow-animation.spec.js` — 8 visual-regression + unit tests covering event-to-node mapping for git/baton/deploy paths, reduced-motion detection, graceful fallback in non-browser context.
+
+### Changed
+- `dashboard/js/context-flow-events.js` — added `_cfPrefersReducedMotion()` helper; `_cfAnimate` honors reduced-motion (400ms snap vs 1.8s animation); guarded `window`-dependent IIFE for Node-context imports; updated `CF_ANIM_EXPIRY_MS` to 1.8s (matches cf-pulse-v2 1.6s + buffer).
+- `dashboard/index.html` — linked `context-flow-anim.css` (inline, no line growth).
+
 ## [Unreleased] — #1359: goal-coverage dashboard panel (Epic #1339 C8)
 
 ### Added
