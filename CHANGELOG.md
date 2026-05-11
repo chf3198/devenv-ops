@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased] — #1352: harness + HAMR logging surface inventory (Epic #1339 C1)
+
+### Added
+- `wiki/concepts/harness-logging-inventory.md` — canonical inventory of all 8 logging surfaces (producer, consumer, schema, retention, ingestion path); G1..G9 coverage table with primary + secondary signals; coverage-gap identification (G4 Privacy, G8 Observability, G9 Interoperability flagged as zero-signal); excess / dead-log candidates list; schema-versioning state per surface; retention defaults; ingestion-path classification for live-streaming pipeline (C3). Derived from Phase-0 R&D #1341.
+
+### Changed
+- `wiki/index.md` — registered `[[harness-logging-inventory]]` in Concepts section.
+
 ## [Unreleased] — #1305: cross-team Consultant pickup protocol (core delivery)
 
 ### Added
