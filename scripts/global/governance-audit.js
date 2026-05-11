@@ -6,6 +6,7 @@ const fs = require('node:fs');
 
 const REPORT_FILE = '/tmp/governance-audit.json';
 const DEP_HEALTH = require('./dep-graph-health');
+const ANNEAL_SENSOR = require('./anneal-audit-sensor');
 const GIT_STATE_DRIFT = require('./git-state-drift-sensor');
 const CHECKS = ['governance:drift', 'governance:verify', 'governance:reconcile', 'governance:worktrees'];
 const TIMEOUT_MS = 60_000;
@@ -105,6 +106,8 @@ async function audit(opts = {}) {
   const goalHealth = computeGoalHealth(violations.length);
   const operatorOverridesActive = readOperatorOverrides();
   const actuatorState = runActuatorEngine(goalHealth);
+  let annealSignals = null;
+  try { annealSignals = ANNEAL_SENSOR.compute(); } catch { /* optional */ }
   const summary = {
     schema_version: 4, started_at: startedAt, completed_at: new Date().toISOString(),
     checks: checks.map(c => ({ name: c.name, ok: c.ok, error: c.error || null })),
@@ -113,6 +116,7 @@ async function audit(opts = {}) {
     dependency_health: dependencyHealth, goal_health: goalHealth,
     operator_overrides_active: operatorOverridesActive,
     actuator_state: actuatorState,
+    anneal_signals: annealSignals,
     overall: violations.length === 0 && checks.every(c => c.ok) ? 'PASS' : 'FAIL',
   };
   fs.writeFileSync(REPORT_FILE, JSON.stringify(summary, null, 2));

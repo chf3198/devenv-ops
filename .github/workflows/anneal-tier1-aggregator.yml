@@ -30,3 +30,5 @@ jobs:
         run: node scripts/global/anneal-tier1-aggregator.spec.js
       - name: Aggregate drift sensors
         run: node scripts/global/anneal-tier1-aggregator.js
+      - name: Rotate incidents log
+        run: npm run --silent anneal:rotate || true
