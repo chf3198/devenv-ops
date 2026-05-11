@@ -10,6 +10,8 @@
 - `.github/workflows/label-scan.yml` — now uses shared `scripts/global/label-rules.js` via `require()` (after `actions/checkout`). Adds AC3 comment-cleanup: when an issue no longer violates, the existing `<!-- adr-010-label-scan -->` comment is deleted. Removes the inline rules block that lacked the Epic exception (was the root cause of the daily false-positive comments on in-progress Epics #1245/#1133/#1130/#1113).
 - `.github/workflows/label-lint.yml` — parallel refactor: uses the shared rule set. Close-protection actions (auto-reopen on close-without-`status:done`, role-label cleanup on close, `role:archived` preservation) remain in the workflow as inline action logic.
 
+## [Unreleased] — #1312: anneal_tier field in MANAGER_HANDOFF schema (Epic #1308 Workstream A)
+
 ### Changed
 - `instructions/role-baton-routing.instructions.md` — extended MANAGER_HANDOFF schema with optional `anneal_tier:` field (`tier-1 | tier-2 | tier-3 | null`). Populated when ticket originates from a Tier-2 anneal auto-file event per Epic #1308. Default `null` / omitted for non-anneal tickets. Backward-compatible — existing handoffs without the field remain valid. Soft-default paragraph condensed to single line for line-cap compliance.
 - `.claude/commands/role-manager-execution.md` — added `anneal_tier:` to the Output contract template with inline comment explaining when to populate.
