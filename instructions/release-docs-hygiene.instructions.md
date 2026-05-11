@@ -9,7 +9,7 @@ applyTo: "**"
 
 After every PR merge or deployment that changes user-facing behavior, run these governance steps before considering the task complete:
 
-1. **CHANGELOG**: Add an entry for every shipped behavioral change. Extension changelog (`vscode-extension/CHANGELOG.md`) covers both extension and daemon changes.
+1. **CHANGELOG fragment**: For every shipped behavioral change, create a per-ticket fragment at `.changes/unreleased/<N>.md` (where `N` is the GitHub issue number). Aggregator (`node scripts/global/changelog-aggregate.js`) prepends fragments into `CHANGELOG.md` at release time. Direct edits to `CHANGELOG.md` remain valid (back-compat) but the fragment path is preferred — it eliminates merge conflicts when multiple PRs ship in parallel. For trivial PRs warranting no changelog entry, include `[skip-changelog]` in the PR description. Extension changelog (`vscode-extension/CHANGELOG.md`) covers both extension and daemon changes. See `docs/howto/changelog-fragments.md` for the author guide.
 2. **README sync**: If the change adds, removes, or modifies user-visible behavior (kill hierarchy, commands, settings, protection rules), update both `README.md` and `vscode-extension/README.md`.
 3. **Profile governance**: Run the `repo-profile-governance` skill to audit community health files (SUPPORT.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md), metadata (description, topics, homepage), and contribution surfaces (templates, CODEOWNERS).
 4. **Docs drift**: Run the `docs-drift-maintenance` skill to detect stale documentation that contradicts the new behavior.
