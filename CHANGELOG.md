@@ -1,5 +1,14 @@
 # Changelog
 
+## [Unreleased] — #1353: unified event schema v3 + backward-compat shim (Epic #1339 C2)
+
+### Added
+- `scripts/global/event-schema-v3.js` — unified v3 schema generalizing the anneal v2 precedent to all `*.jsonl` logging surfaces. Required fields: `ts`, `version`, `service`, `env`, `event`, plus recommended `trace_id`/`session_id` and optional `_summary` (≤200 chars). OpenTelemetry GenAI `gen_ai.*` namespace detection via `isOtelGenAI()` per R&D Thread 1.
+- `tests/event-schema-v3.spec.js` — 10 contract tests covering: detectVersion, v3 validation, env enum, _summary length, v1 upgrade with field preservation, v2 anneal upgrade preserving tier/trigger_role/severity, normalize identity, OTel detection, emit+read round-trip, mixed v1/v2/v3 feed normalization, invalid-event throw.
+
+### Changed
+- Backward compatibility: v1 events (no `version` field) and v2 anneal events (`version: 2`) upgrade-on-read to v3 with surface context. Existing v1/v2 readers (`anneal-goal-sensor.js`, `anneal-review.js`) continue to work unchanged since v3 preserves all prior fields additively.
+
 ## [Unreleased] — #1352: harness + HAMR logging surface inventory (Epic #1339 C1)
 
 ### Added
