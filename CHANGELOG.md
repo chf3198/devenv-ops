@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased] — #1358: PII/secret redaction for harness logs (Epic #1339 C7)
+
+### Added
+- `scripts/global/log-redaction.js` — instrumentation-time redaction (prevent, not scrub). Exports `redactString`, `redactEvent` (recursive), `wrapWrite` (instrumentation wrapper), `sanitizeForLLM` (pre-prompt-injection hook), `hashShort` (deterministic SHA-256 prefix). Per R&D Thread 5 + G4 Privacy goal.
+- `config/redaction-patterns.json` — 9 patterns covering Anthropic/OpenAI keys, GitHub PAT (classic + fine-grained), AWS access key, JWT, Bearer tokens, email (hashed), IPv4. v1 schema with `version`/`description`/`patterns` shape.
+- `tests/log-redaction.spec.js` — 9 tdd-pyramid tests covering all pattern matches, recursive event redaction, write-wrapper hook, LLM-prompt sanitization, hash determinism.
+
 ## [Unreleased] — #1357: retention + rotation policy for *.jsonl logging surfaces (Epic #1339 C6)
 
 ### Added
