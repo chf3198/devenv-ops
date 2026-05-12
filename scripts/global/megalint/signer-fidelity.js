@@ -1,6 +1,9 @@
 'use strict';
 // signer-fidelity — rejects issue bodies using client identity for worker artifacts.
-// Epic #1407 AC4.
+// Epic #1407 AC4. Extended in #1451 with registry-derived alias check.
+
+const path = require('path');
+const { validateArtifactAlias } = require(path.join(__dirname, 'signer-registry-check.js'));
 
 const CLIENT_IDENTITIES = ['Curtis Franks'];
 
@@ -39,6 +42,13 @@ function dedupe(violations) {
   return unique;
 }
 
+function checkRegistryAlias(body, opts) {
+  if (!body) return [];
+  const result = validateArtifactAlias(body, opts || {});
+  if (result.ok) return [];
+  return [result.violation];
+}
+
 function validate(input) {
   const body = input.body || '';
   const violations = checkSignedBy(body);
@@ -49,6 +59,9 @@ function validate(input) {
       detail: `Issue body uses client identity "${aiSig}" as AI-Signature trailer`,
     });
   }
+  violations.push(...checkRegistryAlias(body, {
+    device: input.device, registryOverride: input.registryOverride,
+  }));
   const unique = dedupe(violations);
   return { ok: unique.length === 0, violations: unique };
 }
