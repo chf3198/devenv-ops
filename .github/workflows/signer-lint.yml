@@ -1,0 +1,78 @@
+name: Signer Lint
+# Rejects issue bodies that use client identity ("Curtis Franks") for worker
+# artifacts. Epic #1407 AC4. Per team-model-signing.instructions.md, client
+# identity is reserved for client consultation/UAT, never worker sign-off.
+# Uses marker-comment pattern parallel to label-lint.yml.
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  signer-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const { validate } = require('./scripts/global/megalint/signer-fidelity.js');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNum = context.payload.issue.number;
+            const marker = '<!-- megalint-signer-fidelity -->';
+
+            const issue = (await github.rest.issues.get({
+              owner, repo, issue_number: issueNum,
+            })).data;
+
+            const result = validate({ body: issue.body || '' });
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: issueNum, per_page: 100,
+            });
+            const lintComment = comments.find(c => (c.body || '').includes(marker));
+
+            if (result.ok) {
+              if (lintComment) {
+                await github.rest.issues.deleteComment({
+                  owner, repo, comment_id: lintComment.id,
+                });
+              }
+              console.log(`Issue #${issueNum}: signer-fidelity OK`);
+              return;
+            }
+
+            const body = [
+              marker, '',
+              '## ⚠️ Signer Fidelity Violation', '',
+              `Issue #${issueNum} body uses a **client identity** in a Signed-by / AI-Signature field.`,
+              'Client identity is reserved for client consultation and UAT only; worker',
+              'artifacts must use a derived worker alias per `instructions/team-model-signing.instructions.md`.',
+              '',
+              '**Violations**:', '',
+              result.violations.map(v => `- \`${v.rule}\` — ${v.detail}`).join('\n'),
+              '',
+              '**Suggested fix**: replace `Signed-by: Curtis Franks` with the appropriate',
+              'worker alias from `inventory/team-model-signatures.json` (e.g., `Nova Mason` for',
+              'Copilot Manager, `Cole Mason` for Claude Code Manager).',
+              '',
+              '_Posted by signer-lint workflow (advisory — promotes to required after 2-week soak)._',
+            ].join('\n');
+
+            if (lintComment) {
+              if (lintComment.body !== body) {
+                await github.rest.issues.updateComment({
+                  owner, repo, comment_id: lintComment.id, body,
+                });
+              }
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issueNum, body,
+              });
+            }
+            core.warning(`Signer fidelity violation on #${issueNum}: ${result.violations.length} rule(s)`);
