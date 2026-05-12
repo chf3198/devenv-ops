@@ -26,6 +26,16 @@ Before implementing, verify Manager's scope:
 - Required gates are defined.
 - Active GitHub issue linked to work.
 
+## Pickup acknowledgement (60s-predate compliance)
+
+Per `#1336` AC2 and `.github/workflows/evidence-completeness.yml` retroactive-planting check: the `COLLABORATOR_HANDOFF` comment must predate PR creation by ≥60 seconds. Practical pattern:
+
+1. **On pickup, IMMEDIATELY** post a short comment containing the literal string `COLLABORATOR_HANDOFF` (e.g., `**COLLABORATOR_HANDOFF (pickup acknowledgement) — <Alias>**` with `lane`, `test_strategy`, expected `acceptance`, `gates`).
+2. **Then** do the implementation work.
+3. **Then** open the PR — the pickup comment is now ≥60s old; gate passes.
+
+Failing to do this is the single most common cause of PR-close+recreate cycles. See Tier-2 anneal `#1433` for the recurrence pattern.
+
 ## Branch and commit rules
 
 - Create branch: `<type>/<issue#>-<slug>` (e.g., `feat/62-baton-redesign`).
