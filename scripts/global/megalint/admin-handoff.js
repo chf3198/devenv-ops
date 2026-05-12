@@ -7,11 +7,13 @@ const { roleIdentity } = require(path.join(__dirname, '..', 'baton-independence.
 const LIGHTWEIGHT = ['lane:docs-research', 'lane:docs-only', 'lane:trivial'];
 
 function findAdminHandoff(comments) {
-  return [...(comments || [])].reverse().find(c => (c.body || '').includes('ADMIN_HANDOFF'));
+  const headerRe = /(^|\n)\s*(?:\*\*|##\s+)?ADMIN_HANDOFF\b/;
+  return [...(comments || [])].reverse().find(c => headerRe.test(c.body || ''));
 }
 
 function findCollaboratorHandoff(comments) {
-  return [...(comments || [])].reverse().find(c => (c.body || '').includes('COLLABORATOR_HANDOFF'));
+  const headerRe = /(^|\n)\s*(?:\*\*|##\s+)?COLLABORATOR_HANDOFF\b/;
+  return [...(comments || [])].reverse().find(c => headerRe.test(c.body || ''));
 }
 
 function nameOnly(commentBody) {

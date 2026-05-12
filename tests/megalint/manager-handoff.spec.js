@@ -8,7 +8,9 @@ const fullHandoff = `**MANAGER_HANDOFF — Cole Mason**
 - lane: lane:code-change
 - test_strategy: tdd-pyramid
 - acceptance: AC1-5
-- gates: lint, test-evidence`;
+- gates: lint, test-evidence
+
+Signed-by: Cole Mason · Team&Model: claude-code:opus-4-7@anthropic · Role: manager`;
 
 test('validate: full MANAGER_HANDOFF passes with all 5 fields', () => {
   const r = V.validate({ comments: [{ body: fullHandoff }] });

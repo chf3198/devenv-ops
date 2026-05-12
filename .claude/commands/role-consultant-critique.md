@@ -51,13 +51,23 @@ Consultant MAY reject (revert to Collaborator) **only** when:
 
 **Before rejecting**: Post a comment enumerating exactly which governance rule was violated and which artifact/evidence is missing.
 
-## Tier-3 goal-failure escalation (Epic #1308)
+## Tier-3 goal-failure escalation (Epic #1308; enforced by #1376)
 
-If rubric scores below threshold against any G1–G9 goal, Consultant may invoke Manager for Tier-3 actions via `anneal-trigger-router` (`action:request-consultant-escalation`):
+**MUST emit before close** when any G1–G9 rubric score is below the 7-point threshold. Closeout-lint workflow (per `scripts/global/megalint/goal-failure-emission.js`) blocks the gate if sub-threshold scores name a goal without a corresponding `event:goal-failure-escalation` in `~/.megingjord/incidents.jsonl`.
+
+**Linkage rule**: Event must have `ticket_ref` matching the issue number, `evidence` array containing `goal:G<n>` for the sub-threshold goal, `tier: 3`, and `trigger_role: consultant`.
+
+**Append-to-incidents template** (one line per sub-threshold goal, append to `~/.megingjord/incidents.jsonl`):
+
+```jsonl
+{"version":2,"timestamp":"<ISO-8601>","tier":3,"trigger_role":"consultant","trigger_type":"goal-failure","pattern_id":"goal-failure-G<n>","severity":"high","evidence":["goal:G<n>","score:<score>"],"ticket_ref":"#<N>","epic_ref":"#<parent-or-self>","session_id":"<session>","schema_compat":"v1-readers-must-ignore-fields-not-in-v1"}
+```
+
+Then via `anneal-trigger-router` (`action:request-consultant-escalation`), Consultant invokes Manager for Tier-3 actions:
 - Reopen failed AC or ticket: return to Manager baton; remove `status:done` if posted in error
 - File new self-anneal Epic: pattern is systemic across multiple tickets
 
-Each emits `event:goal-failure-escalation` per Epic #1308 schema v2 (`{tier:3, trigger_role:consultant, trigger_type:goal-failure, severity, evidence, ticket_ref, epic_ref}`). Authority: Consultant only; other roles rejected with `kill_switch_trip:authority`.
+Authority: Consultant only; other roles rejected with `kill_switch_trip:authority`. Per Epic #1308 schema v2.
 
 ## Entry criteria
 

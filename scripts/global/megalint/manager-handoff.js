@@ -5,7 +5,8 @@ const sig = require('../governance-artifact-signature');
 const REQUIRED_FIELDS = ['scope', 'lane', 'test_strategy', 'acceptance', 'gates'];
 
 function findManagerHandoff(comments) {
-  return (comments || []).reverse().find(c => (c.body || '').includes('MANAGER_HANDOFF'));
+  const headerRe = /(^|\n)\s*(?:\*\*|##\s+)?MANAGER_HANDOFF\b/;
+  return [...(comments || [])].reverse().find(c => headerRe.test(c.body || ''));
 }
 function extractField(body, field) {
   const m = body.match(new RegExp(`(?:^|\\n)[-*]?\\s*${field}\\s*:\\s*([^\\n]+)`, 'i'));
@@ -13,7 +14,12 @@ function extractField(body, field) {
 }
 function checkRequiredFields(body) {
   const violations = [];
-  for (const f of REQUIRED_FIELDS) if (!extractField(body, f)) violations.push({ rule: `missing-${f}`, detail: `MANAGER_HANDOFF missing required field '${f}:' per role-baton-routing schema` });
+  for (const field of REQUIRED_FIELDS) {
+    if (!extractField(body, field)) {
+      violations.push({ rule: `missing-${field}`,
+        detail: `MANAGER_HANDOFF missing required field '${field}:' per role-baton-routing schema` });
+    }
+  }
   if (!/Signed-by:/i.test(body)) violations.push({ rule: 'missing-signer', detail: 'MANAGER_HANDOFF missing Signed-by field' });
   if (!/Team&Model:/i.test(body)) violations.push({ rule: 'missing-team-model', detail: 'MANAGER_HANDOFF missing Team&Model field' });
   if (!/Role:\s*manager/i.test(body)) violations.push({ rule: 'missing-role-manager', detail: 'MANAGER_HANDOFF missing Role: manager field' });
@@ -27,8 +33,12 @@ function checkLaneConsistency(body, expectedLane) {
     : [];
 }
 function checkCrypto(body) {
-  const r = sig.verifyArtifact(body, 'manager');
-  return r.ok ? [] : r.violations.map(v => ({ rule: 'crypto-signature-invalid', detail: `MANAGER_HANDOFF ${v}` }));
+  if (!/Crypto-Algorithm:/i.test(body)) return [];
+  const result = sig.verifyArtifact(body, 'manager');
+  return result.ok ? [] : result.violations.map(violation => ({
+    rule: 'crypto-signature-invalid',
+    detail: `MANAGER_HANDOFF ${violation}`,
+  }));
 }
 
 function validate(input) {

@@ -45,6 +45,7 @@ jobs:
               state: issue.state,
               isEpic: labels.includes('type:epic'),
               issueNumber: linkedIssue,
+              ticketRef: `#${linkedIssue}`,
             };
 
             const mh = megalint.run('manager-handoff', input);

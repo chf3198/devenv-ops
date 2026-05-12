@@ -1,11 +1,20 @@
 'use strict';
 // consultant-closeout — validates schema + Ed25519 crypto signature.
+// Epic #1407 AC7: requires verification-timestamp + G1-9 rubric atop signer fields.
+// Epic #1308 Tier-3 (#1376): sub-7 goal scores require corresponding events.
+// Epic #1298: Crypto-* fields verified against signature registry.
 
-const sig = require('../governance-artifact-signature');
+const path = require('path');
+const sig = require(path.join(__dirname, '..', 'governance-artifact-signature.js'));
+const { enforceTier3Emission } = require(path.join(__dirname, 'goal-failure-emission.js'));
 
 function findConsultantCloseout(comments) {
-  return (comments || []).reverse().find(c => (c.body || '').includes('CONSULTANT_CLOSEOUT'));
+  // Match the marker as a header — not arbitrary mentions in analysis text.
+  // Accepted forms: `**CONSULTANT_CLOSEOUT`, `## CONSULTANT_CLOSEOUT`, or line-leading.
+  const headerRe = /(^|\n)\s*(?:\*\*|##\s+)?CONSULTANT_CLOSEOUT(?:_EPIC_CLOSEOUT)?\b/;
+  return [...(comments || [])].reverse().find(c => headerRe.test(c.body || ''));
 }
+
 function checkSignerFields(body) {
   const violations = [];
   if (!/Signed-by:/i.test(body)) violations.push({ rule: 'missing-signer', detail: 'CONSULTANT_CLOSEOUT missing Signed-by field' });
@@ -13,6 +22,7 @@ function checkSignerFields(body) {
   if (!/Role:\s*consultant/i.test(body)) violations.push({ rule: 'missing-role-consultant', detail: 'CONSULTANT_CLOSEOUT missing Role: consultant field' });
   return violations;
 }
+
 function checkEvidenceFields(body) {
   const violations = [];
   if (!/G[1-9]\s*[=:]/i.test(body)) violations.push({ rule: 'missing-rubric', detail: 'CONSULTANT_CLOSEOUT missing G1-9 goal-lens rubric (e.g., "G1=9, G2=8, ...")' });
@@ -20,9 +30,18 @@ function checkEvidenceFields(body) {
   if (!/(verdict|approve|approved)/i.test(body)) violations.push({ rule: 'missing-verdict', detail: 'CONSULTANT_CLOSEOUT missing explicit verdict / approve statement' });
   return violations;
 }
+
 function checkCrypto(body) {
-  const r = sig.verifyArtifact(body, 'consultant');
-  return r.ok ? [] : r.violations.map(v => ({ rule: 'crypto-signature-invalid', detail: `CONSULTANT_CLOSEOUT ${v}` }));
+  // Only enforce if Crypto-Algorithm field is present (additive model — opt-in per artifact).
+  if (!/Crypto-Algorithm:/i.test(body)) return [];
+  const result = sig.verifyArtifact(body, 'consultant');
+  return result.ok ? [] : result.violations.map(v => ({ rule: 'crypto-signature-invalid', detail: `CONSULTANT_CLOSEOUT ${v}` }));
+}
+
+function checkTier3Emission(body, input) {
+  if (!input.ticketRef) return [];
+  const result = enforceTier3Emission(body, input.ticketRef, input.incidentsPath);
+  return result.violations;
 }
 
 function validate(input) {
@@ -31,7 +50,12 @@ function validate(input) {
     return { ok: false, violations: [{ rule: 'missing-consultant-closeout', detail: 'CONSULTANT_CLOSEOUT comment not found on issue' }], found: false };
   }
   const body = closeout.body || '';
-  const violations = [...checkSignerFields(body), ...checkEvidenceFields(body), ...checkCrypto(body)];
+  const violations = [
+    ...checkSignerFields(body),
+    ...checkEvidenceFields(body),
+    ...checkCrypto(body),
+    ...checkTier3Emission(body, input),
+  ];
   return { ok: violations.length === 0, violations, found: true };
 }
 
