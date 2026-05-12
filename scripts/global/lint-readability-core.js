@@ -11,7 +11,9 @@ function walkJS(dir) {
     if (SKIP.includes(entry.name)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) files.push(...walkJS(full));
-    else if (entry.name.endsWith('.js')) files.push(full);
+    else if (entry.name.endsWith('.js') && !entry.name.endsWith('.spec.js')) {
+      files.push(full);
+    }
   }
   return files;
 }
