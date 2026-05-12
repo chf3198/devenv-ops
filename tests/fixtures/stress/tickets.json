@@ -1,0 +1,7 @@
+[
+  {"id": "T-stress-001", "title": "Mock baton: code-change lane", "lane": "code-change", "type": "task", "area": "scripts", "priority": "P2", "skills": ["collaborator", "playwright"]},
+  {"id": "T-stress-002", "title": "Mock baton: research lane", "lane": "research", "type": "research", "area": "governance", "priority": "P2", "skills": ["analyst", "docs-drift"]},
+  {"id": "T-stress-003", "title": "Mock baton: config-only lane (skip Collaborator)", "lane": "config-only", "type": "task", "area": "infra", "priority": "P3", "skills": ["admin"]},
+  {"id": "T-stress-004", "title": "Mock baton: docs-only lane", "lane": "docs-only", "type": "doc", "area": "governance", "priority": "P3", "skills": ["docs"]},
+  {"id": "T-stress-005", "title": "Mock baton: parallel cross-team", "lane": "code-change", "type": "task", "area": "dashboard", "priority": "P1", "skills": ["collaborator", "playwright", "cross-team"]}
+]

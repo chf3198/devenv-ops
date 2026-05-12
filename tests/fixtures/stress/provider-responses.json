@@ -1,0 +1,27 @@
+{
+  "anthropic-haiku": {
+    "id": "msg_stress_haiku_001",
+    "type": "message",
+    "role": "assistant",
+    "model": "claude-haiku-4-5-20251001",
+    "content": [{"type": "text", "text": "Stress fixture response — Anthropic Haiku canned reply."}],
+    "stop_reason": "end_turn",
+    "usage": {"input_tokens": 20, "output_tokens": 14, "cache_read_input_tokens": 18}
+  },
+  "openai-gpt-4o-mini": {
+    "id": "chatcmpl_stress_oa_001",
+    "object": "chat.completion",
+    "model": "gpt-4o-mini",
+    "choices": [{"index": 0, "message": {"role": "assistant", "content": "Stress fixture response — OpenAI mini canned reply."}, "finish_reason": "stop"}],
+    "usage": {"prompt_tokens": 18, "completion_tokens": 12, "total_tokens": 30}
+  },
+  "ollama-local": {
+    "model": "qwen2.5:7b-instruct",
+    "created_at": "2026-05-11T23:00:00Z",
+    "response": "Stress fixture response — Ollama local canned reply.",
+    "done": true,
+    "total_duration": 120000000,
+    "load_duration": 8000000,
+    "eval_count": 14
+  }
+}
