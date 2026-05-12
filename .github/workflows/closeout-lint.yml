@@ -17,7 +17,9 @@ jobs:
       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
+            const path = require('path');
             const megalint = require('./scripts/global/megalint/index.js');
+            const closeoutLint = require(path.join(process.env.GITHUB_WORKSPACE, 'scripts/global/closeout-lint.js'));
 
             const body = context.payload.pull_request.body || '';
             const refsMatch = body.match(/Refs\s+#(\d+)/i);
@@ -28,19 +30,24 @@ jobs:
             const linkedIssue = parseInt(refsMatch[1], 10);
 
             const { data: issue } = await github.rest.issues.get({
-              owner: context.repo.owner, repo: context.repo.repo,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
               issue_number: linkedIssue,
             });
             const labels = issue.labels.map(l => l.name);
             const lane = labels.find(l => l.startsWith('lane:')) || 'lane:code-change';
 
             const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner, repo: context.repo.repo,
-              issue_number: linkedIssue, per_page: 100,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: linkedIssue,
+              per_page: 100,
             });
 
             const input = {
-              comments, lane, labels,
+              comments,
+              lane,
+              labels,
               body: issue.body || '',
               state: issue.state,
               isEpic: labels.includes('type:epic'),
@@ -73,3 +80,5 @@ jobs:
                 + `\nSee scripts/global/megalint/ + instructions/role-baton-routing.instructions.md`
               );
             }
+
+            await closeoutLint.run({ github, context, core });
