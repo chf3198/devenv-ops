@@ -39,6 +39,24 @@ DECISION_RE = re.compile(
     re.IGNORECASE,
 )
 
+# Epic #1436 D-1436-01: in-session Tier-2 worker awareness.
+# When prompts mention recurrence/anneal/repeat-failure patterns, surface
+# concise guidance reminding the worker that a Tier-2 anneal event should
+# be emitted proactively, without waiting for the nightly cron.
+RECURRENCE_RE = re.compile(
+    r"\b(anneal|self-anneal|tier-?2|mid-?flight|"
+    r"recurr(?:ence|ent|ing)?|repeat(?:ed)?\s+failure|"
+    r"happened\s+again|same\s+error\s+twice|drift\s+pattern)\b",
+    re.IGNORECASE,
+)
+RECURRENCE_GUIDANCE = (
+    "Tier-2 mid-flight awareness (#1436): if this is a recurring pattern "
+    "(≥2 in 7d at severity ≥ medium), emit `event:goal-failure-escalation` "
+    "or file a Tier-2 anneal ticket NOW — do not wait for the nightly cron. "
+    "See `instructions/workflow-resilience.instructions.md` Tier-2 model "
+    "and `feedback_anneal_emission_during_implementation.md`."
+)
+
 
 def get_active_role(payload: dict) -> str:
     """Resolve active role from payload or env (lowercase, stripped)."""
@@ -61,6 +79,9 @@ def main() -> int:
     base = f"Goal lens: {GOALS}."
     if DECISION_RE.search(prompt):
         base += " Decision check: justify any lower-priority override with explicit evidence."
+
+    if RECURRENCE_RE.search(prompt):
+        base += " " + RECURRENCE_GUIDANCE
 
     role = get_active_role(payload)
     tier = "B"

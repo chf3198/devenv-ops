@@ -7,6 +7,7 @@ const { execFileSync } = require('node:child_process');
 const { classifyTier1 } = require('./anneal-severity-classifier');
 const { stepGate, patternRateGate, singleFlightGate, releaseSingleFlight } = require('./anneal-kill-switch');
 const { emitEvent, readEvents } = require('./anneal-event-schema');
+const { gateCandidate, markConfirmed } = require('./anneal-worker-confirmation');
 
 const INCIDENTS = path.join(os.homedir(), '.megingjord', 'incidents.jsonl');
 const SUPPRESS_FILE = path.join(os.homedir(), '.megingjord', 'suppression-registry.json');
@@ -64,8 +65,32 @@ function maybeCreateTicket(candidate, meta, nowIso, applyFlag) {
     '--label', 'type:task', '--label', 'area:governance', '--label', 'status:backlog', '--body', body];
   return execFileSync('gh', args, { encoding: 'utf8' }).trim();
 }
+function processOneCandidate(candidate, ctx, out) {
+  if (!stepGate(out.length + Number('1')).ok) {
+    emitKillSwitch('step-counter', candidate.pattern_id, ctx.sessionId, ctx.nowIso);
+    return 'break';
+  }
+  const gate = patternRateGate(ctx.tier2, candidate.pattern_id, Date.parse(ctx.nowIso));
+  if (!gate.ok) { emitKillSwitch(gate.reason, candidate.pattern_id, ctx.sessionId, ctx.nowIso); return 'continue'; }
+  const meta = proposalMeta(candidate, ctx.nowIso);
+  const confirmGate = gateCandidate(candidate, meta, ctx.nowIso);
+  if (!confirmGate.proceed) {
+    out.push({ pattern_id: candidate.pattern_id, severity: candidate.severity, proposal_id: meta.proposal_id, dedupe_key: meta.dedupe_key, ticket_ref: `PENDING-CONFIRMATION:${confirmGate.reason}` });
+    return 'continue';
+  }
+  const ticketRef = maybeCreateTicket(candidate, meta, ctx.nowIso, ctx.applyFlag);
+  emitEvent({ version: TWO, timestamp: ctx.nowIso, tier: TWO, trigger_role: 'system', trigger_type: 'sensor-driven',
+    pattern_id: candidate.pattern_id, severity: candidate.severity, evidence: [`count=${candidate.count}`],
+    ticket_ref: ticketRef, epic_ref: '#1308', proposal_id: meta.proposal_id, dedupe_key: meta.dedupe_key, session_id: ctx.sessionId,
+    schema_compat: 'v1-readers-must-ignore-fields-not-in-v1' }, INCIDENTS);
+  out.push({ pattern_id: candidate.pattern_id, severity: candidate.severity, proposal_id: meta.proposal_id, dedupe_key: meta.dedupe_key, ticket_ref: ticketRef });
+  return 'next';
+}
+
 function run(argv) {
   const applyFlag = argv.includes('--apply');
+  const confirmIdx = argv.indexOf('--apply-confirmed');
+  if (confirmIdx >= 0 && argv[confirmIdx + 1]) markConfirmed(argv[confirmIdx + 1]);
   const fixturePath = argv.includes('--fixture') ? argv[argv.indexOf('--fixture') + Number('1')] : '';
   const nowIso = new Date().toISOString();
   const suppressions = loadSuppressions(nowIso);
@@ -76,18 +101,11 @@ function run(argv) {
   const flight = singleFlightGate(sessionId); if (!flight.ok) return emitKillSwitch(flight.reason, '', sessionId, nowIso);
   const candidates = buildCandidates(tier1).filter((item) => !isSuppressed(item.pattern_id, suppressions));
   const out = [];
+  const ctx = { applyFlag, nowIso, sessionId, tier2 };
   try {
     for (const candidate of candidates) {
-      if (!stepGate(out.length + Number('1')).ok) { emitKillSwitch('step-counter', candidate.pattern_id, sessionId, nowIso); break; }
-      const gate = patternRateGate(tier2, candidate.pattern_id, Date.parse(nowIso));
-      if (!gate.ok) { emitKillSwitch(gate.reason, candidate.pattern_id, sessionId, nowIso); continue; }
-      const meta = proposalMeta(candidate, nowIso);
-      const ticketRef = maybeCreateTicket(candidate, meta, nowIso, applyFlag);
-      emitEvent({ version: TWO, timestamp: nowIso, tier: TWO, trigger_role: 'system', trigger_type: 'sensor-driven',
-        pattern_id: candidate.pattern_id, severity: candidate.severity, evidence: [`count=${candidate.count}`],
-        ticket_ref: ticketRef, epic_ref: '#1308', proposal_id: meta.proposal_id, dedupe_key: meta.dedupe_key, session_id: sessionId,
-        schema_compat: 'v1-readers-must-ignore-fields-not-in-v1' }, INCIDENTS);
-      out.push({ pattern_id: candidate.pattern_id, severity: candidate.severity, proposal_id: meta.proposal_id, dedupe_key: meta.dedupe_key, ticket_ref: ticketRef });
+      const decision = processOneCandidate(candidate, ctx, out);
+      if (decision === 'break') break;
     }
   } finally {
     releaseSingleFlight();

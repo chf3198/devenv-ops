@@ -2,6 +2,7 @@
 
 const ANNEAL_WINDOW_DAY = Number('86400000');
 const ANNEAL_WINDOW_WEEK = Number('604800000');
+const WORKER_AWARENESS_EPIC = '#1436';
 
 async function fetchAnnealQueueData() {
   const response = await fetch('/api/anneal/queue');
@@ -27,14 +28,34 @@ function summarizeAnneal(events) {
   return { ...base, topPatterns };
 }
 
+function summarizeWorkerAwareness(pendingConfirmation) {
+  // D-1436-03: count Tier-2 candidates awaiting worker confirmation.
+  const list = pendingConfirmation || [];
+  const pending = list.filter((entry) => entry.status === 'pending-confirmation');
+  const confirmed = list.filter((entry) => entry.status === 'confirmed');
+  return {
+    pending_count: pending.length,
+    confirmed_count: confirmed.length,
+    top: pending.slice(0, Number('3')).map((entry) => ({
+      pattern_id: entry.pattern_id, severity: entry.severity,
+      proposal_id: entry.proposal_id,
+    })),
+  };
+}
+
 function renderAnnealQueuePanel(payload) {
   const stats = summarizeAnneal(payload.events || []);
+  const awareness = summarizeWorkerAwareness(payload.pendingConfirmation || []);
   const topRows = stats.topPatterns.map((entry) => `<li><span>${entry[0]}</span><strong>${entry[1]}</strong></li>`).join('');
+  const awarenessRows = awareness.top.length
+    ? awareness.top.map((entry) => `<li><span>${entry.pattern_id} (${entry.severity})</span><strong>${entry.proposal_id.slice(0, 24)}</strong></li>`).join('')
+    : '<li><span>none</span><strong>0</strong></li>';
   return `<section class="anneal-queue-panel"><div class="aq-grid">
     <article><h3>Tiers (24h / 7d)</h3><p>T1 ${stats.tier1_24h}/${stats.tier1_7d}</p><p>T2 ${stats.tier2_24h}/${stats.tier2_7d}</p><p>T3 ${stats.tier3_24h}/${stats.tier3_7d}</p></article>
     <article><h3>Kill-switch</h3><p>${stats.kill} trips (7d)</p></article>
     <article><h3>Pivot</h3><p>success ${stats.pivot_ok}</p><p>failure ${stats.pivot_fail}</p></article>
     <article><h3>Top patterns</h3><ol>${topRows || '<li><span>none</span><strong>0</strong></li>'}</ol></article>
+    <article class="aq-awareness"><h3>Worker-awareness pending (${WORKER_AWARENESS_EPIC})</h3><p>pending ${awareness.pending_count} · confirmed ${awareness.confirmed_count}</p><ol>${awarenessRows}</ol></article>
   </div></section>`;
 }
 
@@ -55,5 +76,5 @@ function registerAnnealQueuePanel(targetElement) {
   });
 }
 
-if (typeof module !== 'undefined') module.exports = { fetchAnnealQueueData, summarizeAnneal, renderAnnealQueuePanel, registerAnnealQueuePanel };
-else Object.assign(window, { fetchAnnealQueueData, summarizeAnneal, renderAnnealQueuePanel, registerAnnealQueuePanel });
+if (typeof module !== 'undefined') module.exports = { fetchAnnealQueueData, summarizeAnneal, summarizeWorkerAwareness, renderAnnealQueuePanel, registerAnnealQueuePanel };
+else Object.assign(window, { fetchAnnealQueueData, summarizeAnneal, summarizeWorkerAwareness, renderAnnealQueuePanel, registerAnnealQueuePanel });
