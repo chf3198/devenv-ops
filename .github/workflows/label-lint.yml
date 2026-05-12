@@ -35,13 +35,40 @@ jobs:
             const hasTerminal = labels.includes('status:done') || labels.includes('status:cancelled');
 
             if (issue.state === 'closed' && !hasTerminal) {
-              await github.rest.issues.update({
-                owner, repo, issue_number: issueNum, state: 'open',
+              // #1336 AC3: if a CONSULTANT_CLOSEOUT exists, auto-transition
+              // labels instead of blocking — eliminates the manual fix-up
+              // cycle that hit CP team on #1313/#1314/#1315.
+              const recentComments = await github.paginate(github.rest.issues.listComments, {
+                owner, repo, issue_number: issueNum, per_page: 100,
               });
-              await github.rest.issues.createComment({
-                owner, repo, issue_number: issueNum,
-                body: '❌ Close blocked: add `status:done` or `status:cancelled` before closing this issue.',
-              });
+              const closeoutRe = /(^|\n)\s*(?:\*\*|##\s+)?CONSULTANT_CLOSEOUT(?:_EPIC_CLOSEOUT)?\b/;
+              const hasCloseout = recentComments.some(c => closeoutRe.test(c.body || ''));
+              const inReview = labels.includes('status:review');
+              if (hasCloseout && inReview) {
+                if (labels.includes('status:review')) {
+                  await github.rest.issues.removeLabel({
+                    owner, repo, issue_number: issueNum, name: 'status:review',
+                  }).catch(() => {});
+                }
+                if (labels.includes('role:consultant')) {
+                  await github.rest.issues.removeLabel({
+                    owner, repo, issue_number: issueNum, name: 'role:consultant',
+                  }).catch(() => {});
+                }
+                await github.rest.issues.addLabels({
+                  owner, repo, issue_number: issueNum,
+                  labels: ['status:done', 'resolution:completed'],
+                }).catch(() => {});
+                console.log(`#${issueNum}: auto-transitioned status:review → status:done via CONSULTANT_CLOSEOUT detection`);
+              } else {
+                await github.rest.issues.update({
+                  owner, repo, issue_number: issueNum, state: 'open',
+                });
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: issueNum,
+                  body: '❌ Close blocked: add `status:done` or `status:cancelled` before closing this issue.',
+                });
+              }
             }
             if (issue.state === 'closed' && closeRoles.length > 0) {
               for (const role of closeRoles) {
