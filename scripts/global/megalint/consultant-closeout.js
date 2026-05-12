@@ -7,7 +7,10 @@ const path = require('path');
 const { enforceTier3Emission } = require(path.join(__dirname, 'goal-failure-emission.js'));
 
 function findConsultantCloseout(comments) {
-  return (comments || []).reverse().find(c => (c.body || '').includes('CONSULTANT_CLOSEOUT'));
+  // Match the marker as a header — not arbitrary mentions in analysis text.
+  // Accepted forms: `**CONSULTANT_CLOSEOUT`, `## CONSULTANT_CLOSEOUT`, or line-leading.
+  const headerRe = /(^|\n)\s*(?:\*\*|##\s+)?CONSULTANT_CLOSEOUT(?:_EPIC_CLOSEOUT)?\b/;
+  return [...(comments || [])].reverse().find(c => headerRe.test(c.body || ''));
 }
 
 function checkSignerFields(body) {
