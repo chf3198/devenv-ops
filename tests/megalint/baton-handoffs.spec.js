@@ -16,7 +16,10 @@ const consultantBody = `**CONSULTANT_CLOSEOUT — Yara Vale**
 Rubric: G1=9, G2=9, G3=10, G4=10, G5=10, G6=9, G7=8, G8=8, G9=9. Mean 9.0.
 verdict: approve
 verification timestamp: 2026-05-12T11:30Z
-Signed-by: Yara Vale · Team&Model: claude-code:opus-4-7@anthropic · Role: consultant`;
+Signed-by: Yara Vale · Team&Model: claude-code:opus-4-7@anthropic · Role: consultant
+Crypto-Algorithm: ed25519
+Crypto-Key-Id: claude-code-consultant-v1
+Crypto-Signature: OWpiuSJeBVCewNwBYzUHZw75ngei2k3g6RFhu8Bn9eS5v56oYkg4A06rCVjI4TPQFKLjXP/DGbw0Pur2eHayCQ`;
 
 test('collaborator: full handoff passes; signer extracted', () => {
   const r = Coll.validate({ comments: [{ body: collaboratorBody }] });

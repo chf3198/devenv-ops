@@ -10,7 +10,7 @@
     "issueNumber": 9999,
     "comments": [
       {
-        "body": "**MANAGER_HANDOFF — Cole Mason**\n- scope: implement foo\n- lane: lane:code-change\n- test_strategy: tdd-pyramid\n- acceptance: AC1, AC2\n- gates: lint-required, test-evidence\nSigned-by: Cole Mason · Team&Model: claude-code:opus-4-7@anthropic · Role: manager"
+        "body": "**MANAGER_HANDOFF — Cole Mason**\n- scope: implement foo\n- lane: lane:code-change\n- test_strategy: tdd-pyramid\n- acceptance: AC1, AC2\n- gates: lint-required, test-evidence\nSigned-by: Cole Mason · Team&Model: claude-code:opus-4-7@anthropic · Role: manager\nCrypto-Algorithm: ed25519\nCrypto-Key-Id: claude-code-manager-v1\nCrypto-Signature: HSshOe4tn1iYZC6JTWO9zGCafBLsHQ/t1tk4hGfPN/IqZhcXqJPnRze4IiLLVnT2W31CdOyms6gc1xbUWkS3DA"
       },
       {
         "body": "**COLLABORATOR_HANDOFF — Orla Harper**\nwork complete.\nSigned-by: Orla Harper · Team&Model: claude-code:opus-4-7@anthropic · Role: collaborator"
@@ -19,7 +19,7 @@
         "body": "**ADMIN_HANDOFF — Mira Reyes**\nCI green.\nSigned-by: Mira Reyes · Team&Model: claude-code:opus-4-7@anthropic · Role: admin"
       },
       {
-        "body": "**CONSULTANT_CLOSEOUT — Yara Vale**\nRubric: G1=9, G2=9, G3=10, G4=10, G5=10, G6=9, G7=9, G8=9, G9=9. Mean 9.3.\nverdict: approve\nverification timestamp: 2026-05-12T11:55Z\nSigned-by: Yara Vale · Team&Model: claude-code:opus-4-7@anthropic · Role: consultant"
+        "body": "**CONSULTANT_CLOSEOUT — Yara Vale**\nRubric: G1=9, G2=9, G3=10, G4=10, G5=10, G6=9, G7=9, G8=9, G9=9. Mean 9.3.\nverdict: approve\nverification timestamp: 2026-05-12T11:55Z\nSigned-by: Yara Vale · Team&Model: claude-code:opus-4-7@anthropic · Role: consultant\nCrypto-Algorithm: ed25519\nCrypto-Key-Id: claude-code-consultant-v1\nCrypto-Signature: pSkHm4vTJ1dLWPN0mNfx5nWogwveFmGrsb3HyJYpKM+Jx6egZ/cRqFzn2LUqwZcp8h8Sx/3PWWPYBE3q+SRCBQ"
       }
     ]
   },

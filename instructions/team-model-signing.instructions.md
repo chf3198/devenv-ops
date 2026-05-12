@@ -12,6 +12,11 @@ applyTo: "**"
   - `Signed-by: <human-alias>`
   - `Team&Model: <team>:<model>@<substrate>[/<device>]`
   - `Role: manager|collaborator|admin|consultant`
+- Optional cryptographic provenance MAY be appended with:
+  - `Crypto-Algorithm: ed25519`
+  - `Crypto-Key-Id: <team-role-key-id>`
+  - `Crypto-Signature: <base64-signature>`
+- Human-readable fields remain required for friendly readers; crypto fields augment non-repudiation and must not replace them.
 - Use `Device` only when execution ran on a named fleet target or remote gateway.
 
 ## Source of truth

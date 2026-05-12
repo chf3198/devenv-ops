@@ -1,53 +1,43 @@
 'use strict';
-// manager-handoff — validates MANAGER_HANDOFF schema fields per role-baton-routing.
-// Epic #1407 AC3; subsumes #1335.
+// manager-handoff — validates MANAGER_HANDOFF schema + crypto signature fields.
 
+const sig = require('../governance-artifact-signature');
 const REQUIRED_FIELDS = ['scope', 'lane', 'test_strategy', 'acceptance', 'gates'];
 
 function findManagerHandoff(comments) {
   return (comments || []).reverse().find(c => (c.body || '').includes('MANAGER_HANDOFF'));
 }
-
 function extractField(body, field) {
-  const pattern = new RegExp(`(?:^|\\n)[-*]?\\s*${field}\\s*:\\s*([^\\n]+)`, 'i');
-  const match = body.match(pattern);
-  return match ? match[1].trim() : null;
+  const m = body.match(new RegExp(`(?:^|\\n)[-*]?\\s*${field}\\s*:\\s*([^\\n]+)`, 'i'));
+  return m ? m[1].trim() : null;
 }
-
-function checkRequiredFields(handoffBody) {
+function checkRequiredFields(body) {
   const violations = [];
-  for (const field of REQUIRED_FIELDS) {
-    if (!extractField(handoffBody, field)) {
-      violations.push({ rule: `missing-${field}`,
-        detail: `MANAGER_HANDOFF missing required field '${field}:' per role-baton-routing schema` });
-    }
-  }
+  for (const f of REQUIRED_FIELDS) if (!extractField(body, f)) violations.push({ rule: `missing-${f}`, detail: `MANAGER_HANDOFF missing required field '${f}:' per role-baton-routing schema` });
+  if (!/Signed-by:/i.test(body)) violations.push({ rule: 'missing-signer', detail: 'MANAGER_HANDOFF missing Signed-by field' });
+  if (!/Team&Model:/i.test(body)) violations.push({ rule: 'missing-team-model', detail: 'MANAGER_HANDOFF missing Team&Model field' });
+  if (!/Role:\s*manager/i.test(body)) violations.push({ rule: 'missing-role-manager', detail: 'MANAGER_HANDOFF missing Role: manager field' });
   return violations;
 }
-
-function checkLaneConsistency(handoffBody, expectedLane) {
+function checkLaneConsistency(body, expectedLane) {
   if (!expectedLane) return [];
-  const declared = extractField(handoffBody, 'lane');
-  if (declared && declared !== expectedLane && !declared.includes(expectedLane)) {
-    return [{ rule: 'lane-mismatch',
-      detail: `MANAGER_HANDOFF lane='${declared}' but issue has label='${expectedLane}'` }];
-  }
-  return [];
+  const declared = extractField(body, 'lane');
+  return declared && declared !== expectedLane && !declared.includes(expectedLane)
+    ? [{ rule: 'lane-mismatch', detail: `MANAGER_HANDOFF lane='${declared}' but issue has label='${expectedLane}'` }]
+    : [];
+}
+function checkCrypto(body) {
+  const r = sig.verifyArtifact(body, 'manager');
+  return r.ok ? [] : r.violations.map(v => ({ rule: 'crypto-signature-invalid', detail: `MANAGER_HANDOFF ${v}` }));
 }
 
 function validate(input) {
   const handoff = findManagerHandoff(input.comments || []);
   if (!handoff) {
-    const violations = input.isEpic
-      ? [{ rule: 'epic-manager-handoff-missing',
-          detail: 'Epic must have a MANAGER_HANDOFF comment defining scope' }]
-      : [];
+    const violations = input.isEpic ? [{ rule: 'epic-manager-handoff-missing', detail: 'Epic must have a MANAGER_HANDOFF comment defining scope' }] : [];
     return { ok: violations.length === 0, violations, found: false };
   }
-  const violations = [
-    ...checkRequiredFields(handoff.body),
-    ...checkLaneConsistency(handoff.body, input.lane),
-  ];
+  const violations = [...checkRequiredFields(handoff.body), ...checkLaneConsistency(handoff.body, input.lane), ...checkCrypto(handoff.body)];
   return { ok: violations.length === 0, violations, found: true };
 }
 
