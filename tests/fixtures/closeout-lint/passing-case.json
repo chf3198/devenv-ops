@@ -1,0 +1,31 @@
+{
+  "description": "Golden-file fixture: closeout-lint accepts complete MANAGER_HANDOFF + CONSULTANT_CLOSEOUT (Epic #1407 AC3+AC7).",
+  "scenario": "PR with valid Refs #N pointing to a code-change ticket with complete baton trail",
+  "input": {
+    "labels": ["type:task", "lane:code-change", "status:review", "role:consultant"],
+    "lane": "lane:code-change",
+    "body": "## Parent\n- Epic: #1407\n## ACs\n- [x] AC1: built\n- [x] AC2: tested",
+    "state": "open",
+    "isEpic": false,
+    "issueNumber": 9999,
+    "comments": [
+      {
+        "body": "**MANAGER_HANDOFF — Cole Mason**\n- scope: implement foo\n- lane: lane:code-change\n- test_strategy: tdd-pyramid\n- acceptance: AC1, AC2\n- gates: lint-required, test-evidence\nSigned-by: Cole Mason · Team&Model: claude-code:opus-4-7@anthropic · Role: manager"
+      },
+      {
+        "body": "**COLLABORATOR_HANDOFF — Orla Harper**\nwork complete.\nSigned-by: Orla Harper · Team&Model: claude-code:opus-4-7@anthropic · Role: collaborator"
+      },
+      {
+        "body": "**ADMIN_HANDOFF — Mira Reyes**\nCI green.\nSigned-by: Mira Reyes · Team&Model: claude-code:opus-4-7@anthropic · Role: admin"
+      },
+      {
+        "body": "**CONSULTANT_CLOSEOUT — Yara Vale**\nRubric: G1=9, G2=9, G3=10, G4=10, G5=10, G6=9, G7=9, G8=9, G9=9. Mean 9.3.\nverdict: approve\nverification timestamp: 2026-05-12T11:55Z\nSigned-by: Yara Vale · Team&Model: claude-code:opus-4-7@anthropic · Role: consultant"
+      }
+    ]
+  },
+  "expected": {
+    "manager_handoff": { "ok": true, "found": true },
+    "consultant_closeout": { "ok": true, "found": true },
+    "workflow_outcome": "PASS"
+  }
+}

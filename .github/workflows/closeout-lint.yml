@@ -13,45 +13,63 @@ jobs:
     name: closeout-schema
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
+            const megalint = require('./scripts/global/megalint/index.js');
+
             const body = context.payload.pull_request.body || '';
             const refsMatch = body.match(/Refs\s+#(\d+)/i);
-            if (!refsMatch) return; // no linked issue — baton-gates will catch missing Refs #N
+            if (!refsMatch) {
+              core.setFailed('No Refs #N in PR body — cannot resolve linked issue.');
+              return;
+            }
+            const linkedIssue = parseInt(refsMatch[1], 10);
 
-            const linkedIssue = parseInt(refsMatch[1]);
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: linkedIssue,
+            });
+            const labels = issue.labels.map(l => l.name);
+            const lane = labels.find(l => l.startsWith('lane:')) || 'lane:code-change';
+
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner, repo: context.repo.repo,
               issue_number: linkedIssue, per_page: 100,
             });
-            const closeout = comments.find(c => c.body.includes('CONSULTANT_CLOSEOUT'));
-            if (!closeout) return; // not yet at closeout — baton-gates enforces existence
 
-            const text = closeout.body;
+            const input = {
+              comments, lane, labels,
+              body: issue.body || '',
+              state: issue.state,
+              isEpic: labels.includes('type:epic'),
+              issueNumber: linkedIssue,
+            };
+
+            const mh = megalint.run('manager-handoff', input);
+            const cl = megalint.run('consultant-closeout', input);
+
             const violations = [];
-
-            // Required fields in CONSULTANT_CLOSEOUT
-            if (!text.includes('Signed-by:')) violations.push('Missing Signed-by field');
-            if (!text.includes('Team&Model:')) violations.push('Missing Team&Model field');
-            if (!text.includes('Role: consultant')) violations.push('Missing Role: consultant');
-
-            // Cross-team check: Team&Model in CONSULTANT_CLOSEOUT must differ from COLLABORATOR_HANDOFF
-            const collab = comments.find(c => c.body.includes('COLLABORATOR_HANDOFF'));
-            if (collab) {
-              const collabTeam = (collab.body.match(/Team&Model:\s*(\S+)/) || [])[1];
-              const closeoutTeam = (text.match(/Team&Model:\s*(\S+)/) || [])[1];
-              if (collabTeam && closeoutTeam && collabTeam === closeoutTeam) {
-                violations.push(
-                  `CONSULTANT_CLOSEOUT Team&Model (${closeoutTeam}) matches COLLABORATOR_HANDOFF — independent review requires a different team`
-                );
+            if (mh.found && !mh.ok) {
+              for (const v of mh.violations) {
+                violations.push(`MANAGER_HANDOFF: ${v.rule} — ${v.detail}`);
+              }
+            }
+            if (cl.found && !cl.ok) {
+              for (const v of cl.violations) {
+                violations.push(`CONSULTANT_CLOSEOUT: ${v.rule} — ${v.detail}`);
               }
             }
 
+            const summary = `closeout-schema: manager-handoff=${mh.found ? (mh.ok ? 'PASS' : 'FAIL') : 'absent'} `
+              + `consultant-closeout=${cl.found ? (cl.ok ? 'PASS' : 'FAIL') : 'absent'}`;
+            console.log(summary);
+
             if (violations.length) {
-              core.warning(
-                `CONSULTANT_CLOSEOUT schema issues on issue #${linkedIssue}:\n` +
-                violations.map(v => `  - ${v}`).join('\n') +
-                '\nFix before claiming Consultant closeout complete.'
+              core.setFailed(
+                `${summary}\nViolations on issue #${linkedIssue}:\n`
+                + violations.map(v => `  • ${v}`).join('\n')
+                + `\nSee scripts/global/megalint/ + instructions/role-baton-routing.instructions.md`
               );
             }

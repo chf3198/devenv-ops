@@ -1,0 +1,25 @@
+{
+  "description": "Golden-file fixtures: closeout-lint rejects MANAGER_HANDOFF missing required fields OR CONSULTANT_CLOSEOUT missing rubric/timestamp/verdict (Epic #1407 AC3+AC7).",
+  "cases": [
+    {
+      "name": "manager-handoff-missing-gates",
+      "input_body": "**MANAGER_HANDOFF — Cole Mason**\n- scope: foo\n- lane: lane:code-change\n- test_strategy: tdd-pyramid\n- acceptance: AC1\nSigned-by: Cole Mason · Team&Model: claude-code:opus-4-7@anthropic · Role: manager",
+      "expected_violation_rule": "missing-gates"
+    },
+    {
+      "name": "consultant-closeout-missing-rubric",
+      "input_body": "**CONSULTANT_CLOSEOUT — Yara Vale**\nNo rubric here.\nverdict: approve\nverification timestamp: 2026-05-12T11:55Z\nSigned-by: Yara Vale · Team&Model: claude-code:opus-4-7@anthropic · Role: consultant",
+      "expected_violation_rule": "missing-rubric"
+    },
+    {
+      "name": "consultant-closeout-missing-timestamp",
+      "input_body": "**CONSULTANT_CLOSEOUT — Yara Vale**\nRubric: G1=9, G2=9, G3=10, G4=10, G5=10, G6=9, G7=8, G8=8, G9=9.\nverdict: approve\nSigned-by: Yara Vale · Team&Model: claude-code:opus-4-7@anthropic · Role: consultant",
+      "expected_violation_rule": "missing-verification-timestamp"
+    },
+    {
+      "name": "consultant-closeout-missing-verdict",
+      "input_body": "**CONSULTANT_CLOSEOUT — Yara Vale**\nRubric: G1=9, G2=9, G3=10, G4=10, G5=10, G6=9, G7=8, G8=8, G9=9.\nverification timestamp: 2026-05-12T11:55Z\nSigned-by: Yara Vale · Team&Model: claude-code:opus-4-7@anthropic · Role: consultant",
+      "expected_violation_rule": "missing-verdict"
+    }
+  ]
+}
