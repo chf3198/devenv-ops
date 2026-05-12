@@ -28,9 +28,9 @@ function withTempRepo(setup, run) {
 test('git-state-drift: freshness returns a status field', () => {
   assert.ok(freshness().status, 'should have status field');
 });
-test('git-state-drift: worktree detects single vs multi worktree', () => {
+test('git-state-drift: worktree detects within-limit vs collision', () => {
   const result = worktree();
-  assert.match(result.status, /isolated|collision|unknown/, 'status should be isolated, collision, or unknown');
+  assert.match(result.status, /within-limit|collision|unknown/, 'status should be within-limit, collision, or unknown');
 });
 test('git-state-drift: target validates branch naming compliance', () => {
   const result = target();

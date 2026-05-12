@@ -11,11 +11,16 @@ This repo can support parallel AI teams, but not from the same live checkout.
 
 ## Recommended layout
 
-- `/home/curtisfranks/devenv-ops` → clean `main`
+- `/home/curtisfranks/devenv-ops` → clean `main` (integration checkout)
 - `/home/curtisfranks/devenv-ops-codex` → Codex session
 - `/home/curtisfranks/devenv-ops-copilot` → Copilot session
 - `/home/curtisfranks/devenv-ops-claude-code` → Claude Code session
-- `/home/curtisfranks/devenv-ops-rescue` → quarantined mixed state when a collision happens
+- `/home/curtisfranks/devenv-ops/.claude/worktrees/<auto>` → Claude Code SDK auto-worktree (locked; managed by SDK)
+- `/home/curtisfranks/devenv-ops-rescue` → quarantined mixed state when a collision happens (transient)
+
+## Canonical concurrent-worktree count (per #1439)
+
+**Legitimate floor: 4-5 worktrees** (main + 3 team sandboxes + optional auto-managed SDK worktree). The `git-state-drift-sensor.js` `max_concurrent_worktrees` threshold is **5 by default** (env-overridable via `GIT_DRIFT_MAX_CONCURRENT_WORKTREES`). Counts ≤5 are normal; counts ≥6 indicate an unexpected extra and should be investigated. Session-feature-branch worktrees (e.g., `devenv-ops-cc-<N>`) are transient and may legitimately push the count above the floor while active — clean up at session end.
 
 ## Setup
 

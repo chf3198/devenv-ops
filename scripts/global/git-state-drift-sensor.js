@@ -3,10 +3,14 @@
 const { execSync } = require('child_process');
 const MAX_BEHIND = Number(process.env.GIT_DRIFT_MAX_BEHIND || 5);
 const FRESHNESS_HR = Number(process.env.GIT_DRIFT_FRESHNESS_HOURS || 24);
+// Per #1439: legitimate multi-team floor is 5 (main + 4 team sandboxes:
+// codex + copilot + claude-code + .claude/worktrees auto-managed). Override
+// via GIT_DRIFT_MAX_CONCURRENT_WORKTREES env var.
+const MAX_WORKTREES = Number(process.env.GIT_DRIFT_MAX_CONCURRENT_WORKTREES || 5);
 const VALID_PFX = ['main', 'sandbox', 'release', 'hotfix', 'feat', 'fix'];
 const POLICY = {
-  thresholds: { max_behind_commits: MAX_BEHIND, freshness_hours: FRESHNESS_HR, max_concurrent_worktrees: 1 },
-  pass_statuses: { freshness: ['fresh'], worktree: ['isolated'], target: ['compliant', 'unknown'] },
+  thresholds: { max_behind_commits: MAX_BEHIND, freshness_hours: FRESHNESS_HR, max_concurrent_worktrees: MAX_WORKTREES },
+  pass_statuses: { freshness: ['fresh'], worktree: ['within-limit'], target: ['compliant', 'unknown'] },
   escalation: {
     fail_when_violation_count_gte: 1,
     actions: ['run npm run git-state:drift', 'reconcile branch prefix and upstream target', 'prune/close excess worktrees'],
@@ -22,7 +26,7 @@ const guidance = (signal, status) => {
     'freshness:orphaned': 'Set upstream and rebase against origin/main or approved target.',
     'freshness:stale': `Rebase/merge to keep behind count <= ${MAX_BEHIND}.`,
     'freshness:old': `Push or refresh commits within ${FRESHNESS_HR}h freshness window.`,
-    'worktree:collision': 'Close redundant worktrees or isolate work to one active worktree.',
+    'worktree:collision': `Close redundant worktrees (limit ${MAX_WORKTREES}; override via GIT_DRIFT_MAX_CONCURRENT_WORKTREES). Canonical layout: main + per-team sandboxes per the concurrent-agent-worktrees runbook in research/.`,
     'target:invalid-target': 'Retarget branch to an allowed base branch for its prefix.',
   };
   return map[key] || 'Reconcile branch/worktree state to satisfy governance policy.';
@@ -42,8 +46,10 @@ const freshness = () => {
 const worktree = () => {
   try {
     const count = run('git worktree list --porcelain').split('\n').filter(line => line.startsWith('worktree ')).length;
-    if (count <= 1) return { status: 'isolated', detail: 'single worktree' };
-    return { status: 'collision', detail: `${count} concurrent worktrees` };
+    if (count <= MAX_WORKTREES) {
+      return { status: 'within-limit', detail: `${count} worktrees (≤${MAX_WORKTREES} allowed)` };
+    }
+    return { status: 'collision', detail: `${count} concurrent worktrees (limit ${MAX_WORKTREES})` };
   } catch { return { status: 'unknown', detail: 'unavailable' }; }
 };
 const target = () => {
