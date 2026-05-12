@@ -1,0 +1,20 @@
+{
+  "quota": {
+    "tier_summaries": {"free": {"used": 12, "cap": 200}, "fleet": {"used": 8, "cap": 50}, "haiku": {"used": 4, "cap": 30}, "premium": {"used": 1, "cap": 10}},
+    "hit_rate_7d": 0.78,
+    "stale": false
+  },
+  "doctor-probe": {
+    "status": "healthy",
+    "providers": {"anthropic": "up", "openai": "up", "ollama": "up", "codex": "up"},
+    "kv_freshness_seconds": 1200
+  },
+  "bundle-fetch": {
+    "sha": "stress-fixture-bundle-abc123",
+    "size_bytes": 524288,
+    "ttl_seconds": 3600
+  },
+  "mailbox-read": {
+    "messages": []
+  }
+}
