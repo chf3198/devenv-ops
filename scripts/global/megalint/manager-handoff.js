@@ -5,7 +5,8 @@
 const REQUIRED_FIELDS = ['scope', 'lane', 'test_strategy', 'acceptance', 'gates'];
 
 function findManagerHandoff(comments) {
-  return (comments || []).reverse().find(c => (c.body || '').includes('MANAGER_HANDOFF'));
+  const headerRe = /(^|\n)\s*(?:\*\*|##\s+)?MANAGER_HANDOFF\b/;
+  return [...(comments || [])].reverse().find(c => headerRe.test(c.body || ''));
 }
 
 function extractField(body, field) {

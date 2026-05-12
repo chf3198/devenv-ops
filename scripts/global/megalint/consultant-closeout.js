@@ -1,9 +1,16 @@
 'use strict';
 // consultant-closeout — validates CONSULTANT_CLOSEOUT schema.
 // Epic #1407 AC7: requires verification-timestamp + G1-9 rubric atop signer fields.
+// Epic #1308 Tier-3 (#1376): sub-7 goal scores require corresponding events.
+
+const path = require('path');
+const { enforceTier3Emission } = require(path.join(__dirname, 'goal-failure-emission.js'));
 
 function findConsultantCloseout(comments) {
-  return (comments || []).reverse().find(c => (c.body || '').includes('CONSULTANT_CLOSEOUT'));
+  // Match the marker as a header — not arbitrary mentions in analysis text.
+  // Accepted forms: `**CONSULTANT_CLOSEOUT`, `## CONSULTANT_CLOSEOUT`, or line-leading.
+  const headerRe = /(^|\n)\s*(?:\*\*|##\s+)?CONSULTANT_CLOSEOUT(?:_EPIC_CLOSEOUT)?\b/;
+  return [...(comments || [])].reverse().find(c => headerRe.test(c.body || ''));
 }
 
 function checkSignerFields(body) {
@@ -31,6 +38,12 @@ function checkEvidenceFields(body) {
   return violations;
 }
 
+function checkTier3Emission(body, input) {
+  if (!input.ticketRef) return [];
+  const result = enforceTier3Emission(body, input.ticketRef, input.incidentsPath);
+  return result.violations;
+}
+
 function validate(input) {
   const closeout = findConsultantCloseout(input.comments || []);
   if (!closeout) {
@@ -38,7 +51,11 @@ function validate(input) {
       detail: 'CONSULTANT_CLOSEOUT comment not found on issue' }], found: false };
   }
   const body = closeout.body || '';
-  const violations = [...checkSignerFields(body), ...checkEvidenceFields(body)];
+  const violations = [
+    ...checkSignerFields(body),
+    ...checkEvidenceFields(body),
+    ...checkTier3Emission(body, input),
+  ];
   return { ok: violations.length === 0, violations, found: true };
 }
 
