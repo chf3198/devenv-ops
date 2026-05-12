@@ -143,6 +143,10 @@ npm run deploy:both:apply
 | `setup` | `npm install && echo '✅ megingjord ready — run: npm start'` |
 | `start` | `node scripts/dashboard-server.js` |
 | `state:offload` | `node scripts/global/state-offload-client.js` |
+| `stress` | `MEGINGJORD_STRESS_TIER=A node scripts/global/stress-orchestrator.js` |
+| `stress:bounded` | `MEGINGJORD_STRESS_TIER=C node scripts/global/stress-orchestrator.js` |
+| `stress:full` | `MEGINGJORD_STRESS_TIER=D node scripts/global/stress-orchestrator.js` |
+| `stress:realism` | `MEGINGJORD_STRESS_TIER=B node scripts/global/stress-orchestrator.js` |
 | `sync` | `bash scripts/sync.sh` |
 | `sync:both` | `bash scripts/sync.sh --target both` |
 | `sync:both:dry` | `bash scripts/sync.sh --dry-run --target both` |
