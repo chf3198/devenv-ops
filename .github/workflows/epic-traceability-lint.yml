@@ -1,0 +1,71 @@
+name: Epic Traceability Lint
+# Verifies Epic body contains child-ticket references when children exist.
+# Epic #1407 AC6. Fires on Epic edits + child closures. Advisory during soak.
+
+on:
+  issues:
+    types: [edited, closed, reopened, labeled, unlabeled]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  epic-traceability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const { validate } = require('./scripts/global/megalint/epic-ac-traceability.js');
+            const { resolveEpic, formatComment } =
+              require('./scripts/global/megalint/epic-traceability-helpers.js');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issueNum = context.payload.issue.number;
+            const issueLabels = (context.payload.issue.labels || []).map(l => l.name);
+            const issueBody = context.payload.issue.body || '';
+            const marker = '<!-- megalint-epic-traceability -->';
+
+            const epic = await resolveEpic({ github, owner, repo,
+              issueNum, labels: issueLabels, body: issueBody });
+            if (!epic) {
+              console.log(`Issue #${issueNum}: not an Epic, no parent Epic ref; skipping`);
+              return;
+            }
+
+            const result = validate({
+              body: epic.body || '',
+              labels: epic.labels.map(l => l.name),
+              issueNumber: epic.number,
+            });
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: epic.number, per_page: 100,
+            });
+            const lintComment = comments.find(c => (c.body || '').includes(marker));
+
+            if (result.ok) {
+              if (lintComment) {
+                await github.rest.issues.deleteComment({
+                  owner, repo, comment_id: lintComment.id,
+                });
+              }
+              console.log(`Epic #${epic.number}: traceability OK`);
+              return;
+            }
+
+            const body = formatComment(marker, epic.number, result.violations);
+            if (lintComment) {
+              if (lintComment.body !== body) {
+                await github.rest.issues.updateComment({
+                  owner, repo, comment_id: lintComment.id, body,
+                });
+              }
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: epic.number, body,
+              });
+            }
+            core.warning(`Epic traceability violation on #${epic.number}: ${result.violations.length} rule(s)`);
