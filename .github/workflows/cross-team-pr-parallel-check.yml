@@ -1,0 +1,78 @@
+# D-1435-01 (#1473) — parallel-PR duplicate-work detection.
+# When a PR opens/syncs, extract referenced issue numbers from the body
+# and check for other open PRs on the same repo also referencing the same
+# issues. If found (different author), post an advisory comment and apply
+# coordinator:cross-team-needs-hand-off. WARN-ONLY — does not block merge.
+name: cross-team-pr-parallel-check
+on:
+  pull_request:
+    types: [opened, synchronize, edited]
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+jobs:
+  parallel-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Detect parallel-PR duplicate work
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            const body = pr.body || '';
+            const author = pr.user.login;
+            // Extract all issue refs (#N) from this PR body
+            const refs = [...body.matchAll(/#(\d+)/g)].map(m => m[1]);
+            if (!refs.length) {
+              core.info('no issue refs in PR body — skipping');
+              return;
+            }
+            core.info(`issue refs found: ${refs.join(', ')}`);
+            // Search for other open PRs referencing same issues
+            const parallel = [];
+            for (const ref of refs) {
+              const results = await github.paginate(
+                github.rest.search.issuesAndPullRequests,
+                { q: `repo:${owner}/${repo} is:pr is:open #${ref}`, per_page: 30 }
+              );
+              for (const hit of results) {
+                if (hit.number !== pr.number && hit.user.login !== author) {
+                  parallel.push({ ref, prNum: hit.number, user: hit.user.login });
+                }
+              }
+            }
+            if (!parallel.length) {
+              core.info('no parallel PRs detected — OK');
+              return;
+            }
+            core.warning(`parallel PRs detected: ${JSON.stringify(parallel)}`);
+            // Check if warn comment already posted
+            const marker = '<!-- cross-team-pr-parallel-check -->';
+            const existing = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: pr.number, per_page: 100
+            });
+            if (!existing.some(c => c.body && c.body.includes(marker))) {
+              const rows = parallel.map(
+                p => `| #${p.ref} | #${p.prNum} | @${p.user} |`
+              ).join('\n');
+              const msg = `${marker}\n## Cross-team parallel-PR warn\n\n` +
+                `Another open PR from a different author references the same issue(s) as this PR.\n` +
+                `This may indicate duplicate work across teams.\n\n` +
+                `| Shared issue | Parallel PR | Author |\n|---|---|---|\n${rows}\n\n` +
+                `Per coordination protocol (#1305), please verify intent and add ` +
+                `\`Coordinates #N\` in the PR body if work is intentionally divided.\n\n` +
+                `_Warn only — does not block merge._`;
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: pr.number, body: msg
+              });
+            }
+            // Apply coordinator label to this PR's issue refs
+            for (const ref of [...new Set(parallel.map(p => p.ref))]) {
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: Number(ref),
+                labels: ['coordinator:cross-team-needs-hand-off']
+              }).catch(() => {});
+            }
+            core.info('parallel-PR warn posted and coordinator label applied');

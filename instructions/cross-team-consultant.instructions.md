@@ -59,8 +59,21 @@ The label vocabulary is team-agnostic by design:
 Adding a 4th team requires zero changes to labels, skills, scripts, or workflows — only a `inventory/team-model-signatures.json` registry entry.
 
 ## See also
+## Parallel-PR duplicate-work scenario (#1473)
+
+When two teams independently open PRs referencing the same child ticket:
+
+1. Workflow `cross-team-pr-parallel-check.yml` fires on `pull_request` opened/synchronize.
+2. Extracts issue refs from PR body; queries for other open PRs on same refs by different authors.
+3. If parallel PRs found: posts advisory comment on each + applies `coordinator:cross-team-needs-hand-off` to shared issue(s).
+4. Operator should add `Coordinates #N` to PR bodies if work is intentionally divided, or close the duplicate and consolidate.
+
+This is advisory only — neither PR is blocked from merging.
+
+## See also
 
 - `.claude/commands/cross-team-consult-pickup.md` — pickup skill
 - `scripts/global/cross-team-queue.js` — queue resolver
 - `inventory/team-model-signatures.json` — substrate-to-team registry
 - `research/cross-team-rd-protocol-v2-2026-05-09.md` §3 — substrate-first identity pattern
+- `.github/workflows/cross-team-pr-parallel-check.yml` — PR-parallel detection (#1473)
