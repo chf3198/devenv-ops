@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
+const alias = require('./signer-alias');
 
 const args = process.argv.slice(2);
 const asJson = args.includes('--json');
@@ -58,6 +59,14 @@ const checks = [
     const comments = run(`gh issue view ${issue} --json comments -q '.comments[].body'`);
     const pass = /anneal_tickets_filed:/.test(comments);
     return ok(id('gov', 7), 'governance', pass, pass ? 'anneal_tickets_filed field present' : 'missing anneal_tickets_filed in CONSULTANT_CLOSEOUT', 'anneal-ticket-presence', 'add anneal_tickets_filed: [#N,...] | none to CONSULTANT_CLOSEOUT');
+  }],
+  [id('gov', 8), 'governance', () => {
+    if (!issue) return skip(id('gov', 8), 'governance', 'missing --issue');
+    const c = run(`gh issue view ${issue} --json comments`); const all = (JSON.parse(c || '{"comments":[]}').comments || []).map(x => x.body || '');
+    const rows = all.map(body => ({ body, s: ((body.match(/Signed-by:\s*([^\n]+)/i) || [])[1] || '').trim(), t: ((body.match(/Team&Model:\s*([^\n]+)/i) || [])[1] || '').trim(), r: (((body.match(/Role:\s*([^\n]+)/i) || [])[1] || '').trim().toLowerCase()) })).filter(x => x.s && x.t && x.r);
+    const bad = rows.filter(x => { const [team, rem] = x.t.split(':'); const model = (rem || '').split('@')[0] || ''; return !alias.enforceSignerAlias(team, x.r, x.s, { model }).ok; });
+    const pass = bad.length === 0;
+    return ok(id('gov', 8), 'governance', pass, `${rows.length} signed artifacts scanned; ${bad.length} mismatches`, pass ? 'gov-001-signer-alias-fidelity' : 'signer-alias-mismatch', 'use registry-derived Signed-by aliases for Team&Model+Role');
   }],
   [id('fleet', 1), 'fleet', () => exists('logs/model-routing-telemetry.jsonl') ? ok(id('fleet', 1), 'fleet', !/\b[0-9]{3}\b/.test(read('logs/model-routing-telemetry.jsonl')), 'telemetry scanned for HTTP 3xx/4xx/5xx', 'rate-limit-event-frequency', 'enable backoff/circuit-breaker') : skip(id('fleet', 1), 'fleet', 'missing routing telemetry')],
   [id('fleet', 2), 'fleet', () => exists('logs/model-routing-weekly.json') ? ok(id('fleet', 2), 'fleet', true, 'weekly cost file present', 'cost-budget-adherence', 'enforce monthly budget threshold') : skip(id('fleet', 2), 'fleet', 'missing weekly cost report')],

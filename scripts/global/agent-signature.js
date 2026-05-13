@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const sig = require('./governance-artifact-signature');
+const alias = require('./signer-alias');
 
 const args = process.argv.slice(2);
 const opt = {};
@@ -30,10 +31,19 @@ function baseLines(payload) {
 }
 
 const payload = {
-  signedBy: `${registry.registry.find(match)?.aliasSeed || registry.defaultAliasSeed} ${registry.roleSurnames[role] || registry.roleSurnames.collaborator}`,
+  signedBy: alias.canonicalSignerAlias(team, role, model, registry),
   teamModel: `${team}:${model}@${substrate}${device}`,
   role,
 };
+
+if (opt['signed-by']) {
+  const check = alias.enforceSignerAlias(team, role, opt['signed-by'], { model, registry });
+  if (!check.ok) {
+    process.stderr.write(`Signed-by mismatch: expected "${check.canonical}" got "${check.provided}".\n`);
+    process.exit(1);
+  }
+  payload.signedBy = check.provided;
+}
 
 let text = baseLines(payload);
 if (withCrypto) {
