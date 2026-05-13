@@ -60,11 +60,11 @@ Adding a 4th team requires zero changes to labels, skills, scripts, or workflows
 
 ## Parallel-PR duplicate-work scenario (#1473)
 
-When two teams independently open PRs referencing the same child ticket:
+When two PRs reference the same child ticket, the workflow compares Team&Model identity first and falls back to GitHub login only when no Team&Model field is present:
 
 1. Workflow `cross-team-pr-parallel-check.yml` fires on `pull_request` opened/synchronize.
-2. Extracts issue refs from PR body; queries for other open PRs on same refs by different authors.
-3. If parallel PRs found: posts advisory comment on each + applies `coordinator:cross-team-needs-hand-off` to shared issue(s).
+2. Extracts issue refs from PR body and resolves Team&Model from PR body or commit trailers (`Team&Model:` / `AI-Team-Model:`).
+3. If a same-human but different-Team&Model PR is found, it posts an advisory comment on the PR and applies `coordinator:cross-team-needs-hand-off` to the shared issue(s).
 4. Operator should add `Coordinates #N` to PR bodies if work is intentionally divided, or close the duplicate and consolidate.
 
 This is advisory only — neither PR is blocked from merging.
