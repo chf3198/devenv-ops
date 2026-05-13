@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const cp = require('child_process');
+const lib = require('./consultant-checks-lib');
 
 const args = process.argv.slice(2);
 const asJson = args.includes('--json');
@@ -35,18 +36,18 @@ const checks = [
   [id('gov', 2), 'governance', () => {
     if (!issue) return skip(id('gov', 2), 'governance', 'missing --issue');
     const comments = run(`gh issue view ${issue} --json comments -q '.comments[].body'`);
-    const pass = /MANAGER_HANDOFF/.test(comments) && /COLLABORATOR_HANDOFF/.test(comments) && /ADMIN_HANDOFF/.test(comments) && /CONSULTANT_CLOSEOUT/.test(comments);
+    const pass = lib.decideGov002(comments);
     return ok(id('gov', 2), 'governance', pass, pass ? 'all baton artifacts present' : 'missing baton artifact', pass ? 'artifact-complete' : 'artifact-gap', 'post missing baton artifacts');
   }],
   [id('gov', 3), 'governance', () => {
-    const fleetLog = read('logs/fleet-health.jsonl');
-    const eventLog = read('.dashboard/events.jsonl');
-    const pass = /baton:/.test(fleetLog) || /"type":"baton:handoff"/.test(eventLog);
+    const fleetLog = lib.readWithMainFallback({ fs, path, run, cwdRoot: root, relPath: 'logs/fleet-health.jsonl' });
+    const eventLog = lib.readWithMainFallback({ fs, path, run, cwdRoot: root, relPath: '.dashboard/events.jsonl' });
+    const pass = lib.decideGov003(fleetLog, eventLog);
     const evidence = pass ? 'fleet-health or dashboard baton events present' : 'no baton markers in fleet-health/events log';
     return ok(id('gov', 3), 'governance', pass, evidence, 'event-coverage-check', 'emit baton events');
   }],
   [id('gov', 4), 'governance', () => { const gitLog = run("git log --oneline -99"); const matchCount = (gitLog.match(/#\d+/g) || []).length; const total = gitLog ? gitLog.split('\n').length : 0; return ok(id('gov', 4), 'governance', total > 0 && matchCount / total >= 0.8, `${matchCount}/${total} commit refs`, 'commit-issue-linkage', 'reference issue numbers in commits'); }],
-  [id('gov', 5), 'governance', () => issue ? ok(id('gov', 5), 'governance', !/- \[ \]/.test(run(`gh issue view ${issue}`)), 'issue body checklist scanned', 'ac-evidence-completeness', 'complete unchecked ACs') : skip(id('gov', 5), 'governance', 'missing --issue')],
+  [id('gov', 5), 'governance', () => issue ? ok(id('gov', 5), 'governance', lib.decideGov005(run(`gh issue view ${issue}`)), 'issue body checklist scanned', 'ac-evidence-completeness', 'complete unchecked ACs') : skip(id('gov', 5), 'governance', 'missing --issue')],
   [id('gov', 6), 'governance', () => { const branch = run('git branch --show-current'); return ok(id('gov', 6), 'governance', /^(feat|fix|skill|hook)\//.test(branch), branch || 'unknown-branch', 'branch-naming', 'use approved branch prefix'); }],
   [id('tool', 1), 'tools', () => ok(id('tool', 1), 'tools', exists('wiki/index.md') && exists('wiki/log.md'), 'wiki index/log presence', 'wiki-growth-ready', 'maintain wiki index/log updates')],
   [id('tool', 2), 'tools', () => ok(id('tool', 2), 'tools', !/\[\[[^\]]+\]\].*\(not found\)/.test(run('npm run wiki:lint 2>&1 | cat')), 'wiki lint output scanned', 'wiki-orphan-check', 'add backlinks/cross-links')],
