@@ -70,6 +70,16 @@ When two teams independently open PRs referencing the same child ticket:
 
 This is advisory only — neither PR is blocked from merging.
 
+## Sibling-child role-label conflict scenario (#1474)
+
+When an Epic child issue receives `role:collaborator`, `role:admin`, or
+`role:consultant`, workflow `cross-team-edit-warn.yml` also evaluates open
+sibling children under the same parent Epic (`- Epic: #N` body marker).
+
+If a sibling has the same role label with a different team/owner, the workflow
+posts an advisory comment and applies `coordinator:cross-team-needs-hand-off`.
+Manager should coordinate ownership or split scope with `Coordinates #N`.
+
 ## See also
 
 - `.claude/commands/cross-team-consult-pickup.md` — pickup skill
