@@ -53,6 +53,12 @@ const checks = [
   [id('tool', 3), 'tools', () => ok(id('tool', 3), 'tools', /All files within 100-line/.test(run('npm run lint 2>&1 | cat')), 'lint output scanned', 'lint-clean', 'reduce file length or split files')],
   [id('tool', 4), 'tools', () => exists('playwright-report/index.html') ? ok(id('tool', 4), 'tools', true, 'playwright report present', 'playwright-utilization', 'run visual QA when UI files change') : skip(id('tool', 4), 'tools', 'no playwright report available')],
   [id('tool', 5), 'tools', () => ok(id('tool', 5), 'tools', !run("grep -Rn '\t|  $' dashboard scripts | head -1"), 'whitespace scan completed', 'prettification-compliance', 'normalize indentation and trailing spaces')],
+  [id('gov', 7), 'governance', () => {
+    if (!issue) return skip(id('gov', 7), 'governance', 'missing --issue');
+    const comments = run(`gh issue view ${issue} --json comments -q '.comments[].body'`);
+    const pass = /anneal_tickets_filed:/.test(comments);
+    return ok(id('gov', 7), 'governance', pass, pass ? 'anneal_tickets_filed field present' : 'missing anneal_tickets_filed in CONSULTANT_CLOSEOUT', 'anneal-ticket-presence', 'add anneal_tickets_filed: [#N,...] | none to CONSULTANT_CLOSEOUT');
+  }],
   [id('fleet', 1), 'fleet', () => exists('logs/model-routing-telemetry.jsonl') ? ok(id('fleet', 1), 'fleet', !/\b[0-9]{3}\b/.test(read('logs/model-routing-telemetry.jsonl')), 'telemetry scanned for HTTP 3xx/4xx/5xx', 'rate-limit-event-frequency', 'enable backoff/circuit-breaker') : skip(id('fleet', 1), 'fleet', 'missing routing telemetry')],
   [id('fleet', 2), 'fleet', () => exists('logs/model-routing-weekly.json') ? ok(id('fleet', 2), 'fleet', true, 'weekly cost file present', 'cost-budget-adherence', 'enforce monthly budget threshold') : skip(id('fleet', 2), 'fleet', 'missing weekly cost report')],
   [id('fleet', 3), 'fleet', () => {

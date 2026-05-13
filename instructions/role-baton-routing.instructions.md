@@ -36,7 +36,7 @@ deferred       role:manager        Epic-only: blocked, no ETA (Rule E5)
 - `ready → in-progress`: Collaborator picks up; applies `role:collaborator`.
 - `in-progress → testing`: COLLABORATOR_HANDOFF; all ACs ✅; swap to `role:admin`.
 - `testing → review`: ADMIN_HANDOFF; all gates pass; swap to `role:consultant`.
-- `review → done`: CONSULTANT_CLOSEOUT; remove `role:consultant`; close issue (atomic).
+- `review → done`: CONSULTANT_CLOSEOUT; remove `role:consultant`; close issue (atomic). Must declare `anneal_tickets_filed: [#N,...] | none`.
 - `any → cancelled`: Manager authority — remove current `role:*`; post `CANCELLATION: <reason>`; close as "not planned".
 - `in-progress ↔ dormant` (Epic-only): Manager pauses; carries `role:manager` per Rule E2.
 - `in-progress ↔ deferred` (Epic-only): Manager flags external blocker; carries `role:manager`.
