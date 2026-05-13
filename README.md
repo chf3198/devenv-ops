@@ -54,6 +54,10 @@ npm run deploy:both:apply
 | `adr:preview` | `log4brains preview` |
 | `agent:coord:remote` | `node scripts/global/agent-coord-remote.js` |
 | `agent:tier-c` | `node scripts/global/tier-c-guard.js` |
+| `anneal:detect` | `node scripts/global/workflow-anneal-detect.js` |
+| `anneal:review` | `node scripts/global/anneal-review.js` |
+| `anneal:rotate` | `node scripts/global/anneal-log-rotate.js` |
+| `anneal:schedule-health` | `node scripts/global/anneal-schedule-health.js` |
 | `capability:probe` | `node scripts/global/capability-probe.js` |
 | `capability:show` | `node scripts/global/capability-show.js` |
 | `cost-report` | `node scripts/global/cost-report.js` |
@@ -166,6 +170,7 @@ npm run deploy:both:apply
 | `wiki:ingest` | `node scripts/wiki/ingest.js` |
 | `wiki:lint` | `node scripts/wiki/lint.js` |
 | `wiki:search` | `node scripts/wiki/search.js` |
+| `worktree:bootstrap` | `bash scripts/worktree-bootstrap-node-modules.sh` |
 | `worktree:start` | `bash scripts/worktree-session-start.sh` |
 <!-- /docs -->
 
