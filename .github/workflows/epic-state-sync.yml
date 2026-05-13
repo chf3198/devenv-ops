@@ -1,0 +1,103 @@
+name: Epic State Sync
+# Per #1342: auto-transitions Epics between status:in-progress ↔ status:dormant
+# based on child + PR activity. Daily cron + workflow_dispatch for ad-hoc runs.
+
+on:
+  schedule:
+    - cron: '23 5 * * *'  # daily at 05:23 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Preview only (no state changes)'
+        type: boolean
+        default: true
+      epic_number:
+        description: 'Optional: single Epic to evaluate (else all)'
+        required: false
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: epic-state-sync
+  cancel-in-progress: false
+
+jobs:
+  epic-state-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Sync Epic states
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        env:
+          EPIC_DORMANT_AFTER_DAYS: '7'
+        with:
+          script: |
+            const det = require('./scripts/global/epic-dormancy-detector.js');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const dryRun = context.payload.inputs?.dry_run === 'true';
+            const targetNum = context.payload.inputs?.epic_number
+              ? Number(context.payload.inputs.epic_number) : null;
+
+            // Resolve target Epic(s)
+            const epics = targetNum
+              ? [(await github.rest.issues.get({ owner, repo, issue_number: targetNum })).data]
+              : await github.paginate(github.rest.issues.listForRepo, {
+                  owner, repo, labels: 'type:epic', state: 'open', per_page: 100,
+                });
+
+            for (const epic of epics) {
+              const labels = (epic.labels || []).map(l => typeof l === 'string' ? l : l.name);
+              if (!labels.includes('type:epic')) continue;
+
+              // Collect children via cross-reference timeline
+              const timeline = await github.paginate(
+                'GET /repos/{owner}/{repo}/issues/{issue_number}/timeline',
+                { owner, repo, issue_number: epic.number, per_page: 100 },
+              ).catch(() => []);
+              const childIssues = timeline
+                .filter(e => e.event === 'cross-referenced' && e.source?.issue)
+                .map(e => e.source.issue)
+                .filter((c, i, arr) => arr.findIndex(x => x.number === c.number) === i);
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner, repo, issue_number: epic.number, per_page: 100,
+              });
+              const input = {
+                labels, children: childIssues, comments,
+                prActivity: [],  // future enhancement: enrich from PR timeline
+              };
+
+              if (labels.includes('status:in-progress')) {
+                const decision = det.shouldGoDormant(input);
+                console.log(`Epic #${epic.number}: ${decision.reason}`);
+                if (decision.dormant && !dryRun) {
+                  await github.rest.issues.removeLabel({
+                    owner, repo, issue_number: epic.number, name: 'status:in-progress',
+                  }).catch(() => {});
+                  await github.rest.issues.addLabels({
+                    owner, repo, issue_number: epic.number, labels: ['status:dormant'],
+                  }).catch(() => {});
+                  await github.rest.issues.createComment({
+                    owner, repo, issue_number: epic.number,
+                    body: det.autoPauseComment(epic.number, decision.reason, null),
+                  });
+                }
+              } else if (labels.includes('status:dormant')) {
+                const decision = det.shouldReactivate(input);
+                console.log(`Epic #${epic.number}: ${decision.reason}`);
+                if (decision.reactivate && !dryRun) {
+                  await github.rest.issues.removeLabel({
+                    owner, repo, issue_number: epic.number, name: 'status:dormant',
+                  }).catch(() => {});
+                  await github.rest.issues.addLabels({
+                    owner, repo, issue_number: epic.number, labels: ['status:in-progress'],
+                  }).catch(() => {});
+                }
+              }
+            }

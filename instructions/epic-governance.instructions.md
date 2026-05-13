@@ -33,6 +33,20 @@ Epic status is advanced by the Manager agent at each gate — it does **not** au
 - Both receive a 90-day review: Manager posts an `EPIC_REVIEW` comment with verdict (stay-dormant, reclassify, or cancel).
 - Transitions: `in-progress ↔ dormant`, `in-progress ↔ deferred`, `dormant ↔ deferred`, `dormant → triage` on resume, `deferred → in-progress` when blocker clears, `dormant → cancelled` only after review affirms goal no longer applies.
 
+### `status:in-progress → status:dormant` auto-transition (per #1342)
+
+An Epic at `status:in-progress` auto-transitions to `status:dormant` when ALL of the following hold for ≥7 days:
+
+1. No child ticket is at `status:in-progress` (or has had its status change in that window).
+2. No linked PR has activity (commit, review, comment) in the last 7 days.
+3. No Manager comment posted in the last 7 days containing the marker `EPIC_ACTIVE: <reason>` overriding the auto-transition.
+
+Operator can tune the 7-day window via `EPIC_DORMANT_AFTER_DAYS` env var on the workflow.
+
+Auto-transition posts an `EPIC_AUTO_PAUSE` comment naming the implicit resume trigger (the next child action) and swaps `status:in-progress → status:dormant`. Idempotent.
+
+**Inverse transition** (`dormant → in-progress`): triggered when a child ticket moves to `status:in-progress` OR a new PR is opened against any linked child. Mirrors the entry rule.
+
 ## Epic Progress Comment Protocol
 
 When any child ticket is closed, the Manager posts a progress update to the epic:
