@@ -67,7 +67,7 @@ on issues closed >30 days. Archived tickets are excluded from all dashboard and 
 - No concurrent role execution on a single ticket.
 - Emit the named handoff artifact before transitioning to the next role.
 - `ADMIN_HANDOFF` signer identity must differ from `COLLABORATOR_HANDOFF`.
-- All governed work requires a GitHub issue and `Refs #N` in the PR body.
+- All governed work requires a GitHub issue and `Refs #N` in the PR body; workflow identity resolution follows `instructions/team-model-in-workflows.instructions.md`.
 - Skip baton only for: single Q&A, read-only lookup, no file edits, no state-changing tool calls.
 
 ## Enforcement Points
