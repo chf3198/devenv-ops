@@ -58,7 +58,6 @@ The label vocabulary is team-agnostic by design:
 
 Adding a 4th team requires zero changes to labels, skills, scripts, or workflows — only a `inventory/team-model-signatures.json` registry entry.
 
-## See also
 ## Parallel-PR duplicate-work scenario (#1473)
 
 When two teams independently open PRs referencing the same child ticket:
