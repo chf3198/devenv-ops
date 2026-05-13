@@ -5,6 +5,28 @@ log() { echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] $*"; }
 die() { log "ERROR: $*"; exit 1; }
 warn() { log "WARN: $*"; exit 2; }
 
+# #1378: auto-link node_modules so pre-push hooks (prettier/eslint) work in
+# fresh worktrees. Idempotent — skips if already linked.
+bootstrap_node_modules() {
+  local worktree_root="$1"
+  local main_root
+  main_root="$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')"
+  if [[ -z "$main_root" || ! -d "$main_root/node_modules" ]]; then
+    log "node_modules bootstrap: no main checkout node_modules found at $main_root; skipping"
+    return 0
+  fi
+  if [[ "$worktree_root" == "$main_root" ]]; then
+    log "node_modules bootstrap: this IS the main checkout; nothing to link"
+    return 0
+  fi
+  if [[ -e "$worktree_root/node_modules" ]]; then
+    log "node_modules bootstrap: already present at $worktree_root/node_modules; skipping"
+    return 0
+  fi
+  ln -sf "$main_root/node_modules" "$worktree_root/node_modules"
+  log "node_modules bootstrap: linked $worktree_root/node_modules → $main_root/node_modules"
+}
+
 if [[ $# -lt 1 || $# -gt 2 ]]; then
   echo "Usage: bash scripts/worktree-session-start.sh <copilot|codex|claude-code> [feat/<ticket#>-<slug>]"
   exit 1
@@ -48,5 +70,6 @@ if git show-ref --verify --quiet "refs/heads/$task_branch"; then
 fi
 
 git switch -c "$task_branch"
+bootstrap_node_modules "$root"
 log "ready on task branch: $task_branch"
 log "next: implement scoped changes and open PR with Refs #<ticket>"
