@@ -1,0 +1,1 @@
+Resume Copilot Team handoff from planning/copilot-handoff-2026-05-14.md. Continue #1555 first (AC3/AC4/AC5 still open), then execute the highest-priority non-conflicting ticket. Apply full baton/governance workflow and close only when AC checklist is fully accurate.

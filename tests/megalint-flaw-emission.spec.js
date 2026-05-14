@@ -23,6 +23,16 @@ test('#1555 AC2: fails when flaw mention lacks citation', () => {
   expect(result.violations[0].rule).toBe('flaw-mention-missing-anneal-artifact');
 });
 
+test('#1555 AC3: override label bypasses required flaw-emission gate', () => {
+  const body = '## CONSULTANT_CLOSEOUT\nI had to patch around a bug in workflow';
+  const result = rule.validate({
+    comments: [c(body)],
+    labels: [rule.OVERRIDE_LABEL],
+  });
+  expect(result.ok).toBe(true);
+  expect(result.skipped).toBe('override-approved');
+});
+
 test('#1555: registered in megalint VALIDATORS map', () => {
   const megalint = require('../scripts/global/megalint');
   expect(megalint.VALIDATORS).toHaveProperty('flaw-emission');

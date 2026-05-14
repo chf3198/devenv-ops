@@ -104,17 +104,17 @@ jobs:
             const summary = `closeout-schema: manager-handoff=${mh.found ? (mh.ok ? 'PASS' : 'FAIL') : 'absent'} `
               + `consultant-closeout=${cl.found ? (cl.ok ? 'PASS' : 'FAIL') : 'absent'} `
               + `merge-evidence-pr-gate=${pg.skipped ? `SKIP:${pg.skipped}` : (pg.ok ? 'PASS' : 'FAIL')} `
-              + `flaw-emission=${fe.skipped ? `SKIP:${fe.skipped}` : (fe.ok ? 'PASS' : 'ADVISORY')} `
+              + `flaw-emission=${fe.skipped ? `SKIP:${fe.skipped}` : (fe.ok ? 'PASS' : 'FAIL')} `
               + `cross-checkout-destructive=${xcd.skipped ? `SKIP:${xcd.skipped}` : (xcd.ok ? 'PASS' : 'ADVISORY')}`;
             console.log(summary);
 
-            const advisoryMarker = '<!-- flaw-emission-advisory -->';
+            const advisoryMarker = '<!-- flaw-emission-required -->';
+            const existing = comments.find(c => (c.body || '').includes(advisoryMarker));
             if (!fe.ok) {
-              const advisory = `${advisoryMarker}\n## ⚠️ Mid-flight flaw accounting advisory\n\n`
+              const advisory = `${advisoryMarker}\n## ❌ Mid-flight flaw accounting required\n\n`
                 + `Detected ${fe.mentions} flaw mention(s) in baton artifacts with missing artifact citation nearby.\n`
                 + `For each flaw mention, include one of: issue ref (#N), incidents.jsonl pattern_id, memory note path, or anneal_tickets_filed entry.\n\n`
                 + fe.violations.map(v => `- ${v.detail}`).join('\n');
-              const existing = comments.find(c => (c.body || '').includes(advisoryMarker));
               if (existing) {
                 await github.rest.issues.updateComment({
                   owner: context.repo.owner, repo: context.repo.repo,
@@ -126,6 +126,14 @@ jobs:
                   issue_number: linkedIssue, body: advisory,
                 });
               }
+              for (const v of fe.violations) {
+                violations.push(`FLAW_EMISSION: ${v.rule} — ${v.detail}`);
+              }
+            } else if (existing) {
+              await github.rest.issues.deleteComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                comment_id: existing.id,
+              });
             }
 
             // #1554: post cross-checkout-destructive advisory as PR comment (not blocking)

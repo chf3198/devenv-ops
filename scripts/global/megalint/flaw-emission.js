@@ -3,6 +3,7 @@
 
 const MARKERS = [/\bI had to\b/i, /\bworked around\b/i, /\bside-?effect\b/i, /\bflaw\b/i, /\bbug\b/i, /\bfailure\b/i, /\bincident\b/i];
 const CITE = /#\d+|incidents\.jsonl|pattern_id\s*:|anneal_tickets_filed\s*:|memory\//i;
+const OVERRIDE_LABEL = 'flaw-emission-override:approved';
 
 function findArtifacts(comments) {
   const out = [];
@@ -29,7 +30,14 @@ function citedNear(lines, line) {
   return false;
 }
 
+function shouldSkip(labels) {
+  if ((labels || []).includes(OVERRIDE_LABEL)) return 'override-approved';
+  return null;
+}
+
 function validate(input) {
+  const skipReason = shouldSkip(input.labels || []);
+  if (skipReason) return { ok: true, violations: [], mentions: 0, skipped: skipReason };
   const artifacts = findArtifacts(input.comments || []);
   const violations = [];
   let mentions = 0;
@@ -48,4 +56,6 @@ function validate(input) {
   return { ok: violations.length === 0, violations, mentions, skipped: mentions === 0 ? 'no-flaw-mentions' : undefined };
 }
 
-module.exports = { validate, detectMentions, citedNear, findArtifacts };
+module.exports = {
+  validate, detectMentions, citedNear, findArtifacts, shouldSkip, OVERRIDE_LABEL,
+};
