@@ -5,6 +5,7 @@
 // Epic #1298: Crypto-* fields verified against signature registry.
 
 const path = require('path');
+const fs = require('fs');
 const sig = require(path.join(__dirname, '..', 'governance-artifact-signature.js'));
 const { enforceTier3Emission } = require(path.join(__dirname, 'goal-failure-emission.js'));
 
@@ -44,6 +45,16 @@ function checkTier3Emission(body, input) {
   return result.violations;
 }
 
+function checkGovTokenResolution(body, input) {
+  const catalog = path.join(__dirname, '..', '..', '..', 'instructions', 'governance-controls.instructions.md');
+  let known;
+  try { known = new Set((fs.readFileSync(catalog, 'utf8').match(/\bGOV-\d{3}\b/g) || [])); }
+  catch { return [{ rule: 'missing-governance-catalog', detail: 'instructions/governance-controls.instructions.md not found' }]; }
+  const text = [input.body || '', input.prBody || '', body || ''].join('\n');
+  const unresolved = [...new Set((text.match(/\bGOV-\d{3}\b/g) || []))].filter(t => !known.has(t));
+  return unresolved.map(t => ({ rule: 'unresolved-governance-token', detail: `Token ${t} has no catalog source in instructions/governance-controls.instructions.md` }));
+}
+
 function hasChildRef(body) {
   // Match `#NNN` outside of common false-positives (URLs, hex colors).
   const matches = (body || '').match(/(?:^|[\s(\[,;])#(\d{2,5})\b/g) || [];
@@ -80,6 +91,7 @@ function validate(input) {
     ...checkEvidenceFields(body),
     ...checkCrypto(body),
     ...checkTier3Emission(body, input),
+    ...checkGovTokenResolution(body, input),
     ...checkSubstantiveContent(body, input.isEpic === true),
   ];
   return { ok: violations.length === 0, violations, found: true };

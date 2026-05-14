@@ -48,6 +48,8 @@ jobs:
         run: npm run format:check
       - name: 100-line file limit
         run: npm run lint
+      - name: Governance token resolution
+        run: npm run governance:tokens
       - name: Readability gate
         run: npm run lint:readability:ci
       - name: Ticket reconciliation
