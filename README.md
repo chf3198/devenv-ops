@@ -62,6 +62,7 @@ npm run deploy:both:apply
 | `capability:show` | `node scripts/global/capability-show.js` |
 | `cost-report` | `node scripts/global/cost-report.js` |
 | `cost:baseline` | `node scripts/global/cost-baseline.js` |
+| `cost:token-report` | `node scripts/global/token-spend-report.js` |
 | `deploy` | `bash scripts/deploy.sh` |
 | `deploy:apply` | `bash scripts/deploy.sh --apply` |
 | `deploy:both` | `bash scripts/deploy.sh --target both` |
@@ -88,8 +89,10 @@ npm run deploy:both:apply
 | `governance:epics` | `node scripts/global/epic-close-validator.js` |
 | `governance:no-sync-http` | `node scripts/global/no-sync-http-handlers.js` |
 | `governance:reconcile` | `node scripts/global/ticket-reconcile.js --json` |
+| `governance:tokens` | `node scripts/global/governance-token-lint.js` |
 | `governance:verify` | `node scripts/global/governance-verify.js --json` |
 | `governance:weekly` | `node scripts/global/governance-weekly-report.js` |
+| `governance:worktree-inventory` | `node scripts/global/worktree-inventory.js` |
 | `governance:worktrees` | `node scripts/global/worktree-governance-audit.js --json` |
 | `hamr:activate` | `bash scripts/global/hamr-activate.sh` |
 | `hamr:batch-router` | `node scripts/global/anthropic-batch-router.js` |

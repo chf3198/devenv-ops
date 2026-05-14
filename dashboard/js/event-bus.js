@@ -18,7 +18,7 @@ function normalizeRole(e, status, prev) {
 
 async function fetchEvents(since) {
   const url = since ? '/api/events?since=' + encodeURIComponent(since) : '/api/events';
-  try { const r = await fetch(url); return r.ok ? await r.json() : []; }
+  try { const response = await fetch(url); return response.ok ? await response.json() : []; }
   catch { return []; }
 }
 
@@ -91,8 +91,8 @@ async function pollEventBus(activityLog) {
   if (!events.length) return getBatonState();
   _lastEventTs = events[events.length - 1].ts;
   for (const e of events) {
-    const a = eventToActivity(e);
-    addActivity(activityLog, a.type, a.message, a.detail);
+    const activity = eventToActivity(e);
+    addActivity(activityLog, activity.type, activity.message, activity.detail);
     if (e.agent && e.model) addRouterLogEntry(e.agent, e.model, e.detail || e.type);
   }
   return mergeBatonEvents(events);

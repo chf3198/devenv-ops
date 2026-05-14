@@ -36,8 +36,8 @@ function compactPrompt(prompt, lane = 'free') {
 
 function scopeContext(lane = 'free') {
   const tier = TIER_BY_LANE[lane] || TIER_BY_LANE.free;
-  const t = compressAllTiers()[tier];
-  return { tier, sha256: t.sha256, files: t.files, chars: t.compressed_chars };
+  const tierContext = compressAllTiers()[tier];
+  return { tier, sha256: tierContext.sha256, files: tierContext.files, chars: tierContext.compressed_chars };
 }
 
 module.exports = { compactPrompt, scopeContext, dedupeLines, MAX_CHARS, TIER_BY_LANE };

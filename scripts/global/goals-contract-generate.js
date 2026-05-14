@@ -24,9 +24,9 @@ function parse(md) {
   const flat = md.replace(/\s+/g, ' ');
   // Extract G<n> Name from priority line (supports G10+)
   const prioRe = new RegExp(`(G\\d+)\\s+(${NAME_PAT})\\s*(?=[>.]?)`, 'g');
-  for (const t of flat.matchAll(prioRe)) {
-    if (!priority.find((p) => p.id === t[1])) {
-      priority.push({ id: t[1], name: t[2].trim() });
+  for (const tokenMatch of flat.matchAll(prioRe)) {
+    if (!priority.find((p) => p.id === tokenMatch[1])) {
+      priority.push({ id: tokenMatch[1], name: tokenMatch[2].trim() });
     }
   }
   // Definitions from `- G<n> Name: text` bullets; join continuation lines
