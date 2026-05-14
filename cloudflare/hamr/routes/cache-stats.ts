@@ -4,6 +4,8 @@
 import type { Env } from '../worker';
 
 const HIT_RATE_KEY = 'cache-stats:hit-rate-7d';
+const STALE_KEY = 'cache-stats:hit-rate-7d:stale';
+const LAST_UPDATE_KEY = 'cache-stats:last-update-ms';
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 function unauthorized(reason: string): Response {
@@ -61,6 +63,9 @@ export async function cacheStats(request: Request, env: Env): Promise<Response> 
   });
   await env.HAMR_KV.put(HIT_RATE_KEY, String(payload.hit_rate));
   await env.HAMR_KV.put(`${HIT_RATE_KEY}:meta`, record);
+    const now = Date.now();
+    await env.HAMR_KV.put(LAST_UPDATE_KEY, String(now));
+    await env.HAMR_KV.put(STALE_KEY, 'false');
   return new Response(JSON.stringify({ ok: true, written: HIT_RATE_KEY, hit_rate: payload.hit_rate }), {
     status: 200, headers: { 'content-type': 'application/json' },
   });

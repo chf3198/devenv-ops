@@ -53,8 +53,19 @@ async function pushHitRate(opts = {}) {
 if (require.main === module) {
   pushHitRate().then((result) => {
     console.log(JSON.stringify(result, null, 2));
+      if (!result.ok && result.status === 401) emitAuthError(result);
     process.exit(result.ok ? 0 : 1);
   }).catch((err) => { console.error(err.message); process.exit(1); });
 }
+
+  function emitAuthError(result) {
+    const reason = result.response?.reason ?? 'unknown';
+    const hint = reason === 'unknown_key_id'
+      ? 'Register SPKI in PUBLISHER_KEYRING: see docs/howto/hamr-push-auth.md'
+      : reason === 'no_publisher_keyring_configured'
+        ? 'Set PUBLISHER_KEYRING wrangler secret: see docs/howto/hamr-push-auth.md'
+        : `Check KEY_ID + key material. Reason: ${reason}`;
+    process.stderr.write(`[cache-stats-push] 401 auth failure — ${hint}\n`);
+  }
 
 module.exports = { pushHitRate, canonicalize, loadEd25519Key };
