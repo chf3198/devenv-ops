@@ -31,10 +31,20 @@ function baseLines(payload) {
 }
 
 const payload = {
-  signedBy: alias.canonicalSignerAlias(team, role, model, registry),
+  signedBy: alias.canonicalSignerAlias(team, role, model, registry, substrate),
   teamModel: `${team}:${model}@${substrate}${device}`,
   role,
 };
+
+// AC3: warn if explicit --team conflicts with substrate-derived team
+const substrateTeam = alias.deriveTeamFromSubstrate(substrate, registry);
+if (substrateTeam && substrateTeam !== team) {
+  process.stderr.write(
+    `Warning: substrate "${substrate}" maps to team "${substrateTeam}" but --team is "${team}". ` +
+    'Substrate takes precedence for Signed-by; update --team for correct Team&Model field.\n'
+  );
+  payload.signedBy = alias.canonicalSignerAlias(substrateTeam, role, model, registry, substrate);
+}
 
 if (opt['signed-by']) {
   const check = alias.enforceSignerAlias(team, role, opt['signed-by'], { model, registry });
