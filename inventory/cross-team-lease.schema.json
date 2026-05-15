@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://megingjord.local/schemas/cross-team-lease.schema.json",
+  "title": "CrossTeamLeaseRegistry",
+  "type": "object",
+  "required": ["version", "leases"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "leases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "ticket",
+          "team",
+          "role",
+          "branch",
+          "worktree",
+          "paths",
+          "ports",
+          "runtime_surfaces",
+          "created_at",
+          "last_seen",
+          "expires_at",
+          "status"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "ticket": { "type": "integer", "minimum": 1 },
+          "team": {
+            "enum": ["codex", "copilot", "claude-code", "openclaw", "operator"]
+          },
+          "role": {
+            "enum": ["manager", "collaborator", "admin", "consultant"]
+          },
+          "branch": { "type": "string", "minLength": 1 },
+          "worktree": { "type": "string", "minLength": 1 },
+          "paths": { "type": "array", "items": { "type": "string" } },
+          "ports": { "type": "array", "items": { "type": "integer" } },
+          "runtime_surfaces": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "last_seen": { "type": "string", "format": "date-time" },
+          "expires_at": { "type": "string", "format": "date-time" },
+          "status": { "enum": ["active", "expired", "closed"] }
+        }
+      }
+    }
+  }
+}

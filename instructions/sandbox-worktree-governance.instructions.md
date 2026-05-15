@@ -20,16 +20,23 @@ Before starting implementation in any sandbox worktree:
 2. Reset launcher branch to `origin/main`
 3. Remove local residue (`git clean -fd`)
 4. Create and switch to ticket-linked task branch
+5. Create or refresh a cross-team lease for the ticket and intended paths
 
 Preferred command:
 
 - `bash scripts/worktree-session-start.sh <copilot|codex|claude-code> feat/<issue#>-<slug>`
+
+Lease command:
+
+- `node scripts/global/cross-team-lease.js create --ticket <N> --team <team> --role collaborator --branch <branch> --paths <paths> --runtime-surfaces <surfaces> --post-comment 1`
 
 ## Forbidden Actions
 
 - Do not commit directly on `sandbox/*` branches.
 - Do not open PRs from `sandbox/*` branches.
 - Do not keep launcher branches behind `origin/main` between sessions.
+- Do not edit files before the ticket has a live `CROSS_TEAM_LEASE_CREATE`
+  comment unless the work is issue-only research.
 
 ## Verification Gates
 
@@ -42,3 +49,16 @@ Preferred command:
 ## Escalation
 
 If any sandbox branch is behind or dirty: stop, run session-start reset flow, then resume on a ticket-linked task branch only.
+
+## Cross-Team Lease Lifecycle
+
+- Live lease state is repo-local runtime state in `.dashboard/cross-team-leases.json`.
+- Schema lives in `inventory/cross-team-lease.schema.json`.
+- Leases record ticket, team, role, branch, worktree, paths, ports, runtime
+  surfaces, timestamps, expiry, and status.
+- `create` claims a ticket/branch before edits.
+- `refresh` heartbeats long-running work.
+- `expire` marks stale claims for cleanup.
+- `close` releases ownership after merge, cancellation, or handoff.
+- Creation and closeout should be mirrored to the GitHub issue with the stable
+  `CROSS_TEAM_LEASE_*` marker block.
