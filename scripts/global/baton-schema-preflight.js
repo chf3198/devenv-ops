@@ -36,7 +36,7 @@ const SCHEMAS = {
       [/Signed-by:/i, 'missing Signed-by'],
       [/Team&Model:/i, 'missing Team&Model'],
       [/Role:\s*consultant/i, 'missing Role: consultant'],
-      [/G[1-9]\s*[=:]/i, 'missing G1-9 rubric (e.g., "G1=9, G2=8, ...")'],
+      [/(G[1-9]\s*[=:]|rubric_version["']?\s*[:=]\s*["']?g1-g9-v2)/i, 'missing legacy G1-9 or v2 deterministic rubric'],
       [/verification[ _-]?timestamp/i, 'missing verification-timestamp'],
       [/(verdict|approve|approved)/i, 'missing verdict / approved statement'],
     ],

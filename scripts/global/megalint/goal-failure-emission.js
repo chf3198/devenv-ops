@@ -29,6 +29,14 @@ function extractGoalScores(body) {
       scores.push({ goal, score });
     }
   }
+  const structured = /"(G[1-9])"\s*:\s*\{[^}]*"score"\s*:\s*(\d+(?:\.\d+)?)/g;
+  while ((match = structured.exec(text)) !== null) {
+    const goal = match[1];
+    if (seen.has(goal)) continue;
+    seen.add(goal);
+    const score = parseFloat(match[2]);
+    if (Number.isFinite(score) && score >= 0 && score <= 10) scores.push({ goal, score });
+  }
   return scores;
 }
 

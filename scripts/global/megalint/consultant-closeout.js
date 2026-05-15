@@ -1,8 +1,5 @@
 'use strict';
-// consultant-closeout — validates schema + Ed25519 crypto signature.
-// Epic #1407 AC7: requires verification-timestamp + G1-9 rubric atop signer fields.
-// Epic #1308 Tier-3 (#1376): sub-7 goal scores require corresponding events.
-// Epic #1298: Crypto-* fields verified against signature registry.
+// consultant-closeout — schema, signature, rubric, and Tier-3 checks.
 
 const path = require('path');
 const fs = require('fs');
@@ -10,8 +7,6 @@ const sig = require(path.join(__dirname, '..', 'governance-artifact-signature.js
 const { enforceTier3Emission } = require(path.join(__dirname, 'goal-failure-emission.js'));
 
 function findConsultantCloseout(comments) {
-  // Match the marker as a header — not arbitrary mentions in analysis text.
-  // Accepted forms: `**CONSULTANT_CLOSEOUT`, `## CONSULTANT_CLOSEOUT`, or line-leading.
   const headerRe = /(^|\n)\s*(?:\*\*|##\s+)?CONSULTANT_CLOSEOUT(?:_EPIC_CLOSEOUT)?\b/;
   return [...(comments || [])].reverse().find(c => headerRe.test(c.body || ''));
 }
@@ -26,14 +21,18 @@ function checkSignerFields(body) {
 
 function checkEvidenceFields(body) {
   const violations = [];
-  if (!/G[1-9]\s*[=:]/i.test(body)) violations.push({ rule: 'missing-rubric', detail: 'CONSULTANT_CLOSEOUT missing G1-9 goal-lens rubric (e.g., "G1=9, G2=8, ...")' });
+  const legacyRubric = /G[1-9]\s*[=:]/i.test(body);
+  const structuredRubric = /rubric_version["']?\s*[:=]\s*["']?g1-g9-v2/i.test(body)
+    && /boxes_checked/i.test(body) && /boxes_total/i.test(body);
+  if (!legacyRubric && !structuredRubric) {
+    violations.push({ rule: 'missing-rubric', detail: 'CONSULTANT_CLOSEOUT missing legacy G1-9 rubric or v2 deterministic rubric JSON' });
+  }
   if (!/verification[ _-]?timestamp/i.test(body)) violations.push({ rule: 'missing-verification-timestamp', detail: 'CONSULTANT_CLOSEOUT missing verification-timestamp field' });
   if (!/(verdict|approve|approved)/i.test(body)) violations.push({ rule: 'missing-verdict', detail: 'CONSULTANT_CLOSEOUT missing explicit verdict / approve statement' });
   return violations;
 }
 
 function checkCrypto(body) {
-  // Only enforce if Crypto-Algorithm field is present (additive model — opt-in per artifact).
   if (!/Crypto-Algorithm:/i.test(body)) return [];
   const result = sig.verifyArtifact(body, 'consultant');
   return result.ok ? [] : result.violations.map(v => ({ rule: 'crypto-signature-invalid', detail: `CONSULTANT_CLOSEOUT ${v}` }));
@@ -56,7 +55,6 @@ function checkGovTokenResolution(body, input) {
 }
 
 function hasChildRef(body) {
-  // Match `#NNN` outside of common false-positives (URLs, hex colors).
   const matches = (body || '').match(/(?:^|[\s(\[,;])#(\d{2,5})\b/g) || [];
   return matches.length > 0;
 }
