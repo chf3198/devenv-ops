@@ -43,6 +43,7 @@ jobs:
             const decision = protection.decide({
               state: issue.state, labels, comments: recentComments,
             });
+            console.log(`#${issueNum}: close-protection decision=${decision.action} reason=${decision.reason} (#1472)`);
             if (decision.action === 'auto-transition') {
               for (const name of decision.removeLabels) {
                 if (labels.includes(name)) {
@@ -61,8 +62,10 @@ jobs:
               });
             }
             if (issue.state === 'closed' && closeRoles.length > 0) {
+              const isEpic = labels.includes('type:epic');
               for (const role of closeRoles) {
                 if (role === 'role:archived') continue;
+                if (isEpic && role === 'role:manager') continue; // #1472: Rule E2 — Epic always carries role:manager
                 await github.rest.issues.removeLabel({
                   owner, repo, issue_number: issueNum, name: role,
                 }).catch(() => {});
