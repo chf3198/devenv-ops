@@ -6,6 +6,24 @@
 on the HAMR Cloudflare Worker. The worker verifies the signature against the
 registered public key in the `PUBLISHER_KEYRING` secret.
 
+## Wrangler Authentication (Safe Pattern)
+
+Never pass `CLOUDFLARE_API_TOKEN` as an inline shell argument — it leaks into shell
+history and command output. Use the harness wrapper instead:
+
+```sh
+node scripts/global/wrangler-auth.js secret put PUBLISHER_KEYRING \
+  --config cloudflare/hamr/wrangler.toml
+```
+
+The wrapper reads `CLOUDFLARE_API_TOKEN` from `.env` in a child process and never
+echoes the value to stdout/stderr or shell history.
+
+## Key Material Precedence
+
+`OPERATOR_KEY_SEED_B64` (in `.env`) takes priority over `~/.megingjord/keys/operator-ed25519.pem`.
+If both exist, only `OPERATOR_KEY_SEED_B64` is used. Remove the PEM file if it becomes stale.
+
 ## Error: `unknown_key_id`
 
 The `x-hamr-key-id` header value is not present in `PUBLISHER_KEYRING`.
