@@ -24,11 +24,11 @@ const refsThisTicketFirst = (prBody, ticketNumber) => {
 };
 
 const closesAndRefsBothPresent = (prBody, n) => {
-  const c = new RegExp(`Closes\\s+#${n}\\b`).test(prBody || '');
-  const r = new RegExp(`Refs\\s+#${n}\\b`).test(prBody || '');
-  return c && r
+  const closes = new RegExp(`Closes\\s+#${n}\\b`).test(prBody || '');
+  const refs = new RegExp(`Refs\\s+#${n}\\b`).test(prBody || '');
+  return closes && refs
     ? ok('closes-and-refs-both-present', `Closes #${n} + Refs #${n}`)
-    : fail('closes-and-refs-both-present', `Closes=${c} Refs=${r}`);
+    : fail('closes-and-refs-both-present', `Closes=${closes} Refs=${refs}`);
 };
 
 const tddSpecInDiffWhenRequired = (testStrategy, prFiles) => {
@@ -42,14 +42,14 @@ const tddSpecInDiffWhenRequired = (testStrategy, prFiles) => {
 
 const noProseColonCollision = handoffBody => {
   const lines = (handoffBody || '').split('\n');
-  const v = [];
+  const violators = [];
   for (const line of lines) {
-    if (/Team&Model:\s*(.+)$/.test(line) && !/^Team&Model:/.test(line)) v.push(line.trim());
-    if (/test_strategy:\s*(.+)$/.test(line) && !/^test_strategy:/.test(line) && !/^\*\*test_strategy/.test(line)) v.push(line.trim());
+    if (/Team&Model:\s*(.+)$/.test(line) && !/^Team&Model:/.test(line)) violators.push(line.trim());
+    if (/test_strategy:\s*(.+)$/.test(line) && !/^test_strategy:/.test(line) && !/^\*\*test_strategy/.test(line)) violators.push(line.trim());
   }
-  return v.length === 0
+  return violators.length === 0
     ? ok('no-prose-colon-collision', 'clean')
-    : fail('no-prose-colon-collision', v.join('; '));
+    : fail('no-prose-colon-collision', violators.join('; '));
 };
 
 const noMarkdownBoldOnTestStrategy = handoffBody => /\*\*test_strategy/.test(handoffBody || '')
@@ -58,15 +58,15 @@ const noMarkdownBoldOnTestStrategy = handoffBody => /\*\*test_strategy/.test(han
 
 const flawMarkerCitations = handoffBody => {
   const lines = (handoffBody || '').split('\n');
-  const v = [];
-  for (let i = 0; i < lines.length; i++) {
-    if (!FLAW_RE.test(lines[i])) continue;
-    const win = lines.slice(Math.max(0, i - 2), Math.min(lines.length, i + 3));
-    if (!win.some(l => CITE_RE.test(l))) v.push(`line ${i + 1}`);
+  const violators = [];
+  for (let idx = 0; idx < lines.length; idx++) {
+    if (!FLAW_RE.test(lines[idx])) continue;
+    const win = lines.slice(Math.max(0, idx - 2), Math.min(lines.length, idx + 3));
+    if (!win.some(l => CITE_RE.test(l))) violators.push(`line ${idx + 1}`);
   }
-  return v.length === 0
+  return violators.length === 0
     ? ok('flaw-marker-citations', 'all marker mentions cited')
-    : fail('flaw-marker-citations', v.join(', '));
+    : fail('flaw-marker-citations', violators.join(', '));
 };
 
 const readabilityNoNewWarnings = r => {
