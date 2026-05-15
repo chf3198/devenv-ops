@@ -1,0 +1,57 @@
+name: model-diversity-advisory
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  advisory:
+    name: model-diversity-advisory
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const { enforceCriticalPathDiversity, extractFromComments } =
+              require('./scripts/global/baton-team-model.js');
+            const body = context.payload.pull_request.body || '';
+            const refsMatch = body.match(/Refs\s+#(\d+)/i);
+            if (!refsMatch) { console.log('No Refs #N in PR body; skipping.'); return; }
+            const linkedIssue = parseInt(refsMatch[1]);
+            const { data: issue } = await github.rest.issues.get({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: linkedIssue,
+            });
+            const labels = issue.labels.map(l => l.name);
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: linkedIssue, per_page: 100,
+            });
+            const roles = extractFromComments(comments);
+            const result = enforceCriticalPathDiversity({ ...roles, labels });
+            const summary = result.ok
+              ? `model-diversity: PASS (skipped: ${result.skipped || 'none'})`
+              : `model-diversity: ADVISORY-VIOLATION (${result.violations.length})`;
+            console.log(summary);
+            await core.summary.addRaw(`### Model-diversity advisory\n\n${summary}\n`).write();
+            if (!result.ok) {
+              const detail = result.violations
+                .map(v => `- \`${v.rule}\`: ${v.detail}`).join('\n');
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: '<!-- model-diversity-advisory -->\n' +
+                      '## Model-diversity advisory (Epic #1568 AC-3, #1572)\n\n' +
+                      detail + '\n\n' +
+                      'Waive with label `model-diversity:waived` + rationale comment, ' +
+                      'or rotate the relevant role to a different `Team&Model`. ' +
+                      'Cross-model within provider passes (e.g. Opus vs Sonnet). ' +
+                      'This advisory does not block merge during the soak window.',
+              });
+            }
