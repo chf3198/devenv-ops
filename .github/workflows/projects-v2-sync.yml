@@ -1,0 +1,36 @@
+name: projects-v2-sync
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: read
+  repository-projects: write
+
+jobs:
+  sync:
+    name: projects-v2-sync
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.event.comment.body, 'MANAGER_HANDOFF') || contains(github.event.comment.body, 'CONSULTANT_CLOSEOUT') || contains(github.event.comment.body, 'COLLABORATOR_HANDOFF') }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const sync = require('./scripts/global/baton-projects-sync.js');
+            const body = context.payload.comment.body || '';
+            const artifactType = sync.detectArtifactType(body);
+            if (!artifactType) { console.log('No baton artifact marker; skipping.'); return; }
+            const team = sync.extractTeam(body);
+            const issueNum = context.payload.issue.number;
+            console.log(`Detected ${artifactType} artifact on issue #${issueNum}, team=${team}`);
+            if (process.env.MEGINGJORD_PROJECTS_V2_DISABLED === '1') {
+              console.log('MEGINGJORD_PROJECTS_V2_DISABLED=1; skip.');
+              return;
+            }
+            // Stub client: real GraphQL invocation goes here once Projects v2 board IDs are configured.
+            // Per G6 degradation contract: log only; do not block baton.
+            const status = `projects-v2-sync: ${artifactType} on #${issueNum} (team=${team || 'unknown'}) — logged advisory; board write requires PROJECT_V2_NODE_ID secret`;
+            console.log(status);
+            await core.summary.addRaw(`### Projects V2 sync (#1708)\n\n${status}\n`).write();
