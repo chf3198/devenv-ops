@@ -31,6 +31,11 @@ Each generated file includes:
 - `npm run governance:adapters:emit`
 - `npm run governance:adapters:test`
 
+## One-command regeneration
+
+- `npm run governance:generate` — clears and rewrites `generated/governance-adapters/`
+- `npm run governance:sync-check` — compares tracked generated files against a fresh render and fails on drift
+
 ## Output behavior
 
 - Only units whose `targets` include a given runtime are emitted

@@ -7,7 +7,7 @@ const { validate } = require('./governance-manifest-validate');
 
 const root = path.resolve(__dirname, '..', '..');
 const manifestPath = path.join(root, 'inventory', 'governance-manifest.sample.json');
-const outRoot = path.join(root, 'generated', 'governance-adapters');
+const defaultOutRoot = path.join(root, 'generated', 'governance-adapters');
 const targets = ['copilot', 'cline', 'claude-code', 'continue'];
 
 function readJson(file) { return JSON.parse(fs.readFileSync(file, 'utf8')); }
@@ -28,7 +28,7 @@ function provenance(target, unit) {
     '---',
   ].join('\n');
 }
-function targetPath(target, unit) {
+function targetPath(target, unit, outRoot = defaultOutRoot) {
   const base = path.join(outRoot, target);
   if (target === 'copilot') return path.join(base, '.github', 'instructions', `${unit.id}.instructions.md`);
   if (target === 'cline') return path.join(base, '.clinerules', `${unit.id}.md`);
@@ -63,7 +63,7 @@ function body(target, unit) {
     `This is a generated adapter preview for ${target}.`,
   ].join('\n');
 }
-function emit(manifestFile = manifestPath) {
+function emit(manifestFile = manifestPath, outRoot = defaultOutRoot) {
   const manifest = readJson(manifestFile);
   const errors = validate(manifest);
   if (errors.length) throw new Error(errors.join('; '));
@@ -71,7 +71,7 @@ function emit(manifestFile = manifestPath) {
   for (const target of targets) {
     for (const unit of manifest.units) {
       if (!unit.targets.includes(target)) continue;
-      const file = targetPath(target, unit);
+      const file = targetPath(target, unit, outRoot);
       const content = body(target, unit);
       write(file, content);
       outputs.push(file);
