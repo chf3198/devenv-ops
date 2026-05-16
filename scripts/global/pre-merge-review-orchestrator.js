@@ -42,15 +42,15 @@ function applyTriggerEscalation(finding) {
 function aggregateFindings(subAgentResults) {
   const all = [];
   for (const result of subAgentResults || []) {
-    for (const f of (result.findings || [])) all.push(applyTriggerEscalation(f));
+    for (const finding of (result.findings || [])) all.push(applyTriggerEscalation(finding));
   }
   return all;
 }
 
 function severityDistribution(findings) {
   const dist = { low: 0, medium: 0, high: 0 };
-  for (const f of findings) {
-    if (dist[f.severity] !== undefined) dist[f.severity]++;
+  for (const finding of findings) {
+    if (dist[finding.severity] !== undefined) dist[finding.severity]++;
   }
   return dist;
 }
