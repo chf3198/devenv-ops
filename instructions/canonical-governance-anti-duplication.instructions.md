@@ -1,0 +1,115 @@
+---
+name: Canonical Governance Anti-Duplication
+description: Establish single source of truth for governance contracts and adapter pattern for runtime-specific behavior. Prevent redundancy across multi-orchestrator deployments.
+applyTo: "instructions/**,scripts/global/**,.codex/**,.github/**"
+---
+
+# Canonical Governance Anti-Duplication
+
+## Problem
+
+The harness supports multiple orchestrators (Copilot, Codex, Claude Code agents). Without canonical authoring rules, governance contracts risk duplication:
+- Same schema implemented separately per runtime → divergence → bugs
+- Same validator logic copied → maintenance burden
+- Scattered responsibility → unclear ownership → conflicts
+
+## Solution: Single Source + Adapter Pattern
+
+### Core Rule: Single Source of Truth (SSoT) in Main Repo
+
+**All governance originates here** (`/home/curtisfranks/devenv-ops`), never directly in deployed runtimes.
+
+**Canonical locations:**
+```
+config/                      ← schemas, profiles, matrices (runtime-agnostic)
+scripts/global/              ← shared validators, parsers, logic
+instructions/                ← contracts, rules (runtime-agnostic)
+.github/copilot-instructions.md    ← Copilot-specific guidance
+.codex/AGENTS.md             ← Codex-specific guidance
+```
+
+**Deploy unidirectional**: Repo → `npm run deploy:both:apply` → runtimes
+
+### Adapter Pattern for Runtime-Specific Behavior
+
+When runtime A needs different implementation than B:
+
+1. **Shared contract lives in repo** (e.g., `config/authorization-profiles.json`)
+2. **Runtime-specific adapter wraps it** (e.g., `.codex/adapters/authorization-profile.js`)
+3. **Adapter respects shared schema** — adds runtime-specific interpretation layer
+4. **Tests cover both shared + adapted behavior**
+
+**Example**:
+- Shared: `config/authorization-profiles.json` (capabilities matrix)
+- Copilot adapter: maps capabilities to Copilot's API permission model
+- Codex adapter: maps capabilities to Codex's role/permission model
+
+### Naming Convention for Governance Tickets
+
+Prevent duplicate ticket titles:
+
+```
+❌ BAD (causes confusion):
+#1700 epic(governance): canonical cross-orchestrator governance
+#1701 epic(governance): canonical cross-orchestrator governance
+
+✅ GOOD (clear responsibility):
+#1700 epic(governance): federated policy distribution
+#1701 epic(governance): adapter framework and onboarding
+```
+
+Format: `<type>(<area>): <specific responsibility>`
+- `type`: feat, fix, research, docs, test, epic, task
+- `area`: governance, self-anneal, auth, routing, review
+- `specific responsibility`: what this ticket owns (not "canonical X")
+
+### Namespace Isolation for Multi-Team Work
+
+Coordinate across teams:
+
+1. Designate one team as **policy author** (writes contracts)
+2. Other teams are **consumers** (implement adapters)
+3. Use issue assignment to clarify boundary
+4. Cross-team PRs reference the policy-owner ticket
+
+**Example**: Claude Team writes authorization profile schema (#1758), Copilot Team adapts it via their own branch when needed.
+
+## Anti-Duplication Checklist
+
+Before implementing governance feature X, verify:
+
+- [ ] Is X runtime-agnostic or runtime-specific?
+- [ ] Does X conflict with existing rules/schemas?
+- [ ] Is X scoped to a single ticket?
+- [ ] Does X have unit tests?
+- [ ] Is X documented in `instructions/` or `.github/`?
+- [ ] Governance drift tests pass (`npm run governance:verify`)?
+
+## Conflict Resolution
+
+**Two tickets cover same surface?**  
+→ Lower issue number is canonical; higher is reference/duplicate
+
+**Two branches implement same contract differently?**  
+→ First merge is canonical; second adapts via adapter pattern
+
+**Runtime-specific feature needed everywhere?**  
+→ Upstream to shared contract; deprecate runtime-specific with migration guide
+
+## Enforcement
+
+Mandatory checks for governance changes:
+
+```bash
+npm run lint:md                  # Format
+npm run governance:verify        # Artifact consistency
+npm run docs:drift               # Implementation vs. docs
+```
+
+Add to CI as governance-area gate.
+
+## See Also
+
+- Playbook: `research/canonical-governance-anti-duplication-2026-05-16.md`
+- Related: #1728 (signer integrity), #1758 (authorization profiles)
+- Adapter onboarding: `docs/howto/governance-adapter-onboarding.md`
