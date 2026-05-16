@@ -27,7 +27,11 @@ function renderWikiReader(pages) {
   }
   const now = Date.now();
   if (now - _lastAutoRecord > AUTO_RECORD_INTERVAL_MS) {
-    Object.keys(cats).forEach(c => typeof trackWikiAccess === 'function' && trackWikiAccess(c, ''));
+    Object.entries(cats).forEach(([c, files]) => {
+      if (typeof trackWikiAccess !== 'function') return;
+      trackWikiAccess(c, '');
+      if (files[0]?.slug) trackWikiAccess(c, files[0].slug);
+    });
     _lastAutoRecord = now;
   }
   const typeLabel = {

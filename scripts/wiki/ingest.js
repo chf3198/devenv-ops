@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { callLLM, INGEST_PROMPT } = require('./wiki-llm');
 const { updateIndex, appendLog, parseFrontmatter } = require('./wiki-io');
+const { spawnSync } = require('child_process');
 
 const WIKI_DIR = path.join(__dirname, '../../wiki');
 
@@ -41,6 +42,7 @@ async function ingest(sourcePath) {
 
   // Step 3: Update index and log
   updateIndex(slug, title, 'source');
+  spawnSync(process.execPath, [path.join(__dirname, 'reindex.js')], { stdio: 'ignore' });
   appendLog(today, 'ingest', title);
   console.log(`   ✅ index.md + log.md updated`);
 

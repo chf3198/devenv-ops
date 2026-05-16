@@ -15,7 +15,7 @@ const METRICS_EMPTY = {
   grade: 'C', score: 60, gradeReasons: [], lastAccess: null,
 };
 const METRICS_WITH_DATA = {
-  totalAccess: 3, sections: { entities: 2, concepts: 1 }, pages: {},
+  totalAccess: 3, sections: { entities: 2, concepts: 1 }, pages: { 'device-monitor': 2 },
   grade: 'B', score: 78, gradeReasons: [], lastAccess: new Date().toISOString(),
 };
 
@@ -40,14 +40,16 @@ async function goWiki(page, metrics) {
 test.describe('Wiki section popularity (#328)', () => {
   test('section bars visible when metrics has section data', async ({ page }) => {
     await goWiki(page, METRICS_WITH_DATA);
-    const bars = page.locator('.wm-bars');
+    const bars = page.locator('.wm-bars').first();
     await expect(bars).toBeVisible();
     await expect(page.locator('.wm-row').first()).toBeVisible();
+    await expect(page.getByText('Top pages')).toBeVisible();
+    await expect(page.getByText('device-monitor')).toBeVisible();
   });
 
   test('no-data message shown when sections empty', async ({ page }) => {
     await goWiki(page, METRICS_EMPTY);
-    const bars = page.locator('.wm-bars');
+    const bars = page.locator('.wm-bars').first();
     if (await bars.count() > 0) {
       const text = await bars.textContent();
       expect(text).toContain('No section views recorded');
@@ -81,5 +83,7 @@ test.describe('Wiki section popularity (#328)', () => {
     await page.waitForTimeout(600);
     const sectionHits = hits.filter(u => u.includes('section='));
     expect(sectionHits.length).toBeGreaterThan(0);
+    const slugHits = hits.filter(u => /slug=[^&]/.test(u));
+    expect(slugHits.length).toBeGreaterThan(0);
   });
 });

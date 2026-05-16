@@ -46,6 +46,98 @@ The LLM updates this on every ingest operation.
 - [[harness-goal-controls]] — G1..G9 enforcement primitives + evidence signals (aggregated map)
 - [[epic-ac-reconciliation]] — Epic AC Reconciliation pattern (auto-reconcile checkboxes vs evidence)
 
+- [[1h-extended-cache-cadence]] — 1h Extended Cache Cadence
+
+- [[3-tier-degraded-hamr]] — 3-Tier Degraded HAMR
+
+- [[anthropic-prompt-cache]] — Anthropic Prompt Cache
+
+- [[baton-signing]] — Baton Signing
+
+- [[bundle-rebuild-cadence]] — Bundle Rebuild Cadence
+
+- [[cache-adapters]] — Provider Cache Adapters & Sticky Routing
+
+- [[capability-detection]] — Capability Detection
+
+- [[capability-probe]] — Capability Probe
+
+- [[cf-worker-latency]] — CF Worker Latency
+
+- [[constitution-compressor]] — HAMR Constitution Compressor
+
+- [[deterministic-top-k-extractive]] — Deterministic Top-K Extractive
+
+- [[dpop-binding]] — DPoP Binding
+
+- [[ephemeral-vs-extended-cache]] — Ephemeral vs Extended Cache
+
+- [[fleet-config]] — Fleet Config
+
+- [[fleet-model-upgrades-implementation-2026-05-01]] — Fleet Model Upgrades 2026-05-01
+
+- [[fleet-portable-config]] — Fleet Portable Config
+
+- [[governance-artifact-signing]] — Governance Artifact Signing
+
+- [[hamr-bundle]] — HAMR Bundle
+
+- [[hamr-core-worker]] — HAMR Core CF Worker
+
+- [[hamr-doctor]] — HAMR Doctor
+
+- [[hamr-failover-map]] — HAMR Failover Map
+
+- [[hamr-key-store-tiers]] — HAMR Key Store Tiers
+
+- [[hamr-mvp-revised-child-list]] — HAMR MVP Revised Child List
+
+- [[hamr-substrate-overhead]] — HAMR Substrate Overhead
+
+- [[header-spillover]] — Header-Spillover & Anthropic Batch Routing
+
+- [[ide-proxy]] — Claude Code IDE Proxy
+
+- [[judge-quorum]] — Judge Quorum
+
+- [[keyword-grounded-grading-bias]] — Keyword-Grounded Grading Bias
+
+- [[known-defects]] — Known defects
+
+- [[litellm-client]] — LiteLLM Client
+
+- [[mailbox]] — HAMR R2 Mailbox
+
+- [[model-routing-engine]] — Model Routing Engine
+
+- [[multi-agent-command-center-round-1]] — Multi-Agent Command Center Round 1
+
+- [[per-call-token-economics]] — Per-Call Token Economics
+
+- [[provenance-vs-locality]] — Provenance vs Locality
+
+- [[release-pipeline]] — HAMR Release Pipeline
+
+- [[reuse-refactor-replace-merge-rubric]] — Reuse Refactor Replace Merge Rubric
+
+- [[rule-coverage-gate]] — Rule Coverage Gate
+
+- [[slsa-bundle-verification]] — SLSA Bundle Verification
+
+- [[substrate-health]] — HAMR Substrate-Health Probe
+
+- [[tailscale-fleet-rtt]] — Tailscale Fleet RTT
+
+- [[ticket-audit-pattern]] — Manager-side ticket audit pattern
+
+- [[token-provider-adapters]] — Token Provider Adapters
+
+- [[two-stage-coverage-gate]] — Two-Stage Coverage Gate
+
+- [[two-stage-rule-coverage-gate]] — Two-Stage Rule Coverage Gate
+
+- [[warm-connection-assumption]] — Warm Connection Assumption
+
 ## Source Summaries
 
 - [[codex-compatibility-audit-2026-05-13]] — Codex compatibility audit for harness goals/features/functionality
@@ -99,6 +191,66 @@ The LLM updates this on every ingest operation.
 - [[dashboard-live-data-methodology-2026-05-05]] — Dashboard Live-Data Methodology (2026-05-05)
 - [[epic-state-truthfulness-rd-2026-05-09]] — Epic-state truthfulness R&D (CC team plan, 2026-05-09)
 
+- [[anthropic-batch-routing]] — Anthropic Batch Routing
+
+- [[codebase-organization-2026-05-02]] — Codebase Organization 2026-Q2
+
+- [[dashboard-closed-state-hygiene-2026-05-04]] — Dashboard closed-state hygiene 2026-05-04
+
+- [[dashboard-layout-density-2026-05-04]] — Dashboard layout density 2026-05-04
+
+- [[fleet-cloud-optimization-2026-05-06]] — Fleet & Cloud Resource Optimization — R&D
+
+- [[fleet-hardware-optimization-2026-05-01]] — Fleet Hardware Optimization 2026-05-01
+
+- [[fleet-harness-awareness-2026-05-04]] — Fleet harness-awareness 2026-05-04
+
+- [[fleet-harness-awareness-v2-2026-05-04]] — Fleet harness-awareness v2 2026-05-04
+
+- [[fleet-resource-audit-2026-05-01]] — Fleet Resource Audit 2026-05-01
+
+- [[hamr-spike-s1-code-audit-2026-05-04]] — HAMR Spike S1 — Existing Code Audit 2026-05-04
+
+- [[hamr-spike-s3-latency-analysis-2026-05-04]] — HAMR Spike S3 — Substrate Latency Analysis 2026-05-04
+
+- [[hamr-spike-s4-prompt-cache-2026-05-04]] — HAMR Spike S4 — Anthropic prompt-cache economics 2026-05-04
+
+- [[hamr-spike-s5-distillation-2026-05-04]] — HAMR Spike S5 — Distillation Rule-Coverage 2026-05-04
+
+- [[hamr-spike-s6-build-vs-adopt-2026-05-04]] — HAMR Spike S6 — Build-vs-Adopt Matrix 2026-05-04
+
+- [[hamr-spike-s6-threat-model-2026-05-04]] — HAMR Spike S6 — STRIDE Threat Model 2026-05-04
+
+- [[hamr-v3-2-1-2026-05-05]] — HAMR v3.2.1 patch 2026-05-05
+
+- [[hamr-v3-2-2-2026-05-05]] — HAMR v3.2.2 R9.2 hook patch 2026-05-05
+
+- [[hamr-v3-2-2026-05-04]] — HAMR v3.2 — post-spike redesign baseline 2026-05-04
+
+- [[hamr-v3-2026-05-04]] — HAMR v3 — 5-axis optimization 2026-05-04
+
+- [[hamr-wave1-s3-live-deploy-2026-05-05]] — HAMR Wave 1 S3 Live Deploy 2026-05-05
+
+- [[hamr-wave1-s4-live-cache-2026-05-05]] — HAMR Wave 1 S4 Live Cache 2026-05-05
+
+- [[hamr-wave1-s5-stage2-2026-05-05]] — HAMR Wave 1 S5 Stage-2 Reasoning Quiz 2026-05-05
+
+- [[harness-convergence-design-2026-05-05]] — Megingjord Harness Convergence Design v1
+
+- [[ide-proxy-shim-2026-05-06]] — Claude Code IDE Proxy Shim — R&D
+
+- [[matrix-refresh-automation-2026-05-03]] — Matrix refresh automation 2026-05-03
+
+- [[multi-agent-command-center-round-2-2026-05-01]] — Multi-Agent Command Center Round 2 2026-05-01
+
+- [[openai-codex-telemetry]] — openai-codex-telemetry
+
+- [[paid-token-floor-reduction-2026-05-01]] — Paid Token Floor Reduction Research 2026-05-01
+
+- [[parallel-fleet-queue-design-2026-05-03]] — Parallel fleet queue design 2026-05-03
+
+- [[ticket-audit-2026-05-02]] — Ticket audit pass 2026-05-02
+
 ## Syntheses
 
 - [[devenv-ops-enforcement-architecture]] — DevEnv Ops Enforcement Architecture
@@ -130,4 +282,4 @@ The LLM updates this on every ingest operation.
 
 ---
 
-**Pages**: 75 | **Last updated**: 2026-05-10
+**Pages**: 163 | **Last updated**: 2026-05-16

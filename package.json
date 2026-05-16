@@ -129,6 +129,7 @@
     "wiki:anneal": "node scripts/wiki/anneal.js",
     "wiki:ingest": "node scripts/wiki/ingest.js",
     "wiki:lint": "node scripts/wiki/lint.js",
+    "wiki:reindex": "node scripts/wiki/reindex.js",
     "wiki:search": "node scripts/wiki/search.js",
     "worktree:start": "bash scripts/worktree-session-start.sh",
     "governance:audit": "node scripts/global/governance-audit.js",
@@ -158,6 +159,7 @@
     "wrangler": "^4.87.0"
   },
   "dependencies": {
-    "dotenv": "^17.4.1"
+    "dotenv": "^17.4.1",
+    "gray-matter": "^4.0.3"
   }
 }
