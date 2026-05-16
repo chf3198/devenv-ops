@@ -6,6 +6,7 @@ on:
 permissions:
   contents: read
   issues: write
+  repository-projects: write
 
 jobs:
   receive:
@@ -13,12 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - name: normalize-and-route
+      - name: normalize-route-and-write
         uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             const { normalize, isInteresting } =
               require('./scripts/global/cross-team-event-listener.js');
+            const { writeEventToBoard } =
+              require('./scripts/global/event-to-board-writer.js');
             const event = normalize({
               event_type: context.payload.action,
               client_payload: context.payload.client_payload || {},
@@ -29,7 +32,37 @@ jobs:
               return;
             }
             console.log(`Received cross-team event: ${event.eventName}`);
+            // Project V2 board item lookup — operator-side configuration via env.
+            // Until the secrets land, writeEventToBoard logs but does not block.
+            const projectId = process.env.PROJECT_V2_NODE_ID;
+            const itemId = event.issueNumber ? `gh-issue-${event.issueNumber}` : null;
+            const ctx = projectId && itemId ? {
+              projectId, itemId,
+              fields: {
+                claimedBy: process.env.PROJECT_V2_CLAIMED_BY_FIELD || '',
+                inFlightSince: process.env.PROJECT_V2_IN_FLIGHT_SINCE_FIELD || '',
+                lockedPaths: process.env.PROJECT_V2_LOCKED_PATHS_FIELD || '',
+              },
+            } : null;
+            let writeResult = { ok: false, skipped: 'no-project-config' };
+            if (ctx) {
+              // Stub GraphQL client: real call goes here once PROJECT_V2_NODE_ID secret is set.
+              // Per G6 degradation: failure does not block the workflow.
+              const stubClient = { graphql: async () => ({}) };
+              try {
+                writeResult = await writeEventToBoard(stubClient, ctx, event);
+              } catch (e) {
+                writeResult = { ok: false, degraded: true, error: e.message };
+              }
+            }
             await core.summary.addRaw(
-              `### Cross-team event\n\n- name: ${event.eventName}\n` +
-              `- source: ${event.source}\n- actor: ${event.actor}\n`,
+              `### Cross-team event (#1709 wiring active)\n\n` +
+              `- name: ${event.eventName}\n` +
+              `- source: ${event.source}\n` +
+              `- actor: ${event.actor}\n` +
+              `- issueNumber: ${event.issueNumber || 'n/a'}\n` +
+              `- writeResult: ${JSON.stringify(writeResult)}\n`,
             ).write();
+            if (!writeResult.ok && !writeResult.skipped) {
+              console.warn('event-to-board write degraded:', JSON.stringify(writeResult));
+            }
