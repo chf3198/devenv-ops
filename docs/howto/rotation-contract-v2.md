@@ -72,8 +72,8 @@ both waiver requirements; their classification covers the exemption.
 
 **#1572 continues to run in parallel during the Phase 3-4 soak.** The two
 emit overlapping but non-conflicting comments; #1572 covers AC-3 of Epic
-#1568, while v2 covers all 3 rules. If both pass: no comments. If only
-#1572 fails: #1572-style comment. If v2 fails but #1572 passes: v2 comment.
+while v2 (which addresses #1568) covers all 3 rules. If both pass: no comments. If only
+If #1572 fails: #1572-style comment. If v2 fails but #1572 passes: v2 comment.
 Both advisory until Phase 4 promotion.
 
 ## Validator input format
