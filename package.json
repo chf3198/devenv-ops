@@ -81,6 +81,8 @@
     "lint:router": "node scripts/lint-router.js",
     "lint:sh": "find scripts -name '*.sh' -exec shellcheck {} +",
     "lint:decisions": "node scripts/global/decisions-md-validator.js",
+    "signing:bootstrap": "node scripts/global/crypto-signing-bootstrap.js",
+    "rotation:check": "node scripts/global/hamr-rotation-check.js",
     "mailbox:flush": "node scripts/global/mailbox-outbox.js flush",
     "mailbox:poll": "node scripts/global/mailbox-client.js poll",
     "mailbox:send": "node scripts/global/mailbox-client.js send",
