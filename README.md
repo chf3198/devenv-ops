@@ -139,6 +139,7 @@ npm run deploy:both:apply
 | `rag:search` | `node scripts/global/rag-search.js` |
 | `readability:snapshot` | `bash scripts/readability-snapshot.sh` |
 | `repo:scope` | `node scripts/global/repo-scope.js` |
+| `rotation:check` | `node scripts/global/hamr-rotation-check.js` |
 | `router:cascade` | `node scripts/global/cascade-dispatch.js` |
 | `router:dispatch` | `node scripts/global/task-router-dispatch.js` |
 | `router:free` | `node scripts/global/free-router.js` |
@@ -152,6 +153,7 @@ npm run deploy:both:apply
 | `routing:report` | `node scripts/global/routing-baseline-report.js --days 7` |
 | `routing:telemetry` | `node scripts/global/token-telemetry-report.js --json` |
 | `setup` | `npm install && echo '✅ megingjord ready — run: npm start'` |
+| `signing:bootstrap` | `node scripts/global/crypto-signing-bootstrap.js` |
 | `start` | `node scripts/dashboard-server.js` |
 | `state:offload` | `node scripts/global/state-offload-client.js` |
 | `stress` | `MEGINGJORD_STRESS_TIER=A node scripts/global/stress-orchestrator.js` |
