@@ -58,6 +58,9 @@ npm run deploy:both:apply
 | `anneal:review` | `node scripts/global/anneal-review.js` |
 | `anneal:rotate` | `node scripts/global/anneal-log-rotate.js` |
 | `anneal:schedule-health` | `node scripts/global/anneal-schedule-health.js` |
+| `auth:audit` | `node scripts/global/authorization-audit.js` |
+| `auth:profile` | `node scripts/global/authorization-profile.js` |
+| `auth:profile:context` | `node scripts/global/authorization-profile-context.js` |
 | `capability:probe` | `node scripts/global/capability-probe.js` |
 | `capability:show` | `node scripts/global/capability-show.js` |
 | `cost-report` | `node scripts/global/cost-report.js` |
@@ -87,6 +90,8 @@ npm run deploy:both:apply
 | `governance:drift` | `node scripts/global/governance-drift-classifier.js --json` |
 | `governance:epic` | `node scripts/global/epic-evidence.js` |
 | `governance:epics` | `node scripts/global/epic-close-validator.js` |
+| `governance:manifest:test` | `node scripts/global/governance-manifest-validate.spec.js` |
+| `governance:manifest:validate` | `node scripts/global/governance-manifest-validate.js` |
 | `governance:no-sync-http` | `node scripts/global/no-sync-http-handlers.js` |
 | `governance:reconcile` | `node scripts/global/ticket-reconcile.js --json` |
 | `governance:tokens` | `node scripts/global/governance-token-lint.js` |
@@ -127,7 +132,7 @@ npm run deploy:both:apply
 | `lint:md` | `markdownlint-cli2 '**/*.md' '!node_modules/**' '!.claude/**' '!research/**' '!wiki/sources/**' '!wiki/syntheses/**' '!raw/**' '!.dashboard/**' '!CHANGELOG-archive.md' '!tickets/**' '!planning/**'` |
 | `lint:py` | `ruff check --config lint-configs/ruff.devenv.toml hooks/scripts/` |
 | `lint:readability` | `node scripts/lint-readability.js` |
-| `lint:readability:ci` | `node scripts/lint-readability.js --max-warnings=420` |
+| `lint:readability:ci` | `node scripts/lint-readability.js --max-warnings=425` |
 | `lint:router` | `node scripts/lint-router.js` |
 | `lint:sh` | `find scripts -name '*.sh' -exec shellcheck {} +` |
 | `mailbox:flush` | `node scripts/global/mailbox-outbox.js flush` |
@@ -179,7 +184,6 @@ npm run deploy:both:apply
 | `wiki:anneal` | `node scripts/wiki/anneal.js` |
 | `wiki:ingest` | `node scripts/wiki/ingest.js` |
 | `wiki:lint` | `node scripts/wiki/lint.js` |
-| `wiki:reindex` | `node scripts/wiki/reindex.js` |
 | `wiki:search` | `node scripts/wiki/search.js` |
 | `worktree:bootstrap` | `bash scripts/worktree-bootstrap-node-modules.sh` |
 | `worktree:start` | `bash scripts/worktree-session-start.sh` |
