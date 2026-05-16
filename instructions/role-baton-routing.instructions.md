@@ -109,6 +109,60 @@ is deprecated for new tickets. See `docs/howto/sub-issues-migration.md` for
 the migration plan and #1631 follow-on children for the helper, validator,
 and test-suite implementation.
 
+## Multi-Close PR batching (formalized #1714)
+
+A single PR MAY close multiple related tickets via multiple `Closes #N` lines, subject to all conditions below. **Historic batches before this contract landed are grandfathered**; this rule applies to PRs opened on or after 2026-05-16.
+
+### When batching is allowed
+
+All of the following must hold:
+
+- **Related ACs**: the closing tickets are children of the same parent Epic or share an `area:*` label, AND their ACs share an obvious deliverable surface (same diff, same test suite, same area).
+- **Single diff**: one branch, one diff, one PR. No squash of independent commits across siblings.
+- **Single test surface**: tests added/modified cover all closing tickets' ACs collectively (not one-test-per-ticket spread across PRs).
+- **One lead + N siblings**: the lead ticket is the lowest issue number in the batch; the branch name uses `fix/<lead-N>-...`; siblings are explicitly named in the PR body and lead ticket.
+
+### Required artifacts on the lead ticket
+
+The lead ticket receives the full 4-role baton artifact set (MANAGER_HANDOFF, COLLABORATOR_HANDOFF, ADMIN_HANDOFF, CONSULTANT_CLOSEOUT) per the standard contract.
+
+### Required artifacts on sibling tickets
+
+Each sibling ticket receives a **brief-evidence comment** with the structured fields:
+
+```
+## CONSULTANT_CLOSEOUT
+ticket: #<sibling-N> (resolved as part of batch with #<lead-N>)
+status: review
+verdict: approve_for_merge
+verification-timestamp: <ISO8601>
+
+rubric_rating: <int>/10. Full evidence on #<lead-N>.
+
+Signed-by: <human-alias>
+Team&Model: <team:model@substrate>
+Role: consultant
+```
+
+The brief evidence MUST include the 4 structured fields: `Signed-by`, `Team&Model`, `Role`, `verification-timestamp`, plus `rubric_rating`. These satisfy the `closeout-schema` signer-alias-fidelity check.
+
+### Validator recognition
+
+`scripts/global/megalint/consultant-closeout.js` recognizes the phrase "resolved as part of batch with #<N>" as a valid closeout-evidence marker (in addition to the standard substantive evidence). See `scripts/global/megalint/batch-evidence.js`.
+
+### What batching does NOT change
+
+- Each closing ticket still requires a status:done label flip at merge (auto-transitioner handles this via the `Closes #N` line).
+- Each closing ticket's labels must be advanced through the baton states (status:triage → status:ready → status:in-progress → status:testing → status:review) per the standard contract before close. Siblings can advance via the lead's MANAGER_HANDOFF; their own MANAGER_HANDOFF is NOT required.
+- Auto-escalate triggers (Epic #1736 #1743) apply per-PR regardless of batching.
+
+### Anti-pattern: when batching is NOT allowed
+
+- Tickets from different parent Epics.
+- Tickets touching different test surfaces (e.g., one is unit tests, other is integration; would force two PRs anyway).
+- Tickets where one is `lane:trivial` and another is `lane:code-change` (different validator paths).
+- Tickets where one sibling has `merge-evidence-override:approved` and another does not.
+
 ## Local Override
 
 A repo may override via `.github/copilot-instructions.md`; local wins on conflict.
