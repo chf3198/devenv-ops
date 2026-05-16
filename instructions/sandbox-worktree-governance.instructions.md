@@ -49,10 +49,16 @@ Conflict check:
 - Audit command: `npm run governance:worktrees`.
 - Targeted audit: `node scripts/global/worktree-governance-audit.js --target=codex --json`.
 - Default audits must still check all Copilot, Claude Code, and Codex launchers.
+- Cleanup plan: `node scripts/global/worktree-cleanup-plan.js --json`.
+- VS Code active workspace: `node scripts/global/worktree-cleanup-plan.js --workspace .dashboard/active-worktrees.code-workspace`.
 
 ## Escalation
 
 If any sandbox branch is behind or dirty: stop, run session-start reset flow, then resume on a ticket-linked task branch only.
+
+If Source Control is cluttered: generate the cleanup plan, remove only
+`merged-clean` worktrees, and preserve dirty or unpushed work through rescue
+branches or draft PRs before any deletion.
 
 ## Cross-Team Lease Lifecycle
 
