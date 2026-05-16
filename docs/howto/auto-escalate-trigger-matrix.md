@@ -185,7 +185,7 @@ operates independently.
 
 3-tier confidence interaction (above) is the primary mitigation. Secondary
 mitigation: whitelist patterns. Tertiary mitigation: waiver pathway from
-#1742 severity-gates spec.
+See #1742 severity-gates spec.
 
 ## Per-PR history deduplication
 
