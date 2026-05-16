@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "defaultProfile": "owner",
+  "profiles": {
+    "owner": {
+      "install": true,
+      "upgrade": true,
+      "privileged": true,
+      "execute_local": true,
+      "execute_remote": true
+    },
+    "guarded": {
+      "install": false,
+      "upgrade": true,
+      "privileged": false,
+      "execute_local": true,
+      "execute_remote": true
+    },
+    "restricted": {
+      "install": false,
+      "upgrade": false,
+      "privileged": false,
+      "execute_local": true,
+      "execute_remote": false
+    }
+  }
+}
