@@ -37,6 +37,10 @@ Example diagnostics:
 2) Validate a custom manifest:
 - `node scripts/global/governance-manifest-validate.js ./path/to/manifest.json`
 
+3) Regenerate canonical adapter previews and sync tracked files:
+- `npm run governance:generate`
+- `npm run governance:sync-check`
+
 ## Adapter mapping readiness
 
 `targets` is explicit per unit, enabling adapter emitters to map units for:
