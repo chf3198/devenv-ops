@@ -35,6 +35,9 @@ function renderWikiMetrics(m, health) {
       <div class="wm-bar-wrap"><div class="wm-bar" style="width:${pct}%"></div></div>
       <span class="wm-count">${n}</span></div>`;
   }).join('') || '<div class="wiki-muted">No section views recorded</div>';
+  const topPages = Object.entries(m.pages || {}).sort((a, b) => b[1] - a[1]).slice(0, 5)
+    .map(([slug, n]) => `<div class="wm-row"><span class="wm-lbl">${esc(slug)}</span><span class="wm-count">${n}</span></div>`)
+    .join('') || '<div class="wiki-muted">No page views recorded</div>';
 
   // Grade reasons
   const reasons = (m.gradeReasons || []).map(r => `<li>${esc(r)}</li>`).join('') || '<li>Wiki looks healthy</li>';
@@ -52,6 +55,8 @@ function renderWikiMetrics(m, health) {
     <details class="wm-details"><summary>Grade rationale</summary><ul class="wm-reasons">${reasons}</ul></details>
     <div class="wm-section-title">Section popularity</div>
     <div class="wm-bars">${secBars}</div>
+    <div class="wm-section-title">Top pages</div>
+    <div class="wm-bars">${topPages}</div>
     ${drilldown}
   </div>`;
 }

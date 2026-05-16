@@ -2,30 +2,32 @@
 
 const fs = require('fs');
 const path = require('path');
+const matter = require('gray-matter');
 
 const WIKI_DIR = path.join(__dirname, '../../wiki');
+const DATE_TOLERANCE_DAYS = 1;
 
-/** Parse YAML-ish frontmatter from markdown. */
 function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
-  if (!match) return { frontmatter: {}, body: content };
-  const fm = {};
-  match[1].split('\n').forEach((line) => {
-    const [key, ...rest] = line.split(':');
-    if (key && rest.length) fm[key.trim()] = rest.join(':').trim();
-  });
-  return { frontmatter: fm, body: match[2] };
+  try {
+    const parsed = matter(String(content || ''));
+    return { frontmatter: parsed.data || {}, body: parsed.content || '' };
+  } catch {
+    return { frontmatter: {}, body: String(content || '') };
+  }
 }
 
-/** Add an entry to wiki/index.md under the appropriate section. */
 function updateIndex(slug, title, type) {
   const indexPath = path.join(WIKI_DIR, 'index.md');
   let content = fs.readFileSync(indexPath, 'utf-8');
   const sectionMap = {
     entity: '## Entities',
+    entities: '## Entities',
     concept: '## Concepts',
+    concepts: '## Concepts',
     source: '## Source Summaries',
+    sources: '## Source Summaries',
     synthesis: '## Syntheses',
+    syntheses: '## Syntheses',
   };
   const section = sectionMap[type] || '## Source Summaries';
   const entry = `- [[${slug}]] — ${title}`;
@@ -51,8 +53,14 @@ function updateIndex(slug, title, type) {
   fs.writeFileSync(indexPath, content);
 }
 
-/** Append a log entry to wiki/log.md. */
 function appendLog(date, operation, subject) {
+  const now = Date.now();
+  const maxFutureMs = now + DATE_TOLERANCE_DAYS * 86400000;
+  const parsedDate = Date.parse(`${date}T00:00:00Z`);
+  if (!Number.isFinite(parsedDate)) throw new Error(`Invalid wiki log date: ${date}`);
+  if (parsedDate > maxFutureMs) {
+    throw new Error(`Refusing future wiki log date '${date}' (tolerance ${DATE_TOLERANCE_DAYS} day).`);
+  }
   const logPath = path.join(WIKI_DIR, 'log.md');
   const entry = `\n## [${date}] ${operation} | ${subject}\n`;
   fs.appendFileSync(logPath, entry);
@@ -86,5 +94,5 @@ function listPages() {
 
 module.exports = {
   parseFrontmatter, updateIndex, appendLog,
-  countPages, listPages, WIKI_DIR,
+  countPages, listPages, WIKI_DIR, DATE_TOLERANCE_DAYS,
 };

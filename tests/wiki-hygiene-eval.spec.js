@@ -3,6 +3,7 @@ const { test, expect } = require('@playwright/test');
 const path = require('path');
 const H = require(path.resolve(__dirname, '..', 'scripts', 'wiki', 'hygiene.js'));
 const E = require(path.resolve(__dirname, '..', 'scripts', 'wiki', 'eval-harness.js'));
+const HC = require(path.resolve(__dirname, '..', 'scripts', 'wiki', 'health-contract.js'));
 
 test('hygiene tokens lowercases and drops short tokens', () => {
   const t = H.tokens('Hello World HAMR_test xy');
@@ -33,6 +34,13 @@ test('hygiene scanAll returns all 4 categories', () => {
   expect(result).toHaveProperty('orphans');
   expect(result).toHaveProperty('weak_links');
   expect(Array.isArray(result.stale)).toBe(true);
+});
+
+test('hygiene orphans/frontmatter match unified health contract', () => {
+  const scan = H.scanAll();
+  const health = HC.computeWikiHealth();
+  expect(scan.orphans.sort()).toEqual(health.orphans.sort());
+  expect(scan.frontmatter.sort()).toEqual(health.frontmatter.sort());
 });
 
 test('eval precisionAtK returns hits/k', () => {

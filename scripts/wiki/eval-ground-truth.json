@@ -1,10 +1,25 @@
 {
   "_note": "Ground-truth queries for wiki retrieval eval harness (#872). expected = slugs that MUST appear in top-K.",
   "queries": [
-    { "q": "HAMR cache adapters per provider", "expected": ["cache-adapters", "hamr-core-worker"] },
-    { "q": "header-driven spillover when rate limited", "expected": ["header-spillover"] },
-    { "q": "fleet portable config for new operators", "expected": ["fleet-portable-config"] },
-    { "q": "Anthropic batch API for time-elastic work", "expected": ["anthropic-batch-routing"] },
-    { "q": "ide proxy classifier complexity score", "expected": ["ide-proxy"] }
+    {
+      "q": "HAMR cache adapters per provider",
+      "expected": ["cache-adapters", "token-provider-adapters", "hamr-core-worker"]
+    },
+    {
+      "q": "header-driven spillover when rate limited",
+      "expected": ["header-spillover", "model-routing", "cache-adapters"]
+    },
+    {
+      "q": "fleet portable config for new operators",
+      "expected": ["fleet-portable-config", "fleet-config", "devenv-fleet-topology"]
+    },
+    {
+      "q": "Anthropic batch API for time-elastic work",
+      "expected": ["anthropic-batch-routing", "anthropic-prompt-cache", "header-spillover"]
+    },
+    {
+      "q": "ide proxy classifier complexity score",
+      "expected": ["ide-proxy", "ide-proxy-shim-2026-05-06", "context-flow"]
+    }
   ]
 }

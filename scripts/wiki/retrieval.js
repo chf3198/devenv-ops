@@ -1,11 +1,8 @@
-// scripts/wiki/retrieval.js — Hybrid retrieval (#868) + chunking (#869).
-// Implements: BM25 lexical + cosine-style overlap dense + RRF fusion.
-// Local-only computation; no LLM/embedding calls (uses term-frequency proxy).
+// scripts/wiki/retrieval.js — local hybrid retrieval + chunking.
 'use strict';
 
 const fs = require('node:fs');
-const path = require('node:path');
-const { listPages, WIKI_DIR } = require('./wiki-io');
+const { listPages, parseFrontmatter } = require('./wiki-io');
 
 const RRF_K = 60;
 const TOP_N = 5;
@@ -15,10 +12,6 @@ function tokenize(s) {
   return String(s || '').toLowerCase().match(/[a-z0-9]{2,}/g) || [];
 }
 
-/** #869 — sentence-boundary chunks; returns small chunks + parent ranges.
- * @param {string} text - Page body.
- * @returns {Array<{chunk: string, parentStart: number, parentEnd: number}>}
- */
 function chunkPage(text) {
   const lines = text.split('\n');
   const sentences = [];
@@ -57,6 +50,13 @@ function denseScore(qTokens, doc) {
   return inter / Math.sqrt(qSet.size * docSet.size);
 }
 
+function metaBoost(qTokens, slug, title) {
+  const q = new Set(qTokens);
+  const meta = new Set([...tokenize(slug), ...tokenize(title)]);
+  const hits = [...q].filter(t => meta.has(t)).length;
+  return hits === 0 ? 0 : 0.08 * hits;
+}
+
 function rrf(rankings) {
   const scores = {};
   for (const ranking of rankings) {
@@ -67,24 +67,24 @@ function rrf(rankings) {
   return scores;
 }
 
-/** Hybrid retrieval: BM25 + dense + RRF fusion.
- * @param {string} query - User query.
- * @param {Array<{slug, path, type}>} pages - Optional override; defaults to listPages().
- * @returns {Array<{slug, path, type, score, parentChunks}>}
- */
 function hybridSearch(query, pages = null) {
   pages = pages || listPages();
   const qTokens = tokenize(query);
   if (qTokens.length === 0) return [];
-  const docs = pages.map(p => ({ ...p, body: fs.readFileSync(p.path, 'utf-8') }));
-  const avgLen = docs.reduce((a, d) => a + tokenize(d.body).length, 0) / Math.max(1, docs.length);
-  const bmRank = [...docs].map(d => ({ slug: d.slug, score: bm25Score(qTokens, d.body, avgLen) }))
+  const docs = pages.map(p => {
+    const raw = fs.readFileSync(p.path, 'utf-8');
+    const { frontmatter, body } = parseFrontmatter(raw);
+    const title = frontmatter.title || p.slug;
+    return { ...p, body, title, text: `${title}\n${body}` };
+  });
+  const avgLen = docs.reduce((a, d) => a + tokenize(d.text).length, 0) / Math.max(1, docs.length);
+  const bmRank = [...docs].map(d => ({ slug: d.slug, score: bm25Score(qTokens, d.text, avgLen) }))
     .sort((a, b) => b.score - a.score).map(d => d.slug);
-  const dnRank = [...docs].map(d => ({ slug: d.slug, score: denseScore(qTokens, d.body) }))
+  const dnRank = [...docs].map(d => ({ slug: d.slug, score: denseScore(qTokens, d.text) }))
     .sort((a, b) => b.score - a.score).map(d => d.slug);
   const fused = rrf([bmRank, dnRank]);
   const ranked = docs
-    .map(d => ({ ...d, score: fused[d.slug] || 0 }))
+    .map(d => ({ ...d, score: (fused[d.slug] || 0) + metaBoost(qTokens, d.slug, d.title) }))
     .filter(d => d.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, TOP_N);

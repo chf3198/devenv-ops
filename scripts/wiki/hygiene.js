@@ -3,8 +3,8 @@
 'use strict';
 
 const fs = require('node:fs');
-const path = require('node:path');
 const { listPages, parseFrontmatter, WIKI_DIR } = require('./wiki-io');
+const { computeWikiHealth } = require('./health-contract');
 
 const STALE_DAYS = 180;
 const DUP_TOKEN_OVERLAP = 0.85;
@@ -54,27 +54,25 @@ function findDuplicates(pages) {
 }
 
 function findOrphansAndWeakLinks(pages) {
-  const inbound = {};
+  const health = computeWikiHealth(pages);
   const outbound = {};
   for (const page of pages) {
     const content = fs.readFileSync(page.path, 'utf-8');
     const links = [...content.matchAll(/\[\[([^\]]+)\]\]/g)].map(m => m[1]);
     outbound[page.slug] = new Set(links);
-    for (const link of links) {
-      inbound[link] = (inbound[link] || 0) + 1;
-    }
   }
-  const orphans = pages.filter(p => !inbound[p.slug] && p.type !== 'sources').map(p => p.slug);
+  const orphans = health.orphans;
   const weak = pages.filter(p => (outbound[p.slug] || new Set()).size < WEAK_LINK_THRESHOLD).map(p => p.slug);
-  return { orphans, weak };
+  return { orphans, weak, frontmatter: health.frontmatter };
 }
 
 function scanAll(pages = null) {
   pages = pages || listPages();
   const stale = findStale(pages);
   const duplicates = findDuplicates(pages);
-  const { orphans, weak } = findOrphansAndWeakLinks(pages);
+  const { orphans, weak, frontmatter } = findOrphansAndWeakLinks(pages);
   return { total_pages: pages.length, stale, duplicates, orphans, weak_links: weak,
+    frontmatter,
     thresholds: { STALE_DAYS, DUP_TOKEN_OVERLAP, WEAK_LINK_THRESHOLD } };
 }
 
