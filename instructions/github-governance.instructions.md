@@ -65,3 +65,20 @@ applyTo: "**"
 - Before recommending rulesets or plan-sensitive features, run `github-capability-resolver` to verify availability.
 - Route workflow governance requests through `github-ops-tree-router`; invoke `github-ruleset-architecture` for ruleset design.
 - For workflow automation that compares actors, apply Team&Model-first identity resolution per `instructions/team-model-in-workflows.instructions.md`.
+
+## MCP server as standard tool surface
+
+The official GitHub MCP server (`github/github-mcp-server`) is the preferred
+GitHub tool surface across Claude Code / Copilot / Codex teams. MCP tools cover
+Issues, Pull Requests, Discussions, Projects v2, Sub-issues, Actions, and
+Repositories. Standardizing on MCP eliminates per-team REST/CLI adapter drift.
+
+- **Activation**: each team's skill MAY load the MCP server before composing
+  baton artifacts. `gh` CLI remains the supported fallback.
+- **Credentials**: MCP server requires a `GITHUB_TOKEN`. Every operator using
+  `gh` CLI already has one; no new credential surface.
+- **G5 portability**: integral to harness goals; air-gapped operators have no
+  GitHub access at baseline (consistent constraint, not an MCP gap).
+- **Opt-out**: `MEGINGJORD_MCP_DISABLED=1` (parity with `MEGINGJORD_HAMR_DISABLED`).
+  Skills detecting the opt-out fall back to `gh` CLI without behavior change.
+- **Adoption guide**: `docs/howto/mcp-server-adoption.md`.
