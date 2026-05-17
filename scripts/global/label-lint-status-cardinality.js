@@ -4,6 +4,9 @@
 'use strict';
 
 const STATUS_PREFIX = 'status:';
+const ADR_MARKER = '<!-- adr-010-status-cardinality -->';
+const ADR_HEADING = '## ⚠️ ADR-010 Label Lint Violation (status cardinality)';
+const RULE_REF = '**Rule 1 (Epic #1828 AC6)**: exactly one `status:*` label per ticket.';
 
 function statusLabels(labels) {
   return (labels || [])
@@ -29,12 +32,11 @@ function evaluate(labels) {
 
 function violationComment(result, issueNumber) {
   if (result.ok) return null;
-  const marker = '<!-- adr-010-status-cardinality -->';
   if (result.rule === 'multi-status') {
-    return `${marker}\n## ⚠️ ADR-010 Label Lint Violation (status cardinality)\n\nIssue #${issueNumber} carries multiple \`status:*\` labels:\n\n${result.found.map(s => `- \`${s}\``).join('\n')}\n\n**Rule 1 (Epic #1828 AC6)**: exactly one \`status:*\` label per ticket.\n\nResolution: Manager strips stale status labels; keep the one matching current workflow phase.`;
+    return `${ADR_MARKER}\n${ADR_HEADING}\n\nIssue #${issueNumber} carries multiple \`status:*\` labels:\n\n${result.found.map(s => `- \`${s}\``).join('\n')}\n\n${RULE_REF}\n\nResolution: Manager strips stale status labels; keep the one matching current workflow phase.`;
   }
   if (result.rule === 'missing-status') {
-    return `${marker}\n## ⚠️ ADR-010 Label Lint Violation (status cardinality)\n\nIssue #${issueNumber} carries no \`status:*\` label.\n\n**Rule 1 (Epic #1828 AC6)**: exactly one \`status:*\` label per ticket.\n\nResolution: apply the appropriate status from the 11-state taxonomy.`;
+    return `${ADR_MARKER}\n${ADR_HEADING}\n\nIssue #${issueNumber} carries no \`status:*\` label.\n\n${RULE_REF}\n\nResolution: apply the appropriate status from the 11-state taxonomy.`;
   }
   return null;
 }
