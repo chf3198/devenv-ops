@@ -5,6 +5,8 @@ and AI agent governance. All instructions below are binding for Claude Code sess
 
 > **Megingjord governance harness** — Rebranded from DevEnv Ops (2026-04-29).
 
+> **Cross-team contract**: see `governance/README.md` for the canonical entry point (4 invariants: Team&Model signing, baton order, ticket-first, dedicated worktree). This file is the Claude Code adapter.
+
 ## Instructions
 
 @instructions/role-baton-routing.instructions.md
