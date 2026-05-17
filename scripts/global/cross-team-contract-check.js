@@ -55,12 +55,12 @@ function run({ requirePointer = true } = {}) {
   if (contractCheck.error) errors.push(contractCheck.error);
   if (contractCheck.missing && contractCheck.missing.length)
     errors.push(`governance/README.md missing invariants: ${contractCheck.missing.join(',')}`);
-  for (const r of entryResults) {
-    if (r.error) { errors.push(r.error); continue; }
-    if (r.findings.length) {
-      for (const f of r.findings) errors.push(`${r.entry.label}: missing invariant ${f.invariant}`);
+  for (const result of entryResults) {
+    if (result.error) { errors.push(result.error); continue; }
+    if (result.findings.length) {
+      for (const finding of result.findings) errors.push(`${result.entry.label}: missing invariant ${finding.invariant}`);
     }
-    if (requirePointer && !r.pointerHit) errors.push(`${r.entry.label}: missing pointer to governance/README.md`);
+    if (requirePointer && !result.pointerHit) errors.push(`${result.entry.label}: missing pointer to governance/README.md`);
   }
   return { ok: errors.length === 0, errors, entryResults, contractCheck };
 }
