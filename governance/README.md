@@ -65,6 +65,7 @@ npm run governance:cross-team-check     # verify 4 invariants present
 3. Add the corresponding entry-point file at the root (referencing this contract).
 4. Update `cross-team-contract-check.js` `ENTRY_POINTS` constant.
 5. Add tests covering the new adapter path.
+6. Wire only the lifecycle events the runtime natively emits — see the per-runtime event matrix in `instructions/canonical-governance-anti-duplication.instructions.md`.
 
 ## Related research
 
