@@ -25,6 +25,9 @@ _EXT_KEYS = ("publish", "release_integrity", "gh_release")
 
 
 def _admin_missing(state: dict) -> list[str]:
+    # Phase guard (#1815 / #1798 sibling): pre-collab "complete work on #N" is scoping, not finish.
+    if not state.get("roles", {}).get("collaborator", False):
+        return []
     flags, ops = state.get("flags", {}), state.get("admin_ops", {})
     missing = []
     if flags.get("code_touched"):
