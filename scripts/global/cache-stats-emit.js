@@ -13,12 +13,23 @@ function ensureDir() {
   if (!fs.existsSync(STATS_DIR)) fs.mkdirSync(STATS_DIR, { recursive: true });
 }
 
+const CACHE_ELIGIBLE_MIN_INPUT_TOKENS = 50;
+
 function isInformativeRecord(record) {
   if (!record) return false;
   const input = Number(record.input_tokens || 0);
   const cacheRead = Number(record.cache_read_tokens || 0);
   const output = Number(record.output_tokens || 0);
   return input > 0 || cacheRead > 0 || output > 0;
+}
+
+// #1793 cache-eligibility tagging: only requests big enough to benefit from caching
+// count toward the cache-hit-gate floor. Tiny requests (<50 input tokens) are below
+// every paid provider's prompt-caching break-even and dilute the hit-rate metric.
+function isCacheEligible(record) {
+  if (!record) return false;
+  if (Number(record.cache_read_tokens || 0) > 0) return true; // actual hit always eligible
+  return Number(record.input_tokens || 0) >= CACHE_ELIGIBLE_MIN_INPUT_TOKENS;
 }
 
 /** Append a single cache-stat record atomically.
@@ -44,6 +55,7 @@ function appendCacheStat(record, opts = {}) {
     output_tokens: Number(record.output_tokens || 0),
     executed: record.executed ?? null,
   };
+  normalized.cache_eligible = isCacheEligible(normalized);
   if (!isInformativeRecord(normalized)) {
     return { ok: false, skipped: true, reason: 'non_informative_record', file, line: null };
   }
@@ -79,4 +91,5 @@ if (require.main === module) {
   }
 }
 
-module.exports = { appendCacheStat, fromTokenRecord, isInformativeRecord, STATS_FILE };
+module.exports = { appendCacheStat, fromTokenRecord, isInformativeRecord,
+  isCacheEligible, CACHE_ELIGIBLE_MIN_INPUT_TOKENS, STATS_FILE };

@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "defaultLane": "fleet",
   "adapterPolicy": "routing-provider-adapters.json",
   "complexityThresholds": {
@@ -95,5 +95,17 @@
     "minSuccessRate": 0.75,
     "maxPremiumShare": 0.20,
     "forceLane": "fleet"
+  },
+  "premiumBudget": {
+    "windowDays": 30,
+    "softLimitShare": 0.11,
+    "hardLimitShare": 0.12,
+    "requireStructuredRationale": true
+  },
+  "cascadeEnforcement": {
+    "enforceFreeFleetFirst": true,
+    "minFleetUtilizationShare": 0.85,
+    "windowDays": 7,
+    "violationEscalationReason": "fleet-bypass"
   }
 }

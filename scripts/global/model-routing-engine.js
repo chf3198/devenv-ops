@@ -4,13 +4,12 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const { readTelemetry, summarize } = require('./model-routing-telemetry');
+const { normalizePremiumRationale, resolveBudget } = require('./premium-budget-governor');
 
 const FILE = path.join(__dirname, 'model-routing-policy.json');
 const ADAPTER_FILE = path.join(__dirname, 'routing-provider-adapters.json');
 const POLICY_OVERRIDES = path.join(os.homedir(), '.megingjord', 'cascade-policy-overrides.json');
 
-// Wave 8 child 2 (#977): convergence-design item 4 consumer side.
-// Read overrides if present; falls back silently when missing/malformed.
 function loadOverrides() {
   try {
     if (!fs.existsSync(POLICY_OVERRIDES)) return null;
@@ -19,7 +18,6 @@ function loadOverrides() {
 }
 
 function loadPolicy() { return JSON.parse(fs.readFileSync(FILE, 'utf8')); }
-
 function loadAdapters() { return JSON.parse(fs.readFileSync(ADAPTER_FILE, 'utf8')); }
 
 function score(text, words) {
@@ -32,8 +30,8 @@ function classifyTask(prompt, classes) {
   let best = keys[0] || 'routine';
   let top = -1;
   for (const k of keys) {
-    const s = score(text, classes[k]);
-    if (s > top) { top = s; best = k; }
+    const scoreValue = score(text, classes[k]);
+    if (scoreValue > top) { top = scoreValue; best = k; }
   }
   return best;
 }
@@ -47,13 +45,24 @@ function shouldRollback(policy) {
     stats.premiumShare > (rb.maxPremiumShare ?? 0.45);
 }
 
+function applyComplexityThresholds(lane, complexity, thresholds) {
+  const thresh = thresholds || {};
+  if (lane === 'premium' && complexity < (thresh.premium ?? 0.7)) {
+    return complexity < (thresh.haiku ?? 0.3) ? 'fleet' : 'haiku';
+  }
+  return lane;
+}
+
 function resolveRouting(prompt, route) {
   const policy = loadPolicy();
   const rollbackApplied = route.disableRollback ? false : shouldRollback(policy);
   let lane = rollbackApplied ? policy.rollback.forceLane : route.lane;
   const cx = route.complexity ?? 0.5;
-  const thresh = policy.complexityThresholds || {};
-  if (lane === 'premium' && cx < (thresh.premium ?? 0.7)) lane = cx < (thresh.haiku ?? 0.3) ? 'fleet' : 'haiku';
+  lane = applyComplexityThresholds(lane, cx, policy.complexityThresholds);
+  const taskClass = classifyTask(prompt, policy.taskClasses);
+  const premiumRationale = lane === 'premium' ? normalizePremiumRationale(route, prompt, taskClass, cx) : null;
+  const budget = resolveBudget(policy, route, lane);
+  if (budget.downgraded) lane = 'haiku';
   const model = policy.models[lane] || policy.models.fallback;
   const adapter = loadAdapters().lanes?.[lane] || {};
   const overrides = loadOverrides();
@@ -64,9 +73,11 @@ function resolveRouting(prompt, route) {
     providerPath: adapter.defaultProvider || model.endpoint || null,
     adapterId: adapter.defaultAdapter || null,
     multiplier: model.mult,
-    taskClass: classifyTask(prompt, policy.taskClasses),
+    taskClass,
     rollbackApplied,
     complexity: cx,
+    premiumRationale,
+    premiumBudget: budget,
     overridesApplied: overrides !== null,
     overridesStale: overrides?.stale ?? false,
   };
