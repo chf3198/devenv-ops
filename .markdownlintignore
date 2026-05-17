@@ -4,3 +4,5 @@ research/model-compare/
 raw/
 CHANGELOG-archive.md
 .dashboard/
+generated/
+tests/fixtures/governance/golden/
