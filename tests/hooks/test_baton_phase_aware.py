@@ -16,6 +16,7 @@ sys.path.insert(0, str(HOOKS_SCRIPTS))
 import manager_ticket_gate  # noqa: E402
 import state_store  # noqa: E402
 import stop_checks  # noqa: E402
+import userprompt_gate  # noqa: E402
 
 
 class StopChecksPhaseGuard(unittest.TestCase):
@@ -104,6 +105,29 @@ class CurrentPhaseField(unittest.TestCase):
         # ensure_state writes defaults including current_phase.
         state = state_store.ensure_state(str(REPO_ROOT))
         self.assertIn("current_phase", state)
+
+
+class UserPromptGatePhaseGuard(unittest.TestCase):
+    """#1815 — userprompt_gate._admin_missing honors baton phase (Epic #1798 sibling)."""
+
+    def test_admin_missing_silent_pre_collab_even_with_code_touched(self):
+        # Reproduces the screenshot: prompt "Complete the work..." pre-collab.
+        state = {
+            "roles": {"manager": True, "collaborator": False, "admin": False, "consultant": False},
+            "flags": {"code_touched": True},
+            "admin_ops": {"commit": False, "push": False, "pr_create": False, "ci_green": False, "merge": False},
+        }
+        self.assertEqual(userprompt_gate._admin_missing(state), [])
+
+    def test_admin_missing_fires_post_collab(self):
+        state = {
+            "roles": {"manager": True, "collaborator": True, "admin": False, "consultant": False},
+            "flags": {"code_touched": True},
+            "admin_ops": {"commit": False, "push": False, "pr_create": False, "ci_green": False, "merge": False},
+        }
+        missing = userprompt_gate._admin_missing(state)
+        self.assertTrue(len(missing) > 0)
+        self.assertIn("commit", missing)
 
 
 if __name__ == "__main__":
