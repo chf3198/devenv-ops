@@ -139,6 +139,7 @@ npm run deploy:both:apply
 | `hamr:health-push` | `node scripts/global/substrate-health-push.js` |
 | `hamr:install-cron` | `bash scripts/global/install-cron.sh` |
 | `hamr:log-rotate` | `node scripts/global/log-rotate.js` |
+| `hamr:multi-judge:test` | `node --test tests/multi-judge-prompts.spec.js tests/multi-judge-variance.spec.js tests/multi-judge-orchestrator.spec.js` |
 | `hamr:policy-overrides` | `node scripts/global/cascade-policy-overrides.js` |
 | `hamr:premium-budget:test` | `node --test tests/premium-budget-governor.spec.js` |
 | `hamr:rule-gate` | `node scripts/global/rule-coverage-gate.js` |
