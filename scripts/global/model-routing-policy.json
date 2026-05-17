@@ -1,5 +1,5 @@
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "defaultLane": "fleet",
   "adapterPolicy": "routing-provider-adapters.json",
   "complexityThresholds": {
@@ -19,8 +19,8 @@
   "models": {
     "free":    { "id": "free-auto",             "mult": 0,    "costPer1kTokens": 0 },
     "fleet":   { "id": "fleet-coding-local",    "mult": 0,    "costPer1kTokens": 0,      "endpoint": "ollama" },
-    "haiku":   { "id": "balanced-cloud",        "mult": 0.08, "costPer1kTokens": 0.00088 },
-    "premium": { "id": "frontier-reasoning",    "mult": 1,    "costPer1kTokens": 0.009   },
+    "haiku":   { "id": "balanced-cloud",        "mult": 0.08, "costPer1kTokens": 0.00088, "maxPriceCapPer1kTokens": 0.00100 },
+    "premium": { "id": "frontier-reasoning",    "mult": 1,    "costPer1kTokens": 0.009,   "maxPriceCapPer1kTokens": 0.00950 },
     "fallback":{ "id": "balanced-cloud",        "mult": 0.08, "costPer1kTokens": 0.00088 }
   },
   "capability_matrix": {
@@ -93,7 +93,13 @@
     "enabled": true,
     "windowDays": 7,
     "minSuccessRate": 0.75,
-    "maxPremiumShare": 0.20,
+    "maxPremiumShare": 0.12,
     "forceLane": "fleet"
+  },
+  "premiumBudget": {
+    "windowDays": 30,
+    "softLimitShare": 0.11,
+    "hardLimitShare": 0.12,
+    "requireStructuredRationale": true
   }
 }

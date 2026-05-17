@@ -57,7 +57,28 @@ async function buildDecision(route, resolved) {
 
 async function main() {
   const route = classifyPrompt(prompt);
-  const resolved = resolveRouting(prompt, route);
+  const resolved = resolveRouting(prompt, { ...route, execute: true });
+  if (resolved.priceCapBlocked) {
+    recordTelemetry({
+      lane: resolved.lane,
+      model: resolved.providerModelId,
+      multiplier: resolved.multiplier,
+      taskClass: resolved.taskClass,
+      complexityScore: route.complexity ?? null,
+      rollbackApplied: resolved.rollbackApplied,
+      outcome: 'fail',
+      execute: true,
+      premiumRationale: resolved.premiumRationale,
+      premiumBudget: resolved.premiumBudget,
+      priceCapBlocked: true,
+      priceCapPer1kTokens: resolved.priceCapPer1kTokens,
+      routePricePer1kTokens: resolved.routePricePer1kTokens,
+      priceCapOverride: resolved.priceCapOverride,
+    });
+    console.error('blocked-price-cap');
+    console.error(`lane=${resolved.lane} price=${resolved.routePricePer1kTokens} cap=${resolved.priceCapPer1kTokens}`);
+    process.exit(1);
+  }
   const effectiveRoute = { ...route, lane: resolved.lane,
     recommendedModel: resolved.modelId, providerModel: resolved.providerModelId };
   const decision = await buildDecision(effectiveRoute, resolved);
@@ -67,7 +88,14 @@ async function main() {
   recordTelemetry({ lane: resolved.lane, model: resolved.providerModelId,
     multiplier: resolved.multiplier,
     taskClass: resolved.taskClass, complexityScore: route.complexity ?? null,
-    rollbackApplied: resolved.rollbackApplied, outcome, execute: true });
+    rollbackApplied: resolved.rollbackApplied, outcome, execute: true,
+    premiumRationale: resolved.premiumRationale,
+    premiumBudget: resolved.premiumBudget,
+    priceCapBlocked: resolved.priceCapBlocked,
+    priceCapPer1kTokens: resolved.priceCapPer1kTokens,
+    routePricePer1kTokens: resolved.routePricePer1kTokens,
+    priceCapOverride: resolved.priceCapOverride,
+  });
   recordCostEvent(resolved.lane, resolved.providerModelId, { outcome, escalation_reason });
   const result = { route: effectiveRoute, routing: resolved, decision };
   if (json) {

@@ -29,6 +29,12 @@ function recordTelemetry(entry) {
     latencyMs: entry.latency_ms || entry.latencyMs || null,
     outcome: entry.outcome || 'ok',
     rollbackApplied: entry.rollbackApplied || false,
+    premiumRationale: entry.premiumRationale || null,
+    premiumBudget: entry.premiumBudget || null,
+    priceCapBlocked: entry.priceCapBlocked || false,
+    priceCapPer1kTokens: entry.priceCapPer1kTokens ?? null,
+    routePricePer1kTokens: entry.routePricePer1kTokens ?? null,
+    priceCapOverride: entry.priceCapOverride || false,
     execute: entry.execute || false,
   };
   const canonical = normalizeTokenRecord({

@@ -38,6 +38,78 @@ function classifyTask(prompt, classes) {
   return best;
 }
 
+function normalizePremiumRationale(route, prompt, taskClass, complexity) {
+  const provided = route.premiumRationale;
+  if (provided && provided.reason && provided.evidence) {
+    return { reason: String(provided.reason), evidence: String(provided.evidence) };
+  }
+  const promptHint = String(prompt || '').slice(0, 160) || 'no prompt context';
+  return {
+    reason: `task_class=${taskClass}; complexity=${Number(complexity ?? 0).toFixed(2)}`,
+    evidence: promptHint,
+  };
+}
+
+function resolvePremiumBudget(policy, route, lane) {
+  const budget = policy.premiumBudget || {};
+  const disabled = route.disablePremiumBudget === true;
+  if (lane !== 'premium' || disabled) {
+    return { enabled: !disabled, downgraded: false, premiumShare30d: null,
+      downgradeReason: null, softLimit: budget.softLimitShare ?? 0.11,
+      hardLimit: budget.hardLimitShare ?? 0.12 };
+  }
+  const windowDays = budget.windowDays || 30;
+  const premiumShare30d = Number.isFinite(route.premiumShare30d)
+    ? Number(route.premiumShare30d)
+    : summarize(readTelemetry(windowDays)).premiumShare;
+  const softLimit = budget.softLimitShare ?? 0.11;
+  const hardLimit = budget.hardLimitShare ?? 0.12;
+  if (premiumShare30d >= hardLimit) {
+    return {
+      enabled: true,
+      downgraded: true,
+      premiumShare30d,
+      downgradeReason: 'premium_budget_hard_limit',
+      softLimit,
+      hardLimit,
+    };
+  }
+  if (premiumShare30d >= softLimit) {
+    return {
+      enabled: true,
+      downgraded: true,
+      premiumShare30d,
+      downgradeReason: 'premium_budget_soft_limit',
+      softLimit,
+      hardLimit,
+    };
+  }
+  return {
+    enabled: true,
+    downgraded: false,
+    premiumShare30d,
+    downgradeReason: null,
+    softLimit,
+    hardLimit,
+  };
+}
+
+function resolvePriceCap(route, lane, model) {
+  const routeCap = Number(route.priceCapPer1kTokens);
+  const cap = Number.isFinite(routeCap) ? routeCap : Number(model?.maxPriceCapPer1kTokens);
+  const priced = Number(model?.costPer1kTokens);
+  const laneIsPaid = lane === 'haiku' || lane === 'premium';
+  const hasCap = laneIsPaid && Number.isFinite(cap) && cap > 0;
+  const overCap = hasCap && Number.isFinite(priced) && priced > cap;
+  const override = route.priceCapOverride === true || process.env.MEGINGJORD_PRICE_CAP_OVERRIDE === '1';
+  return {
+    priceCapPer1kTokens: hasCap ? cap : null,
+    routePricePer1kTokens: Number.isFinite(priced) ? priced : null,
+    priceCapBlocked: Boolean(overCap && !override),
+    priceCapOverride: override,
+  };
+}
+
 function shouldRollback(policy) {
   const rb = policy.rollback || {};
   if (!rb.enabled) return false;
@@ -52,9 +124,16 @@ function resolveRouting(prompt, route) {
   const rollbackApplied = route.disableRollback ? false : shouldRollback(policy);
   let lane = rollbackApplied ? policy.rollback.forceLane : route.lane;
   const cx = route.complexity ?? 0.5;
+  const taskClass = classifyTask(prompt, policy.taskClasses);
   const thresh = policy.complexityThresholds || {};
   if (lane === 'premium' && cx < (thresh.premium ?? 0.7)) lane = cx < (thresh.haiku ?? 0.3) ? 'fleet' : 'haiku';
+  const premiumRationale = lane === 'premium'
+    ? normalizePremiumRationale(route, prompt, taskClass, cx)
+    : null;
+  const budgetStatus = resolvePremiumBudget(policy, route, lane);
+  if (lane === 'premium' && budgetStatus.downgraded) lane = 'haiku';
   const model = policy.models[lane] || policy.models.fallback;
+  const capStatus = resolvePriceCap(route, lane, model);
   const adapter = loadAdapters().lanes?.[lane] || {};
   const overrides = loadOverrides();
   return {
@@ -64,9 +143,15 @@ function resolveRouting(prompt, route) {
     providerPath: adapter.defaultProvider || model.endpoint || null,
     adapterId: adapter.defaultAdapter || null,
     multiplier: model.mult,
-    taskClass: classifyTask(prompt, policy.taskClasses),
+    taskClass,
     rollbackApplied,
     complexity: cx,
+    premiumRationale,
+    premiumBudget: budgetStatus,
+    priceCapPer1kTokens: capStatus.priceCapPer1kTokens,
+    routePricePer1kTokens: capStatus.routePricePer1kTokens,
+    priceCapBlocked: capStatus.priceCapBlocked,
+    priceCapOverride: capStatus.priceCapOverride,
     overridesApplied: overrides !== null,
     overridesStale: overrides?.stale ?? false,
   };

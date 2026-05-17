@@ -6,7 +6,12 @@
 const { readTelemetry, summarize } = require('./model-routing-telemetry');
 const { loadPolicy } = require('./model-routing-engine');
 
-const TARGETS = { localShare: 0.60, premiumCeiling: 0.15, haikuShare: 0.25 };
+const policy = loadPolicy();
+const TARGETS = {
+  localShare: 0.60,
+  premiumCeiling: Number(policy.premiumBudget?.hardLimitShare ?? 0.12),
+  haikuShare: 0.25,
+};
 const ALERT_THRESHOLD = 0.10; // drift > 10% from target triggers recommendation
 
 const args = process.argv.slice(2);
@@ -21,7 +26,6 @@ if (entries.length < 10) {
 }
 
 const summary = summarize(entries);
-const policy = loadPolicy();
 const dist = summary.laneDistribution;
 
 const recs = [];
