@@ -65,7 +65,7 @@ def check_admin_ops(
     ext: list[str] = []
     if repo_type == "vscode-extension" and flags.get("extension_touched"):
         ext = ["publish", "release_integrity", "gh_release"]
-    if repo_type in ("website-static", "web-app") and flags.get("code_touched"):
+    if flags.get("ui_touched"):  # #1817: scope visual_qa to actual UI paths, not all code in web-app repos
         ext.append("visual_qa")
     missing = [k for k in base + ext if not ops.get(k)]
     if missing:

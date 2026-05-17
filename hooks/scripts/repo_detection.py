@@ -49,19 +49,20 @@ def detect_repo_type(cwd: str) -> str:
     return "generic"
 
 
+UI_EXTS = {".html", ".css", ".tsx", ".jsx", ".vue", ".svelte"}
+UI_PREFIXES = ("dashboard/", "public/", "src/components/", "src/pages/", "src/views/")
+
+
 def classify_path(path: str) -> str:
-    """Classify a file path as docs, extension, code, or other."""
+    """Classify a file path as docs, extension, ui, code, or other (#1817)."""
     lp = path.lower()
     ext = Path(lp).suffix
-    if (
-        "/docs/" in lp
-        or lp.endswith("readme.md")
-        or lp.endswith("changelog.md")
-        or ext in DOC_EXTS
-    ):
+    if "/docs/" in lp or lp.endswith("readme.md") or lp.endswith("changelog.md") or ext in DOC_EXTS:
         return "docs"
     if lp.startswith("vscode-extension/") or "/vscode-extension/" in lp:
         return "extension"
+    if ext in UI_EXTS or any(lp.startswith(p) or f"/{p}" in lp for p in UI_PREFIXES):
+        return "ui"
     if ext in CODE_EXTS:
         return "code"
     return "other"

@@ -81,8 +81,8 @@ def check_terminal(joined: str, state: dict, cwd: str) -> int | None:
         return emit("ask","CI checks before PR creation. Confirm intentional.")
     if RE_RELEASE_INTEGRITY.search(joined) and repo_type == "vscode-extension" and not ops.get("publish"):
         return emit("ask","Integrity check before publish. Confirm intentional.")
-    if RE_GIT_TAG.search(joined) and repo_type in ("website-static","web-app") and not ops.get("visual_qa"):
-        return emit("deny","Tag blocked: visual QA not recorded for web repo.")
+    if RE_GIT_TAG.search(joined) and flags.get("ui_touched") and not ops.get("visual_qa"):
+        return emit("deny","Tag blocked: visual QA not recorded for UI change.")
     return None
 
 def main() -> int:
