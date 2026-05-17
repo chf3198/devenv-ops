@@ -123,19 +123,24 @@ npm run deploy:both:apply
 | `governance:worktree-inventory` | `node scripts/global/worktree-inventory.js` |
 | `governance:worktrees` | `node scripts/global/worktree-governance-audit.js --json` |
 | `hamr:activate` | `bash scripts/global/hamr-activate.sh` |
+| `hamr:batch-route:test` | `node --test tests/batch-route-async.spec.js` |
 | `hamr:batch-router` | `node scripts/global/anthropic-batch-router.js` |
 | `hamr:batch-validate` | `node scripts/global/batch-validator.js` |
 | `hamr:cache-emit` | `node scripts/global/cache-stats-emit.js` |
 | `hamr:cache-gate` | `node scripts/global/cache-hit-gate.js` |
+| `hamr:cache-gate:test` | `node --test tests/cache-hit-gate-eligibility.spec.js` |
 | `hamr:cache-push` | `node scripts/global/cache-stats-push.js` |
 | `hamr:compress` | `node scripts/global/constitution-compressor.js` |
 | `hamr:deploy` | `bash scripts/global/hamr-deploy.sh` |
 | `hamr:doctor` | `node scripts/global/hamr-doctor.js` |
+| `hamr:fleet-cascade-gate` | `node scripts/global/fleet-cascade-gate.js` |
+| `hamr:fleet-cascade-gate:test` | `node --test tests/fleet-cascade-gate.spec.js` |
 | `hamr:health` | `node scripts/global/substrate-health.js` |
 | `hamr:health-push` | `node scripts/global/substrate-health-push.js` |
 | `hamr:install-cron` | `bash scripts/global/install-cron.sh` |
 | `hamr:log-rotate` | `node scripts/global/log-rotate.js` |
 | `hamr:policy-overrides` | `node scripts/global/cascade-policy-overrides.js` |
+| `hamr:premium-budget:test` | `node --test tests/premium-budget-governor.spec.js` |
 | `hamr:rule-gate` | `node scripts/global/rule-coverage-gate.js` |
 | `hamr:skill-views` | `node scripts/global/skill-views-derive.js` |
 | `hamr:spillover` | `node scripts/global/header-spillover.js` |

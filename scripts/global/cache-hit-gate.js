@@ -10,6 +10,14 @@ const os = require('node:os');
 const CACHE_STATS_FILE = path.join(os.homedir(), '.megingjord', 'cache-stats.jsonl');
 const HIT_RATE_FLOOR = 0.80;
 const ROLLING_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+// #1793: only providers that actually support prompt caching count toward the floor.
+// Groq/Cerebras/Together don't expose prompt-cache hits; including them dilutes the
+// metric and the 80% target is meaningless for non-caching providers.
+const CACHING_PROVIDERS = new Set(['anthropic', 'openai', 'google', 'bedrock']);
+
+function providerSupportsCache(provider) {
+  return CACHING_PROVIDERS.has(String(provider || '').toLowerCase());
+}
 
 function readStatsJsonl(file = CACHE_STATS_FILE) {
   if (!fs.existsSync(file)) return [];
@@ -28,13 +36,23 @@ function readStatsJsonl(file = CACHE_STATS_FILE) {
  * @param {object} [opts] - { now, windowMs }.
  * @returns {{hit_rate: number|null, sample_count: number, cache_read_total: number, input_total: number}} Stats.
  */
+// #1793: legacy records lack cache_eligible; backfill the same predicate at read.
+function recordIsCacheEligible(record) {
+  if (record.cache_eligible === true) return true;
+  if (record.cache_eligible === false) return false;
+  if (Number(record.cache_read_tokens || 0) > 0) return true;
+  return Number(record.input_tokens || 0) >= 50;
+}
+
 function computeHitRate(records, opts = {}) {
   const now = opts.now ?? Date.now();
   const windowMs = opts.windowMs ?? ROLLING_WINDOW_MS;
   const cutoff = now - windowMs;
-  let cacheRead = 0, inputTotal = 0, count = 0;
+  let cacheRead = 0, inputTotal = 0, count = 0, skippedIneligible = 0, skippedNoncaching = 0;
   for (const record of records) {
     if (typeof record.ts !== 'number' || record.ts < cutoff) continue;
+    if (!providerSupportsCache(record.provider)) { skippedNoncaching += 1; continue; }
+    if (!recordIsCacheEligible(record)) { skippedIneligible += 1; continue; }
     cacheRead += Number(record.cache_read_tokens || 0);
     inputTotal += Number(record.input_tokens || 0);
     count += 1;
@@ -42,6 +60,7 @@ function computeHitRate(records, opts = {}) {
   return {
     hit_rate: inputTotal > 0 ? cacheRead / inputTotal : null,
     sample_count: count, cache_read_total: cacheRead, input_total: inputTotal,
+    skipped_ineligible: skippedIneligible, skipped_noncaching: skippedNoncaching,
   };
 }
 
