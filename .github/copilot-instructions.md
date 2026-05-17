@@ -92,8 +92,8 @@ All governed provider calls route through HAMR (`https://hamr.chf3198.workers.de
 
 ## Harness Goal Constitution (priority)
 
-Apply this decision order for governed work:
-Governance > Quality > Zero Cost > Privacy > Portability > Resilience > Throughput > Observability > Interoperability.
-If a lower-priority goal wins, record rationale in ticket/PR evidence.
+Apply this decision order: Governance > Quality > Zero Cost > Privacy > Portability > Resilience > Throughput > Observability > Interoperability. Record rationale in ticket/PR evidence when a lower-priority goal wins.
+
+## Hook Behavior Overrides — see `instructions/hook-behavior-overrides.instructions.md` (advisory-vs-blocking contract; Tier-2 self-anneal threshold).
 
 ## Skill Index — auto-derived per `docs/skills-copilot.md`; regenerate via `node scripts/global/skill-views-derive.js`.
