@@ -71,3 +71,49 @@ test('task-router imports ai-models.json optimization rules', () => {
   expect(typeof aiModels.optimizationStrategy.rule1).toBe('string');
   expect(typeof aiModels.optimizationStrategy.rule3).toBe('string');
 });
+
+test('premium budget soft-limit auto-downgrades before hard ceiling', () => {
+  const route = {
+    lane: 'premium',
+    complexity: 0.95,
+    disableRollback: true,
+    premiumShare30d: 0.115,
+  };
+  const resolved = resolveRouting('architecture design risk security', route);
+  expect(resolved.lane).toBe('haiku');
+  expect(resolved.premiumBudget.downgraded).toBe(true);
+  expect(resolved.premiumBudget.downgradeReason).toBe('premium_budget_soft_limit');
+});
+
+test('premium route emits structured rationale', () => {
+  const route = {
+    lane: 'premium',
+    complexity: 0.95,
+    disableRollback: true,
+    disablePremiumBudget: true,
+  };
+  const resolved = resolveRouting('security audit architecture', route);
+  expect(resolved.lane).toBe('premium');
+  expect(resolved.premiumRationale).toBeTruthy();
+  expect(typeof resolved.premiumRationale.reason).toBe('string');
+  expect(typeof resolved.premiumRationale.evidence).toBe('string');
+});
+
+test('price caps are explicit on paid lanes in policy', () => {
+  const policy = require(path.join(__dirname, '../scripts/global/model-routing-policy.json'));
+  expect(policy.models.haiku.maxPriceCapPer1kTokens).toBeGreaterThan(0);
+  expect(policy.models.premium.maxPriceCapPer1kTokens).toBeGreaterThan(0);
+});
+
+test('over-cap paid route blocks without override', () => {
+  const route = {
+    lane: 'premium',
+    complexity: 0.95,
+    disableRollback: true,
+    disablePremiumBudget: true,
+    priceCapPer1kTokens: 0.001,
+  };
+  const resolved = resolveRouting('security audit architecture', route);
+  expect(resolved.priceCapBlocked).toBe(true);
+  expect(resolved.routePricePer1kTokens).toBeGreaterThan(resolved.priceCapPer1kTokens);
+});

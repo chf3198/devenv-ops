@@ -30,6 +30,18 @@ test('classifier emits rationale + complexity score', () => {
   expect(r.rationale).toContain('score=');
 });
 
+test('classifier marks latency-sensitive prompts as not batch-preferred', () => {
+  const r = CLS.classify('urgent realtime fix needed now');
+  expect(r.latency_sensitive).toBe(true);
+  expect(r.batch_preferred).toBe(false);
+});
+
+test('classifier marks async deep prompts as batch-preferred', () => {
+  const r = CLS.classify('research-summary architecture options and trade-offs for refactor', { toolCount: 5 });
+  expect(r.latency_sensitive).toBe(false);
+  expect(typeof r.batch_preferred).toBe('boolean');
+});
+
 test('telemetry: recordDecision writes JSONL line with cost estimate', () => {
   const tmp = path.join(os.tmpdir(), `ide-tel-${Date.now()}.jsonl`);
   const orig = TEL.LOG_FILE;

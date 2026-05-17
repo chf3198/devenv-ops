@@ -7,6 +7,7 @@
 const PREMIUM_KEYWORDS = ['security', 'vulnerability', 'audit', 'architecture', 'incident', 'race condition', 'concurrency', 'distributed system'];
 const HAIKU_KEYWORDS = ['refactor', 'rename', 'extract', 'inline', 'add test', 'fix typo', 'add comment'];
 const FLEET_KEYWORDS = ['list', 'show', 'find', 'where', 'what is', 'explain', 'autocomplete', 'add log'];
+const LATENCY_SENSITIVE_KEYWORDS = ['urgent', 'live', 'interactive', 'realtime', 'real-time', 'immediately', 'now'];
 
 const FLEET_THRESHOLD = 0.30;
 const HAIKU_THRESHOLD = 0.55;
@@ -39,6 +40,16 @@ function decideLane(score) {
   return { lane: 'free', model_group: 'fleet-fast' };
 }
 
+function isLatencySensitive(turnText) {
+  return score(turnText, LATENCY_SENSITIVE_KEYWORDS) > 0;
+}
+
+function isBatchPreferred(turnText, opts = {}) {
+  if (isLatencySensitive(turnText)) return false;
+  if (opts.toolCount && opts.toolCount > 0 && opts.toolCount <= 2) return false;
+  return complexityScore(turnText, opts) >= HAIKU_THRESHOLD;
+}
+
 /** Classify a turn → {complexity, lane, model_group, rationale}.
  * @param {string} turnText - User-facing prompt text.
  * @param {object} [opts] - { toolCount, fileCount }.
@@ -48,7 +59,13 @@ function classify(turnText, opts = {}) {
   const complexity = complexityScore(turnText, opts);
   const decision = decideLane(complexity);
   const rationale = `score=${complexity.toFixed(2)} (premium≥${PREMIUM_THRESHOLD}, haiku≥${HAIKU_THRESHOLD}, fleet≥${FLEET_THRESHOLD})`;
-  return { complexity, ...decision, rationale };
+  return {
+    complexity,
+    ...decision,
+    rationale,
+    latency_sensitive: isLatencySensitive(turnText),
+    batch_preferred: isBatchPreferred(turnText, opts),
+  };
 }
 
 if (require.main === module) {
@@ -57,4 +74,5 @@ if (require.main === module) {
 }
 
 module.exports = { classify, complexityScore, decideLane,
+  isLatencySensitive, isBatchPreferred,
   PREMIUM_THRESHOLD, HAIKU_THRESHOLD, FLEET_THRESHOLD };

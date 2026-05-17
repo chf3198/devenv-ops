@@ -27,3 +27,20 @@ test('routeWithBatch eligibility check passes for wiki-anneal with 24h deadline'
 test('DEFAULT_DEADLINE_MS is 24h', () => {
   expect(BR.DEFAULT_DEADLINE_MS).toBe(24 * 60 * 60 * 1000);
 });
+
+test('async-eligible classifier routes at least 60% to batch path', () => {
+  const work = [
+    { kind: 'wiki-anneal', deadlineMs: 24*3600*1000, latencySensitive: false },
+    { kind: 'research-summary', deadlineMs: 24*3600*1000, latencySensitive: false },
+    { kind: 'bundle-rebuild', deadlineMs: 24*3600*1000, latencySensitive: false },
+    { kind: 'interactive', deadlineMs: 60_000, latencySensitive: true },
+    { kind: 'rule-coverage-stage2b', deadlineMs: 24*3600*1000, latencySensitive: false },
+  ];
+  const stats = BR.summarizeAsyncBatchConversion(work);
+  expect(stats.conversionRate).toBeGreaterThanOrEqual(0.60);
+});
+
+test('blended savings are at least 30% at 60% batch conversion', () => {
+  const savings = BR.estimateBlendedSavings(0.60, 0.50);
+  expect(savings).toBeGreaterThanOrEqual(0.30);
+});

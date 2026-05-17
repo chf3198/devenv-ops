@@ -4,6 +4,7 @@
 // Usage: node scripts/global/routing-baseline-report.js [--days N] [--json]
 
 const { readTelemetry, summarize } = require('./model-routing-telemetry');
+const policy = require('./model-routing-policy.json');
 
 // Approximate $/1K tokens (input+output blended) at 2026 pricing
 const COST_PER_1K = { free: 0, fleet: 0, haiku: 0.00088, premium: 0.009 };
@@ -61,7 +62,8 @@ Object.entries(summary.laneDistribution).forEach(([k, v]) =>
 console.log(`\nCost (est. at ${AVG_TOKENS_PER_QUERY} tok/query):`);
 console.log(`  Frontier-only: $${frontierOnlyCost.toFixed(4)}`);
 console.log(`  Actual:        $${actualCost.toFixed(4)}  (${savingsPct}% savings)`);
-console.log(`\nPremium share: ${(summary.premiumShare * 100).toFixed(1)}%  Target: ≤15%`);
+const premiumTarget = Number(policy.premiumBudget?.hardLimitShare ?? 0.12);
+console.log(`\nPremium share: ${(summary.premiumShare * 100).toFixed(1)}%  Target: ≤${(premiumTarget * 100).toFixed(0)}%`);
 console.log(`Success rate:  ${(summary.successRate * 100).toFixed(1)}%`);
 if (report.top_escalation_reasons.length)
   console.log(`\nTop escalation reasons: ${report.top_escalation_reasons.map(r => r.reason).join(', ')}`);
