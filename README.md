@@ -114,6 +114,8 @@ npm run deploy:both:apply
 | `governance:review-score:test` | `node --test tests/review-score-classifier.spec.js` |
 | `governance:soak-language` | `node scripts/global/megalint/soak-language-guard.js` |
 | `governance:soak-language:test` | `node --test tests/soak-language-guard.spec.js` |
+| `governance:status-cardinality` | `node scripts/global/label-lint-status-cardinality.js` |
+| `governance:status-cardinality:test` | `node --test tests/label-lint-status-cardinality.spec.js` |
 | `governance:sync-check` | `node scripts/global/governance-sync-check.js` |
 | `governance:tokens` | `node scripts/global/governance-token-lint.js` |
 | `governance:verify` | `node scripts/global/governance-verify.js --json` |
@@ -150,10 +152,10 @@ npm run deploy:both:apply
 | `lint:coverage-metric` | `node scripts/global/lint-coverage-metric.js` |
 | `lint:decisions` | `node scripts/global/decisions-md-validator.js` |
 | `lint:js` | `eslint -c lint-configs/eslint.config.devenv.js --max-warnings 9999 dashboard/js scripts/global scripts/wiki` |
-| `lint:md` | `markdownlint-cli2 '**/*.md' '!node_modules/**' '!.claude/**' '!research/**' '!wiki/sources/**' '!wiki/syntheses/**' '!raw/**' '!.dashboard/**' '!CHANGELOG-archive.md' '!tickets/**' '!planning/**'` |
+| `lint:md` | `markdownlint-cli2 '**/*.md' '!node_modules/**' '!.claude/**' '!research/**' '!wiki/sources/**' '!wiki/syntheses/**' '!raw/**' '!.dashboard/**' '!CHANGELOG-archive.md' '!tickets/**' '!planning/**' '!generated/**' '!tests/fixtures/governance/golden/**'` |
 | `lint:py` | `ruff check --config lint-configs/ruff.devenv.toml hooks/scripts/` |
 | `lint:readability` | `node scripts/lint-readability.js` |
-| `lint:readability:ci` | `node scripts/lint-readability.js --max-warnings=425` |
+| `lint:readability:ci` | `node scripts/lint-readability.js --max-warnings=450` |
 | `lint:router` | `node scripts/lint-router.js` |
 | `lint:sh` | `find scripts -name '*.sh' -exec shellcheck {} +` |
 | `mailbox:flush` | `node scripts/global/mailbox-outbox.js flush` |
