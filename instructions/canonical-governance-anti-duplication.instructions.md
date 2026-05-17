@@ -106,6 +106,25 @@ The trade-off favored: **G5 (portability) + G9 (interoperability)** over **G7 (t
 
 Cross-team contract entry point: `governance/README.md`. Operators should consult that file as the canonical reference rather than relying on hook-driven warnings as a checklist.
 
+## Per-runtime hook event registration matrix (#1804 decision)
+
+Each adapter wires only the lifecycle events its native runtime emits. Wiring an event the runtime never fires would be dead code; omitting one it does fire would lose enforcement coverage. The matrix below documents the intentional asymmetry surfaced by the Epic #1798 stress test (Codex Step 8).
+
+| Event | Codex CLI | Copilot (Auto: Claude family) | Claude Code | Notes |
+|---|:---:|:---:|:---:|---|
+| `SessionStart` | ✓ | ✓ | n/a (skill) | All three fire; Claude Code handles via skill |
+| `UserPromptSubmit` | ✓ | ✓ | n/a (skill) | |
+| `PreToolUse` | ✓ | ✓ | n/a (skill) | |
+| `PostToolUse` | ✓ | ✓ | n/a (skill) | |
+| `Stop` | ✓ | ✓ | n/a (skill) | |
+| `PermissionRequest` | ✓ (Codex-only) | — | — | Codex-specific permission-mode event |
+| `PreCompact` | ✗ not emitted | ✓ | ✓ | Codex feature request `openai/codex#12208` closed as duplicate of `#2109` (still pending) |
+| `SubagentStart` | ✗ not emitted | ✓ | ✓ | Anthropic-runtime-native (Claude Code's `Agent` tool spawn); Copilot Auto-routing on Claude family inherits |
+
+Source: `https://developers.openai.com/codex/hooks` (Codex native event list = SessionStart + PreToolUse + PermissionRequest + PostToolUse + UserPromptSubmit + Stop, 2026).
+
+Operators should NOT attempt to add `PreCompact` or `SubagentStart` registration to `~/.codex/hooks.json` — Codex CLI will never fire them and the entries are inert. When Codex CLI gains these events (track `openai/codex#2109`), revisit this matrix.
+
 ## Enforcement
 
 Mandatory checks for governance changes:
