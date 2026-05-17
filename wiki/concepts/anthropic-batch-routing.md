@@ -1,12 +1,12 @@
 ---
 title: "Anthropic Batch Routing"
-type: source
+type: concept
 created: 2026-05-16
 updated: 2026-05-16
 tags: [anthropic, batch, routing, hamr]
 sources: ["scripts/global/anthropic-batch-router.js", "instructions/hamr-routing.instructions.md"]
 related: ["[[header-spillover]]", "[[hamr-core-worker]]", "[[token-provider-adapters]]"]
-status: draft
+status: stub
 confidence: medium
 last_verified: 2026-05-16
 sources_count: 2

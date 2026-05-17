@@ -20,6 +20,18 @@
     {
       "q": "ide proxy classifier complexity score",
       "expected": ["ide-proxy", "ide-proxy-shim-2026-05-06", "context-flow"]
+    },
+    {
+      "q": "epic governance lifecycle and terminal conditions",
+      "expected": ["epic-governance", "copilot-governance-actions", "agent-drift-governance"]
+    },
+    {
+      "q": "fleet architecture and topology configuration",
+      "expected": ["fleet-architecture", "fleet-config", "devenv-fleet-topology"]
+    },
+    {
+      "q": "anthropic batch routing and prompt cache",
+      "expected": ["anthropic-batch-routing", "anthropic-prompt-cache", "header-spillover"]
     }
   ]
 }
