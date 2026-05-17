@@ -86,14 +86,22 @@ npm run deploy:both:apply
 | `format:check` | `prettier --check .prettierrc.json package.json CONTRIBUTING.md .github/workflows/lint.yml lint-configs/README.md lint-configs/ci-lint.yml lint-configs/eslint.config.devenv.js scripts/lint-readability.js scripts/global/install-readability-toolchain.js` |
 | `git-state:drift` | `node scripts/global/git-state-drift-sensor.js` |
 | `goals:regen` | `node scripts/global/goals-contract-generate.js` |
+| `governance:adapters:emit` | `node scripts/global/governance-adapter-emit.js` |
+| `governance:adapters:test` | `node scripts/global/governance-adapter-emit.spec.js` |
 | `governance:audit` | `node scripts/global/governance-audit.js` |
+| `governance:compatibility:matrix` | `node scripts/global/governance-compatibility-matrix.js` |
+| `governance:cross-team-check` | `node scripts/global/cross-team-contract-check.js` |
+| `governance:cross-team-check:test` | `node --test tests/cross-team-contract-check.spec.js` |
 | `governance:drift` | `node scripts/global/governance-drift-classifier.js --json` |
 | `governance:epic` | `node scripts/global/epic-evidence.js` |
 | `governance:epics` | `node scripts/global/epic-close-validator.js` |
+| `governance:generate` | `node scripts/global/governance-generate.js` |
 | `governance:manifest:test` | `node scripts/global/governance-manifest-validate.spec.js` |
 | `governance:manifest:validate` | `node scripts/global/governance-manifest-validate.js` |
 | `governance:no-sync-http` | `node scripts/global/no-sync-http-handlers.js` |
+| `governance:parity:test` | `node scripts/global/governance-parity.spec.js` |
 | `governance:reconcile` | `node scripts/global/ticket-reconcile.js --json` |
+| `governance:sync-check` | `node scripts/global/governance-sync-check.js` |
 | `governance:tokens` | `node scripts/global/governance-token-lint.js` |
 | `governance:verify` | `node scripts/global/governance-verify.js --json` |
 | `governance:weekly` | `node scripts/global/governance-weekly-report.js` |
@@ -184,6 +192,7 @@ npm run deploy:both:apply
 | `wiki:anneal` | `node scripts/wiki/anneal.js` |
 | `wiki:ingest` | `node scripts/wiki/ingest.js` |
 | `wiki:lint` | `node scripts/wiki/lint.js` |
+| `wiki:reindex` | `node scripts/wiki/reindex.js` |
 | `wiki:search` | `node scripts/wiki/search.js` |
 | `worktree:bootstrap` | `bash scripts/worktree-bootstrap-node-modules.sh` |
 | `worktree:start` | `bash scripts/worktree-session-start.sh` |
