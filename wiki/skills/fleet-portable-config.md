@@ -1,12 +1,12 @@
 ---
 title: "Fleet Portable Config"
-type: concept
+type: skill
 created: 2026-05-16
 updated: 2026-05-16
 tags: [fleet, portability, onboarding]
 sources: ["[[fleet-cloud-optimization-2026-05-06]]", "[[fleet-config]]"]
 related: ["[[devenv-fleet-topology]]", "[[fleet-config]]", "[[provider-adapter-matrix-2026-05-14]]"]
-status: active
+status: stub
 confidence: medium
 last_verified: 2026-05-16
 sources_count: 2

@@ -7,11 +7,11 @@ const { listPages, parseFrontmatter } = require('./wiki-io');
 const RRF_K = 60;
 const TOP_N = 5;
 const PARENT_CONTEXT_LINES = 8;
+const TITLE_BOOST = 2.0;
 
 function tokenize(s) {
   return String(s || '').toLowerCase().match(/[a-z0-9]{2,}/g) || [];
 }
-
 function chunkPage(text) {
   const lines = text.split('\n');
   const sentences = [];
@@ -26,7 +26,6 @@ function chunkPage(text) {
   return sentences.map(s => ({ chunk: s.chunk, parentStart: Math.max(0, s.idx - PARENT_CONTEXT_LINES),
     parentEnd: Math.min(lines.length, s.idx + PARENT_CONTEXT_LINES) }));
 }
-
 function bm25Score(qTokens, doc, avgLen) {
   const k1 = 1.5, b = 0.75;
   const docTokens = tokenize(doc);
@@ -41,7 +40,13 @@ function bm25Score(qTokens, doc, avgLen) {
   }
   return score;
 }
-
+function titleScore(qTokens, title) {
+  const t = tokenize(title);
+  if (t.length === 0) return 0;
+  const q = new Set(qTokens);
+  const hits = t.filter(tok => q.has(tok)).length;
+  return hits / t.length;
+}
 function denseScore(qTokens, doc) {
   const docSet = new Set(tokenize(doc));
   const qSet = new Set(qTokens);
@@ -49,14 +54,12 @@ function denseScore(qTokens, doc) {
   if (qSet.size === 0 || docSet.size === 0) return 0;
   return inter / Math.sqrt(qSet.size * docSet.size);
 }
-
 function metaBoost(qTokens, slug, title) {
   const q = new Set(qTokens);
   const meta = new Set([...tokenize(slug), ...tokenize(title)]);
   const hits = [...q].filter(t => meta.has(t)).length;
   return hits === 0 ? 0 : 0.08 * hits;
 }
-
 function rrf(rankings) {
   const scores = {};
   for (const ranking of rankings) {
@@ -66,7 +69,6 @@ function rrf(rankings) {
   }
   return scores;
 }
-
 function hybridSearch(query, pages = null) {
   pages = pages || listPages();
   const qTokens = tokenize(query);
@@ -78,7 +80,8 @@ function hybridSearch(query, pages = null) {
     return { ...p, body, title, text: `${title}\n${body}` };
   });
   const avgLen = docs.reduce((a, d) => a + tokenize(d.text).length, 0) / Math.max(1, docs.length);
-  const bmRank = [...docs].map(d => ({ slug: d.slug, score: bm25Score(qTokens, d.text, avgLen) }))
+  const bmRank = [...docs].map(d => ({ slug: d.slug,
+    score: bm25Score(qTokens, d.text, avgLen) + TITLE_BOOST * titleScore(qTokens, d.title) }))
     .sort((a, b) => b.score - a.score).map(d => d.slug);
   const dnRank = [...docs].map(d => ({ slug: d.slug, score: denseScore(qTokens, d.text) }))
     .sort((a, b) => b.score - a.score).map(d => d.slug);
@@ -93,4 +96,4 @@ function hybridSearch(query, pages = null) {
 }
 
 module.exports = { hybridSearch, chunkPage, tokenize, bm25Score, denseScore, rrf,
-  RRF_K, TOP_N, PARENT_CONTEXT_LINES };
+  titleScore, RRF_K, TOP_N, PARENT_CONTEXT_LINES, TITLE_BOOST };
