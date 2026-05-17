@@ -107,6 +107,43 @@ class CurrentPhaseField(unittest.TestCase):
         self.assertIn("current_phase", state)
 
 
+class UiTouchedScoping(unittest.TestCase):
+    """#1817 — visual_qa requirement scoped to actual UI path changes."""
+
+    def test_classify_path_ui_for_dashboard(self):
+        from repo_detection import classify_path
+        self.assertEqual(classify_path("dashboard/js/foo.js"), "ui")
+        self.assertEqual(classify_path("dashboard/index.html"), "ui")
+        self.assertEqual(classify_path("dashboard/css/main.css"), "ui")
+
+    def test_classify_path_code_for_test_specs(self):
+        from repo_detection import classify_path
+        self.assertEqual(classify_path("tests/routing-policy.spec.js"), "code")
+        self.assertEqual(classify_path("tests/batch-route.spec.js"), "code")
+        self.assertEqual(classify_path("tests/ide-proxy-runtime.spec.js"), "code")
+
+    def test_classify_path_code_for_scripts(self):
+        from repo_detection import classify_path
+        self.assertEqual(classify_path("scripts/global/foo.js"), "code")
+        self.assertEqual(classify_path("hooks/scripts/bar.py"), "code")
+
+    def test_check_admin_ops_no_visual_qa_when_only_code_touched(self):
+        # Reproduces the Copilot Team screenshot: editing test specs in a web-app-classified repo.
+        flags = {"code_touched": True, "ui_touched": False}
+        ops = {"commit": True, "push": True, "pr_create": True, "ci_green": True, "merge": True, "visual_qa": False}
+        roles = {"collaborator": True, "admin": True}
+        result = stop_checks.check_admin_ops(flags, ops, roles, "website-static")
+        self.assertEqual(result, (None, None), "visual_qa should NOT be required for non-UI code changes")
+
+    def test_check_admin_ops_visual_qa_required_when_ui_touched(self):
+        flags = {"code_touched": True, "ui_touched": True}
+        ops = {"commit": True, "push": True, "pr_create": True, "ci_green": True, "merge": True, "visual_qa": False}
+        roles = {"collaborator": True, "admin": True}
+        block, msg = stop_checks.check_admin_ops(flags, ops, roles, "website-static")
+        self.assertIsNotNone(block)
+        self.assertIn("visual_qa", msg)
+
+
 class UserPromptGatePhaseGuard(unittest.TestCase):
     """#1815 — userprompt_gate._admin_missing honors baton phase (Epic #1798 sibling)."""
 

@@ -29,7 +29,7 @@ def _default_state(cwd: str) -> dict[str, Any]:
         "roles": {"manager": False, "collaborator": False,
                   "admin": False, "consultant": False},
         "flags": {"code_touched": False, "docs_touched": False,
-                  "extension_touched": False},
+                  "extension_touched": False, "ui_touched": False},
         "admin_ops": {"version_check": False, "commit": False, "push": False,
                       "pr_create": False, "ci_green": False, "merge": False,
                       "publish": False, "release_integrity": False,

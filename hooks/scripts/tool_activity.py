@@ -50,6 +50,10 @@ def mark_tool_activity(state: dict[str, Any], payload: dict[str, Any]) -> None:
             flags["extension_touched"] = True
             flags["code_touched"] = True
             roles["collaborator"] = True
+        elif kind == "ui":  # #1817: scope visual_qa to actual UI paths
+            flags["ui_touched"] = True
+            flags["code_touched"] = True
+            roles["collaborator"] = True
         elif kind == "code":
             flags["code_touched"] = True
             roles["collaborator"] = True
