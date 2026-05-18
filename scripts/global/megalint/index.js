@@ -20,6 +20,7 @@ const signerFormatCanonical = require('./signer-format-canonical.js');
 const flawEmission = require('./flaw-emission.js');
 const crossCheckoutDestructive = require('./cross-checkout-destructive.js');
 const soakLanguageGuard = require('./soak-language-guard.js');
+const researchFirstPhaseGate = require('./research-first-phase-gate.js');
 
 const VALIDATORS = {
   'manager-handoff': manager,
@@ -38,6 +39,7 @@ const VALIDATORS = {
   'flaw-emission': flawEmission,
   'cross-checkout-destructive': crossCheckoutDestructive,
   'soak-language-guard': soakLanguageGuard,
+  'research-first-phase-gate': researchFirstPhaseGate,
 };
 
 function runAll(input) {

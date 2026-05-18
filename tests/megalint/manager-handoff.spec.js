@@ -60,3 +60,16 @@ test('REQUIRED_FIELDS exposes 5 fields', () => {
   expect(V.REQUIRED_FIELDS).toContain('scope');
   expect(V.REQUIRED_FIELDS).toContain('test_strategy');
 });
+
+test('phase-1: requires phase_gate_satisfied and phase_0_sources', () => {
+  const r = V.validate({ comments: [{ body: fullHandoff }], labels: ['phase-gate:phase-1'] });
+  expect(r.ok).toBe(false);
+  expect(r.violations.some(v => v.rule === 'missing-phase-gate-satisfied')).toBe(true);
+  expect(r.violations.some(v => v.rule === 'missing-phase0-sources')).toBe(true);
+});
+
+test('phase-1: passes with required conditional fields', () => {
+  const body = `${fullHandoff}\n- phase_gate_satisfied: yes\n- phase_0_sources: [#1201, #1202]`;
+  const r = V.validate({ comments: [{ body }], labels: ['phase-gate:phase-1'] });
+  expect(r.ok).toBe(true);
+});
