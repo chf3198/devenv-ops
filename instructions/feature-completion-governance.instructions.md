@@ -5,7 +5,7 @@ applyTo: "**"
 When asked to "complete" a feature-add, all four baton roles are required. Tests passing only closes Collaborator — do not stop there.
 
 Completion intent semantics are strict:
-- "complete", "finish", or "ship" means terminal workflow delivery in one session when feasible.
+- "complete", "finish", or "ship" means terminal workflow delivery in one session when feasible once the active role identifies that intent in task scope.
 - Do not pause after implementation to wait for another user nudge to run Admin or Consultant phases.
 - Escalate only for blockers, missing evidence, or explicit design/UAT decisions.
 
