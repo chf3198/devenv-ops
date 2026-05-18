@@ -14,6 +14,8 @@ function isResearchFirstEpic(labels, body) {
   const labelSet = new Set(labels || []);
   if (!labelSet.has('type:epic')) return false;
   if (labelSet.has('phase-gate:research-first')) return true;
+  // LEGACY fallback for pre-label epics. Retire after #1888 replay-eval proves
+  // sustained label adoption and no remaining AC-R-only epics in active flow.
   return /(^|\n)\s*[-*]?\s*\[[ x]\]\s*AC-R\d+/im.test(body || '');
 }
 

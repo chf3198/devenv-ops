@@ -61,11 +61,11 @@ A research-first Epic (label `type:epic` + `phase-gate:research-first`) MUST sat
 
 ### Operational semantics (normative)
 
-- Clause 1 score rule: `across all G1-G9` means `min(G1..G9) ≥ 7`; mean/median pass is insufficient.
-- Clause 2 approval rule: `Consultant approval` means structured closeout fields include `verdict: approve_for_merge` and `rubric_rating: >=7`.
-- Clause 3 transition guard: on any Epic status leaving `status:in-progress`, absence of an `EPIC_RESCOPE` marker is a gate violation.
-- Clause 4 source citation: each Phase-1 child carries the configured phase-1 marker label (default `phase-gate:phase-1`) and MUST include at least one `Refs #N` Phase-0 source child in body.
-- Clause 5 re-arm trigger: a Phase-0 child `issues.reopened` event pauses Phase-1 by posting `EPIC_PHASE_GATE_PAUSE`; resumption requires child re-close plus Manager `EPIC_RESCOPE` refresh.
+- Clause 1 score rule: `across all G1-G9` means `min(G1..G9) ≥ 7`; mean/median pass is insufficient. <!-- pending-enforcement: #1888 clause-1 -->
+- Clause 2 approval rule: `Consultant approval` means structured closeout fields include `verdict: approve_for_merge` and `rubric_rating: >=7`. <!-- pending-enforcement: #1888 clause-2 -->
+- Clause 3 transition guard: on any Epic status leaving `status:in-progress`, absence of an `EPIC_RESCOPE` marker is a gate violation. <!-- enforced-by: scripts/global/megalint/research-first-phase-gate.js -->
+- Clause 4 source citation: each Phase-1 child carries label `phase-gate:phase-1` and MUST include at least one `Refs #N` Phase-0 source child in body. <!-- enforced-by: scripts/global/megalint/manager-handoff.js -->
+- Clause 5 re-arm trigger: a Phase-0 child `issues.reopened` event pauses Phase-1 by posting `EPIC_PHASE_GATE_PAUSE`; resumption requires child re-close plus Manager `EPIC_RESCOPE` refresh. <!-- pending-enforcement: #1888 clause-5 -->
 
 ## Epic Progress Comment Protocol
 

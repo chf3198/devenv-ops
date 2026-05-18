@@ -73,3 +73,9 @@ test('phase-1: passes with required conditional fields', () => {
   const r = V.validate({ comments: [{ body }], labels: ['phase-gate:phase-1'] });
   expect(r.ok).toBe(true);
 });
+
+test('phase-1: accepts non-bulleted conditional field lines', () => {
+  const body = `${fullHandoff}\nphase_gate_satisfied: yes\nphase_0_sources: [#1201]`;
+  const r = V.validate({ comments: [{ body }], labels: ['phase-gate:phase-1'] });
+  expect(r.ok).toBe(true);
+});
