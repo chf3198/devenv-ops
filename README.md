@@ -124,6 +124,9 @@ npm run deploy:both:apply
 | `governance:reconcile` | `node scripts/global/ticket-reconcile.js --json` |
 | `governance:review-score` | `node scripts/global/review-score-classifier.js` |
 | `governance:review-score:test` | `node --test tests/review-score-classifier.spec.js` |
+| `governance:role-baton-audit` | `node scripts/global/role-baton-audit.js` |
+| `governance:role-baton-linter` | `node scripts/global/role-baton-linter.js` |
+| `governance:role-baton-linter:test` | `node --test tests/role-baton-linter.spec.js` |
 | `governance:runtime-guard:test` | `node --test tests/runtime-side-effect-guard.spec.js` |
 | `governance:soak-language` | `node scripts/global/megalint/soak-language-guard.js` |
 | `governance:soak-language:test` | `node --test tests/soak-language-guard.spec.js` |
@@ -217,6 +220,7 @@ npm run deploy:both:apply
 | `stress:full` | `MEGINGJORD_STRESS_TIER=D node scripts/global/stress-orchestrator.js` |
 | `stress:realism` | `MEGINGJORD_STRESS_TIER=B node scripts/global/stress-orchestrator.js` |
 | `stress:rebase` | `node --test tests/stress-rebase-discipline.spec.js` |
+| `stress:role-baton` | `node --test tests/stress-role-baton-linter.spec.js` |
 | `stress:surface-audit` | `node scripts/global/stress-surface-audit.js` |
 | `stress:surface-audit:test` | `node --test tests/stress-surface-audit.spec.js` |
 | `stress:test` | `node scripts/global/stress-runner.js` |
