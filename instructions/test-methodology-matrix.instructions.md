@@ -7,6 +7,10 @@ Architecture drives test shape. TDD is one strategy of many; the right one is de
 | Surface | Strategy | Lane default |
 |---|---|---|
 | `scripts/global/*.js`, `scripts/*.js` (governance, signals, pure functions) | `tdd-pyramid` | code-change |
+| **Concurrent / file-locking primitives** (`worktree-*`, `cross-team-lease*`, any `flock`/lock/PID-aware code) | `tdd-pyramid` + **`stress-test`** | code-change |
+| **Side-effect-bearing gates** (hooks, validators that touch state, `*-gate.js`, `*-check.js`) | primary (matrix-determined) + **`stress-test`** | code-change |
+| **Adversarial-input parsers** (detectors, classifiers, schema validators) | primary + **`stress-test`** (adversarial corpus) | code-change |
+| **Perf-sensitive governance gates** (anything declaring an SLO / p99 budget) | primary + **`stress-test`** (perf budget assertion) | code-change |
 | `cloudflare/**/*.ts` (Worker routes, schema-bearing) | `contract-test` | code-change |
 | `dashboard/**/*.{js,html,css}` (UI) | `visual-regression` | code-change |
 | `hooks/scripts/*.py` (Python runtime hooks) | `tdd-pyramid` (pytest) | code-change |
@@ -17,9 +21,27 @@ Architecture drives test shape. TDD is one strategy of many; the right one is de
 | Single-value config (toggles, version bumps, limits) | `manual-verify` | config-only |
 | Trivial (typo, formatting, link, dependency lockfile) | `none` | trivial |
 
+### Stress applicability criteria
+
+A surface REQUIRES `stress-test` alongside its primary strategy when ANY of:
+
+- **Concurrency**: code runs under parallel invocation (locks, leases, registries, queue consumers)
+- **State mutation**: code writes to shared state (files, registries, JSONL append, IPC)
+- **Untrusted input parsing**: code processes input from external sources (PRs, comments, user prompts, fetched URLs)
+- **Perf budget declared**: any module that publishes an SLO, latency target, or "should complete in N ms"
+
+A surface does NOT require `stress-test` when ALL of:
+
+- Pure read-only function (no IO beyond reading committed config)
+- Invoked once per process lifecycle (CLI utilities, one-shot scripts)
+- Trivially-bounded input (config values, version bumps, formatting fixes)
+- Documentation generation with no runtime consumers
+
 ## Strategy enum (allowed `test_strategy` values)
 
-`tdd-pyramid | tdd-trophy | contract-test | golden-file | eval-harness | visual-regression | drift-lint | peer-review | manual-verify | none`
+`tdd-pyramid | tdd-trophy | contract-test | golden-file | eval-harness | visual-regression | drift-lint | peer-review | manual-verify | stress-test | none`
+
+`stress-test` is composable — it appears as a SECOND declared strategy alongside the primary (e.g., `test_strategy: tdd-pyramid+stress-test`). Per Epic #1875, the validator parses `+`-separated strategy lists when stress applies.
 
 ## Evidence artifact per strategy
 
@@ -34,7 +56,15 @@ Architecture drives test shape. TDD is one strategy of many; the right one is de
 | `drift-lint` | `docs-drift-maintenance` skill output cited in trail |
 | `peer-review` | `CONSULTANT_CLOSEOUT` with rubric ≥7 per `role-consultant-critique` |
 | `manual-verify` | Before/after value + rationale in `ADMIN_HANDOFF` |
+| `stress-test` | One of: `tests/stress-*.spec.js` file in PR diff, OR `npm run stress:*` invocation cited in `COLLABORATOR_HANDOFF` Pre-handoff verification. Stress spec MUST assert: ≥1 chaos / fault-injection path (G6) AND ≥1 p99 latency budget (G7). Canonical examples: `tests/stress-{worktree-isolation,anneal-decision,rebase-discipline}.spec.js` from Epic #1871. |
 | `none` | Permitted only when lane ∈ {trivial, docs-research, docs-only, research, config-only} |
+
+## Stress promotion model (NO calendar threshold per Epic #1771 / #1827 lesson)
+
+- **NEW surfaces** shipped after Epic #1875 lands: stress-test required from day 0 (blocking). You're shipping new code — ship the stress with it.
+- **EXISTING surfaces** (backfill list from Epic #1875 Phase 5): advisory until per-validator replay-eval reaches ≥85% precision against historical PR corpus. Promotion is replay-eval-gated, not time-gated.
+
+This avoids the calendar-threshold anti-pattern. Velocity-relative + replay-eval calibration only.
 
 ## Goal-lens justification
 

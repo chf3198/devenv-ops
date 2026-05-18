@@ -1,0 +1,58 @@
+name: Stress Evidence
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+  group: stress-evidence-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stress-evidence:
+    name: stress-evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with: { node-version: '22' }
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const stress = require('./scripts/global/stress-evidence-check.js');
+            const body = context.payload.pull_request.body || '';
+            const refsMatch = body.match(/Refs\s+#(\d+)/i);
+            if (!refsMatch) {
+              core.warning('No Refs #N in PR body — stress-evidence skipped (advisory).');
+              return;
+            }
+            const linked = parseInt(refsMatch[1], 10);
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: linked, per_page: 100,
+            });
+            const managerHandoff = comments.find(c => c.body.includes('MANAGER_HANDOFF'))?.body;
+            const collabHandoff = comments.find(c => c.body.includes('COLLABORATOR_HANDOFF'))?.body;
+            const adminHandoff = comments.find(c => c.body.includes('ADMIN_HANDOFF'))?.body;
+            const consultantCloseout = comments.find(c => c.body.includes('CONSULTANT_CLOSEOUT'))?.body;
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner, repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number, per_page: 300,
+            });
+            const result = stress.evaluate({
+              managerHandoff, collabHandoff, adminHandoff, consultantCloseout,
+              prFiles: files.map(f => f.filename),
+            });
+            if (!result.applicable) {
+              core.info('test_strategy does not declare stress-test; check N/A.');
+              return;
+            }
+            if (result.ok) {
+              core.info(`Stress evidence found: ${result.evidence}`);
+              return;
+            }
+            const advisory = stress.advisoryComment(result, linked);
+            core.warning(advisory);
+            // Advisory-mode v1 per Epic #1875: emit but do not core.setFailed.
+            // Promotion to blocking is gated on per-validator replay-eval reaching >=85%
+            // precision against historical PR corpus (Epic #1771 pattern). NO calendar threshold.
