@@ -92,6 +92,7 @@ npm run deploy:both:apply
 | `governance:compatibility:matrix` | `node scripts/global/governance-compatibility-matrix.js` |
 | `governance:cross-team-check` | `node scripts/global/cross-team-contract-check.js` |
 | `governance:cross-team-check:test` | `node --test tests/cross-team-contract-check.spec.js` |
+| `governance:delegation-lint` | `node scripts/global/delegation-phrase-lint.js` |
 | `governance:drift` | `node scripts/global/governance-drift-classifier.js --json` |
 | `governance:duplicate-check` | `node scripts/global/ticket-duplicate-guard.js --scan` |
 | `governance:duplicate-check:test` | `node --test tests/ticket-duplicate-guard.spec.js` |
@@ -106,12 +107,15 @@ npm run deploy:both:apply
 | `governance:manifest:test` | `node scripts/global/governance-manifest-validate.spec.js` |
 | `governance:manifest:validate` | `node scripts/global/governance-manifest-validate.js` |
 | `governance:no-sync-http` | `node scripts/global/no-sync-http-handlers.js` |
+| `governance:operator-ownership:eval` | `node scripts/global/operator-ownership-eval.js` |
+| `governance:operator-ownership:test` | `node --test tests/operator-ownership-rules.spec.js tests/delegation-phrase-lint.spec.js tests/operator-ownership-eval.spec.js tests/runtime-side-effect-guard.spec.js` |
 | `governance:parity:test` | `node scripts/global/governance-parity.spec.js` |
 | `governance:price-cap` | `node scripts/global/provider-price-cap-gate.js` |
 | `governance:price-cap:test` | `node --test tests/provider-price-cap-gate.spec.js` |
 | `governance:reconcile` | `node scripts/global/ticket-reconcile.js --json` |
 | `governance:review-score` | `node scripts/global/review-score-classifier.js` |
 | `governance:review-score:test` | `node --test tests/review-score-classifier.spec.js` |
+| `governance:runtime-guard:test` | `node --test tests/runtime-side-effect-guard.spec.js` |
 | `governance:soak-language` | `node scripts/global/megalint/soak-language-guard.js` |
 | `governance:soak-language:test` | `node --test tests/soak-language-guard.spec.js` |
 | `governance:status-cardinality` | `node scripts/global/label-lint-status-cardinality.js` |
@@ -148,6 +152,10 @@ npm run deploy:both:apply
 | `hamr:sticky-route` | `node scripts/global/sticky-route.js` |
 | `hamr:sync-verify` | `node scripts/global/hamr-sync-verify.js` |
 | `hamr:teardown` | `bash scripts/global/hamr-teardown.sh` |
+| `harness:self-test` | `node scripts/global/harness-self-test.js` |
+| `harness:self-test:capability` | `node scripts/global/harness-self-test.js --capability` |
+| `harness:self-test:regression` | `node scripts/global/harness-self-test.js --regression` |
+| `harness:self-test:test` | `node --test tests/harness-self-test-runner.spec.js tests/harness-self-test-reporters.spec.js tests/harness-self-test-telemetry.spec.js tests/harness-self-test.spec.js` |
 | `health` | `node scripts/health-check.js` |
 | `help:topic` | `node scripts/help-topic.js` |
 | `hooks:install` | `bash scripts/global/install-hooks.sh` |
