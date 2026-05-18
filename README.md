@@ -44,6 +44,12 @@ npm test
 npm run deploy:both:apply
 ```
 
+## Research-first gate notes
+
+- Research-first Epic detection is label-first: `phase-gate:research-first` on `type:epic` tickets.
+- `AC-R*` body matching remains a legacy fallback during migration and is slated for removal after #1888 enforcement follow-on completes.
+- Phase-1 MANAGER_HANDOFF checks use `phase-gate:phase-1` by default and can be overridden with `PHASE_ONE_LABEL` for validation runs.
+
 ## Scripts
 
 <!-- docs packageScripts -->
