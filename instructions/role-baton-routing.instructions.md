@@ -108,6 +108,10 @@ Required fields on every `MANAGER_HANDOFF` comment:
 - `gates:` — CI/governance gates that must pass
 - `anneal_tier:` (optional) — `tier-1 | tier-2 | tier-3 | null`; populate when ticket originated from a Tier-2 anneal auto-file event per Epic #1308. Default `null` / omitted for non-anneal tickets.
 
+Conditional required fields:
+- Tickets labeled `phase-gate:phase-1` MUST include `phase_gate_satisfied: yes`.
+- Tickets labeled `phase-gate:phase-1` MUST include `phase_0_sources: [#N, #N, ...]` with one or more source research-child references.
+
 `test_strategy` selected per `instructions/test-methodology-matrix.instructions.md`; missing on legacy tickets defaults to `none` (advisory). New tickets with `none` on non-permitted lane fail `test-evidence`.
 
 ## Parent/child relationships (Sub-issues primitive)

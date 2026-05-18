@@ -3,6 +3,7 @@
 
 const sig = require('../governance-artifact-signature');
 const REQUIRED_FIELDS = ['scope', 'lane', 'test_strategy', 'acceptance', 'gates'];
+const PHASE_ONE_LABEL = process.env.PHASE_ONE_LABEL || 'phase-gate:phase-1';
 
 function findManagerHandoff(comments) {
   const headerRe = /(^|\n)\s*(?:\*\*|##\s+)?MANAGER_HANDOFF\b/;
@@ -41,13 +42,38 @@ function checkCrypto(body) {
   }));
 }
 
+function checkPhaseOneFields(body, labels) {
+  if (!(labels || []).includes(PHASE_ONE_LABEL)) return [];
+  const violations = [];
+  const gateSatisfied = extractField(body, 'phase_gate_satisfied');
+  const phaseSources = extractField(body, 'phase_0_sources');
+  if (!gateSatisfied || !/^yes$/i.test(gateSatisfied)) {
+    violations.push({
+      rule: 'missing-phase-gate-satisfied',
+      detail: "Phase-1 MANAGER_HANDOFF must include 'phase_gate_satisfied: yes'",
+    });
+  }
+  if (!phaseSources || !/#\d+/.test(phaseSources)) {
+    violations.push({
+      rule: 'missing-phase0-sources',
+      detail: "Phase-1 MANAGER_HANDOFF must include 'phase_0_sources: [#N, ...]'",
+    });
+  }
+  return violations;
+}
+
 function validate(input) {
   const handoff = findManagerHandoff(input.comments || []);
   if (!handoff) {
     const violations = input.isEpic ? [{ rule: 'epic-manager-handoff-missing', detail: 'Epic must have a MANAGER_HANDOFF comment defining scope' }] : [];
     return { ok: violations.length === 0, violations, found: false };
   }
-  const violations = [...checkRequiredFields(handoff.body), ...checkLaneConsistency(handoff.body, input.lane), ...checkCrypto(handoff.body)];
+  const violations = [
+    ...checkRequiredFields(handoff.body),
+    ...checkLaneConsistency(handoff.body, input.lane),
+    ...checkPhaseOneFields(handoff.body, input.labels),
+    ...checkCrypto(handoff.body),
+  ];
   return { ok: violations.length === 0, violations, found: true };
 }
 

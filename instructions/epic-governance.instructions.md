@@ -51,13 +51,21 @@ Auto-transition posts an `EPIC_AUTO_PAUSE` comment naming the implicit resume tr
 
 ## Research-First Epic Phase Gate
 
-A research-first Epic (label `type:epic` + presence of `AC-R*` acceptance criteria in body) MUST satisfy the following gate before any implementation child tickets or development ACs may be authored:
+A research-first Epic (label `type:epic` + `phase-gate:research-first`) MUST satisfy the following gate before any implementation child tickets or development ACs may be authored. Legacy detection (`AC-R*` in body) remains an advisory fallback for existing Epics.
 
-1. All research children (`AC-R1` through `AC-Rn-1`) MUST be closed with Consultant peer-review rubric >= 7 across all G1-G9 goals.
+1. All research children (`AC-R1` through `AC-Rn-1`) MUST be closed with Consultant peer-review rubric ≥ 7 across all G1-G9 goals.
 2. The terminal research child (`AC-Rn`, this rule itself) MUST be closed with Consultant approval.
 3. The Epic MUST receive a Manager `EPIC_RESCOPE` or equivalent comment summarizing Phase-0 outcomes before transitioning out of `status:in-progress`.
 4. Phase-1 implementation child tickets MUST cite the Phase-0 research children they consume in their body (`Refs #N` per source child).
 5. If any Phase-0 child is reopened, the gate re-arms and Phase-1 work is paused until the reopened child closes again.
+
+### Operational semantics (normative)
+
+- Clause 1 score rule: `across all G1-G9` means `min(G1..G9) ≥ 7`; mean/median pass is insufficient. <!-- pending-enforcement: #1888 clause-1 -->
+- Clause 2 approval rule: `Consultant approval` means structured closeout fields include `verdict: approve_for_merge` and `rubric_rating: >=7`. <!-- pending-enforcement: #1888 clause-2 -->
+- Clause 3 transition guard: on any Epic status leaving `status:in-progress`, absence of an `EPIC_RESCOPE` marker is a gate violation. <!-- enforced-by: scripts/global/megalint/research-first-phase-gate.js -->
+- Clause 4 source citation: each Phase-1 child carries label `phase-gate:phase-1` and MUST include at least one `Refs #N` Phase-0 source child in body. <!-- enforced-by: scripts/global/megalint/manager-handoff.js -->
+- Clause 5 re-arm trigger: a Phase-0 child `issues.reopened` event pauses Phase-1 by posting `EPIC_PHASE_GATE_PAUSE`; resumption requires child re-close plus Manager `EPIC_RESCOPE` refresh. <!-- pending-enforcement: #1888 clause-5 -->
 
 ## Epic Progress Comment Protocol
 
