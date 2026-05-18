@@ -7,19 +7,19 @@ function row(parts) { return `| ${parts.join(' | ')} |`; }
 function detectObservations(items, parentMap, util) {
   const { labelsOf } = util;
   const observations = [];
-  for (const i of items) {
-    const L = labelsOf(i);
-    const statusLabels = L.filter(x => x.startsWith('status:'));
-    if (statusLabels.length > 1) observations.push(`#${i.number}: multi-status (${statusLabels.join(', ')})`);
-    if (statusLabels.length === 0) observations.push(`#${i.number}: no-status label`);
-    const m = (i.body || '').match(/Refs\s+Epic\s+#(\d+)/i);
-    if (m && parentMap[Number(m[1])] === 'CLOSED' && !i.parent) {
-      observations.push(`#${i.number}: orphan-child (Refs Epic #${m[1]} CLOSED, no native sub-issue link)`);
+  const TERMINAL_STATES = ['status:done', 'status:cancelled'];
+  for (const issue of items) {
+    const labels = labelsOf(issue);
+    const statusLabels = labels.filter(label => label.startsWith('status:'));
+    if (statusLabels.length > 1) observations.push(`#${issue.number}: multi-status (${statusLabels.join(', ')})`);
+    if (statusLabels.length === 0) observations.push(`#${issue.number}: no-status label`);
+    const refMatch = (issue.body || '').match(/Refs\s+Epic\s+#(\d+)/i);
+    if (refMatch && parentMap[Number(refMatch[1])] === 'CLOSED' && !issue.parent) {
+      observations.push(`#${issue.number}: orphan-child (Refs Epic #${refMatch[1]} CLOSED, no native sub-issue link)`);
     }
-    const terminal = ['status:done', 'status:cancelled'];
-    const role = L.find(x => x.startsWith('role:'));
-    if (role && terminal.some(s => L.includes(s))) {
-      observations.push(`#${i.number}: ${role} on terminal status`);
+    const roleLabel = labels.find(label => label.startsWith('role:'));
+    if (roleLabel && TERMINAL_STATES.some(state => labels.includes(state))) {
+      observations.push(`#${issue.number}: ${roleLabel} on terminal status`);
     }
   }
   return observations;
@@ -29,21 +29,21 @@ function epicsTable(epics, util) {
   if (epics.length === 0) return '_no open epics_\n';
   const { labelsOf, priOf, statusOf } = util;
   const lines = ['| # | Pri | Status | Title |', '|---|---|---|---|'];
-  for (const e of epics) {
-    const L = labelsOf(e);
-    lines.push(row([`#${e.number}`, priOf(L).split(':')[1], statusOf(L), e.title.slice(0, 80)]));
+  for (const epic of epics) {
+    const labels = labelsOf(epic);
+    lines.push(row([`#${epic.number}`, priOf(labels).split(':')[1], statusOf(labels), epic.title.slice(0, 80)]));
   }
   return lines.join('\n') + '\n';
 }
 
 function indepsTable(indeps, prilvl, util) {
   const { labelsOf, priOf, statusOf, typeOf } = util;
-  const group = indeps.filter(t => priOf(labelsOf(t)).endsWith(prilvl));
+  const group = indeps.filter(ticket => priOf(labelsOf(ticket)).endsWith(prilvl));
   if (group.length === 0) return `_no open P${prilvl.slice(1)} independents_\n`;
   const lines = ['| # | Status | Type | Title |', '|---|---|---|---|'];
-  for (const t of group) {
-    const L = labelsOf(t);
-    lines.push(row([`#${t.number}`, statusOf(L), typeOf(L), t.title.slice(0, 70)]));
+  for (const ticket of group) {
+    const labels = labelsOf(ticket);
+    lines.push(row([`#${ticket.number}`, statusOf(labels), typeOf(labels), ticket.title.slice(0, 70)]));
   }
   return lines.join('\n') + '\n';
 }

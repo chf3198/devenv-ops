@@ -45,25 +45,33 @@ function isChild(item, parentMap) {
   return Boolean(m && parentMap[Number(m[1])] === 'OPEN');
 }
 
-const labelsOf = i => i.labels.nodes.map(l => l.name);
-const priOf = L => { for (const x of L) if (x in PRI) return x; return 'priority:P3'; };
-const statusOf = L => { for (const x of L) if (x.startsWith('status:')) return x.slice(7); return '?'; };
-const typeOf = L => { for (const x of L) if (x.startsWith('type:')) return x.slice(5); return '?'; };
-const sortKey = i => { const L = labelsOf(i); return [PRI[priOf(L)] ?? 3, ST['status:' + statusOf(L)] ?? 99, i.number]; };
+const DEFAULT_LIMIT = 200;
+const SORT_KEY_LENGTH = 3;
+const labelsOf = issue => issue.labels.nodes.map(node => node.name);
+const priOf = labels => { for (const label of labels) if (label in PRI) return label; return 'priority:P3'; };
+const statusOf = labels => { for (const label of labels) if (label.startsWith('status:')) return label.slice(7); return '?'; };
+const typeOf = labels => { for (const label of labels) if (label.startsWith('type:')) return label.slice(5); return '?'; };
+const sortKey = issue => { const labels = labelsOf(issue); return [PRI[priOf(labels)] ?? 3, ST['status:' + statusOf(labels)] ?? 99, issue.number]; };
 
 function partition(items, parentMap) {
   const epics = [], indeps = [];
-  for (const i of items) {
-    if (isChild(i, parentMap)) continue;
-    if (labelsOf(i).includes('type:epic')) epics.push(i); else indeps.push(i);
+  for (const issue of items) {
+    if (isChild(issue, parentMap)) continue;
+    if (labelsOf(issue).includes('type:epic')) epics.push(issue); else indeps.push(issue);
   }
-  const cmp = (a, b) => { const A = sortKey(a), B = sortKey(b); for (let n = 0; n < 3; n++) if (A[n] !== B[n]) return A[n] - B[n]; return 0; };
-  epics.sort(cmp); indeps.sort(cmp);
+  const compare = (left, right) => {
+    const leftKey = sortKey(left), rightKey = sortKey(right);
+    for (let dim = 0; dim < SORT_KEY_LENGTH; dim += 1) {
+      if (leftKey[dim] !== rightKey[dim]) return leftKey[dim] - rightKey[dim];
+    }
+    return 0;
+  };
+  epics.sort(compare); indeps.sort(compare);
   return { epics, indeps };
 }
 
 function buildReport(opts = {}) {
-  const items = opts.items || fetchIssues(opts.limit || 200);
+  const items = opts.items || fetchIssues(opts.limit || DEFAULT_LIMIT);
   const parentMap = opts.parentMap || parentStates(items);
   const { epics, indeps } = partition(items, parentMap);
   const filter = opts.filter || 'all';
@@ -75,8 +83,8 @@ function buildReport(opts = {}) {
 
 if (require.main === module) {
   const argv = process.argv.slice(2);
-  const get = (name) => { const i = argv.indexOf(`--${name}`); return i > -1 ? argv[i + 1] : null; };
-  const result = buildReport({ limit: Number(get('limit')) || 200, filter: get('filter') || 'all' });
+  const argValue = (name) => { const idx = argv.indexOf(`--${name}`); return idx > -1 ? argv[idx + 1] : null; };
+  const result = buildReport({ limit: Number(argValue('limit')) || DEFAULT_LIMIT, filter: argValue('filter') || 'all' });
   if (argv.includes('--json')) process.stdout.write(JSON.stringify(result, null, 2) + '\n');
   else process.stdout.write(fmt.formatMarkdown(result, { labelsOf, priOf, statusOf, typeOf }) + '\n');
 }
