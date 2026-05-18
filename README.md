@@ -115,6 +115,8 @@ npm run deploy:both:apply
 | `governance:lease-heartbeat:test` | `node --test tests/worktree-lease-heartbeat.spec.js` |
 | `governance:manifest:test` | `node scripts/global/governance-manifest-validate.spec.js` |
 | `governance:manifest:validate` | `node scripts/global/governance-manifest-validate.js` |
+| `governance:model-diversity-replay` | `node scripts/global/model-diversity-replay-eval.js` |
+| `governance:model-diversity-replay:test` | `node --test tests/model-diversity-replay-eval.spec.js` |
 | `governance:no-sync-http` | `node scripts/global/no-sync-http-handlers.js` |
 | `governance:operator-ownership:eval` | `node scripts/global/operator-ownership-eval.js` |
 | `governance:operator-ownership:test` | `node --test tests/operator-ownership-rules.spec.js tests/delegation-phrase-lint.spec.js tests/operator-ownership-eval.spec.js tests/runtime-side-effect-guard.spec.js` |
@@ -122,12 +124,18 @@ npm run deploy:both:apply
 | `governance:price-cap` | `node scripts/global/provider-price-cap-gate.js` |
 | `governance:price-cap:test` | `node --test tests/provider-price-cap-gate.spec.js` |
 | `governance:reconcile` | `node scripts/global/ticket-reconcile.js --json` |
+| `governance:review-promotion-eval` | `node scripts/global/model-diversity-replay-eval.js && node scripts/global/second-opinion-replay-eval.js` |
 | `governance:review-score` | `node scripts/global/review-score-classifier.js` |
 | `governance:review-score:test` | `node --test tests/review-score-classifier.spec.js` |
 | `governance:role-baton-audit` | `node scripts/global/role-baton-audit.js` |
 | `governance:role-baton-linter` | `node scripts/global/role-baton-linter.js` |
 | `governance:role-baton-linter:test` | `node --test tests/role-baton-linter.spec.js` |
 | `governance:runtime-guard:test` | `node --test tests/runtime-side-effect-guard.spec.js` |
+| `governance:second-opinion-replay` | `node scripts/global/second-opinion-replay-eval.js` |
+| `governance:second-opinion-replay:test` | `node --test tests/second-opinion-replay-eval.spec.js` |
+| `governance:second-opinion-runner` | `node scripts/global/second-opinion-runner.js` |
+| `governance:second-opinion-runner:test` | `node --test tests/second-opinion-runner.spec.js` |
+| `governance:second-opinion-tier3:test` | `node --test tests/second-opinion-tier3-trigger.spec.js` |
 | `governance:soak-language` | `node scripts/global/megalint/soak-language-guard.js` |
 | `governance:soak-language:test` | `node --test tests/soak-language-guard.spec.js` |
 | `governance:status-cardinality` | `node scripts/global/label-lint-status-cardinality.js` |
