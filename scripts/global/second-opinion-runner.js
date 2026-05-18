@@ -10,6 +10,10 @@ const SO = require('./consultant-second-opinion.js');
 
 const DEFAULT_TIER = 'fleet-large';
 const RATER_TEAM_MODEL = 'fleet:qwen2.5-coder@36gbwinresource';
+const CLOSEOUT_CAP_CHARS = 4000;
+const DIFF_CAP_CHARS = 2000;
+const FLEET_TIMEOUT_MS = 90000;
+const RAW_RESPONSE_CAP_CHARS = 500;
 const SCORE_LINE_STRIP = /\bG[1-9]\s*[=:]\s*\d+(?:\.\d+)?\s*/gi;
 const PROMPT_TEMPLATE = `You are an INDEPENDENT cross-family code-review rater. Rate the work on each of the 9 governance goals on a 1-10 integer scale. Do NOT defer to or copy any scores you see in the closeout — produce your own honest assessment based on the deliverable. Output ONLY the 9 lines, one per goal, exact format:
 G1=N
@@ -36,8 +40,8 @@ function stripScores(text) {
 
 function buildPrompt(closeoutBody, diffSummary) {
   return PROMPT_TEMPLATE
-    .replace('{{CLOSEOUT}}', stripScores(closeoutBody).slice(0, 4000))
-    .replace('{{DIFF}}', String(diffSummary || '').slice(0, 2000));
+    .replace('{{CLOSEOUT}}', stripScores(closeoutBody).slice(0, CLOSEOUT_CAP_CHARS))
+    .replace('{{DIFF}}', String(diffSummary || '').slice(0, DIFF_CAP_CHARS));
 }
 
 function parseScoreLines(text) {
@@ -59,7 +63,7 @@ async function runSecondOpinion(input) {
   }
   const prompt = buildPrompt(closeoutBody, diffSummary);
   const resp = await fleetCall({ prompt, tier: tier || DEFAULT_TIER, model },
-    { timeoutMs: 90000 });
+    { timeoutMs: FLEET_TIMEOUT_MS });
   const responseText = resp?.value?.data?.response || '';
   const secondScores = parseScoreLines(responseText);
   const { deltas, max_abs_delta } = SO.computeDeltas(firstScores, secondScores);
@@ -68,7 +72,7 @@ async function runSecondOpinion(input) {
     deltas, max_abs_delta, escalate, rater_team_model: RATER_TEAM_MODEL });
   return { ok: true, first_scores: firstScores, second_scores: secondScores,
     deltas, max_abs_delta, escalate, block, rater_team_model: RATER_TEAM_MODEL,
-    raw_response: responseText.slice(0, 500) };
+    raw_response: responseText.slice(0, RAW_RESPONSE_CAP_CHARS) };
 }
 
 if (require.main === module) {

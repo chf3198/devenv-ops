@@ -54,8 +54,8 @@ function aggregate(results) {
   const wouldEscalate = evaluated.filter(r => r.would_escalate);
   const presentRate = evaluated.length > 0 ? withSO.length / evaluated.length : 0;
   const skippedByReason = {};
-  for (const r of results.filter(r => r.skipped)) {
-    skippedByReason[r.skipped] = (skippedByReason[r.skipped] || 0) + 1;
+  for (const skipResult of results.filter(item => item.skipped)) {
+    skippedByReason[skipResult.skipped] = (skippedByReason[skipResult.skipped] || 0) + 1;
   }
   const promote = evaluated.length >= MIN_SAMPLE && presentRate >= PRESENT_RATE_THRESHOLD;
   return {

@@ -48,8 +48,8 @@ function aggregate(results) {
   const evaluated = results.filter(r => !r.skipped);
   const violations = evaluated.filter(r => !r.ok);
   const skippedByReason = {};
-  for (const r of results.filter(r => r.skipped)) {
-    skippedByReason[r.skipped] = (skippedByReason[r.skipped] || 0) + 1;
+  for (const skipResult of results.filter(item => item.skipped)) {
+    skippedByReason[skipResult.skipped] = (skippedByReason[skipResult.skipped] || 0) + 1;
   }
   const fpRate = evaluated.length > 0 ? violations.length / evaluated.length : 0;
   const promote = evaluated.length >= MIN_SAMPLE && fpRate <= FP_THRESHOLD;
