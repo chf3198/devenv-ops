@@ -17,7 +17,13 @@
     "UserPromptSubmit": [{
       "hooks": [
         { "type": "command", "command": "DEVENT_OPS_RUNTIME=codex /usr/bin/python3 \"$HOME/.codex/devenv-ops/hooks/manager_ticket_gate.py\"", "timeout": 10 },
+        { "type": "command", "command": "DEVENT_OPS_RUNTIME=codex /usr/bin/python3 \"$HOME/.codex/devenv-ops/hooks/goal_lens.py\"", "timeout": 10 },
         { "type": "command", "command": "DEVENT_OPS_RUNTIME=codex /usr/bin/python3 \"$HOME/.codex/devenv-ops/hooks/userprompt_gate.py\"", "timeout": 10 }
+      ]
+    }],
+    "PermissionRequest": [{
+      "hooks": [
+        { "type": "command", "command": "DEVENT_OPS_RUNTIME=codex /usr/bin/python3 \"$HOME/.codex/devenv-ops/hooks/pretool_guard.py\"", "timeout": 10 }
       ]
     }],
     "PreToolUse": [{
