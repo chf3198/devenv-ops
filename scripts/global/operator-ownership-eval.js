@@ -27,12 +27,14 @@ function safeControls() {
   }));
 }
 
+const CORPUS_BLOCKED_LIMIT = 210;
+
 /** @returns {{id:string,category:string,expected:string,text:string}[]} */
 function buildCorpus() {
   const blocked = variants('the user must', 'run this yourself').concat(
     variants('please have client', 'execute the command')
   ).concat([{ id: 'unicode-1', category: 'unicode-obfuscation', expected: 'block', text: 't\u200bhe user must ex\uFE0Eecute' }]);
-  return blocked.slice(0, 210).concat(safeControls());
+  return blocked.slice(0, CORPUS_BLOCKED_LIMIT).concat(safeControls());
 }
 
 /** @param {string} text */

@@ -22,10 +22,10 @@ function listInstructionFiles() {
   const dir = path.join(ROOT, 'instructions');
   const out = [];
   const walk = current => {
-    for (const d of fs.readdirSync(current, { withFileTypes: true })) {
-      const full = path.join(current, d.name);
-      if (d.isDirectory()) walk(full);
-      else if (d.name.endsWith('.instructions.md')) out.push(path.relative(ROOT, full));
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const full = path.join(current, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith('.instructions.md')) out.push(path.relative(ROOT, full));
     }
   };
   walk(dir);
@@ -78,7 +78,7 @@ async function run() {
   for (const file of files) all.push(...await scanFile(file));
   if (all.length) {
     process.stderr.write('delegation-lint: found delegated manual execution phrasing\n');
-    for (const f of all) process.stderr.write(`- ${f.file}:${f.line} [${f.rule}] ${f.sample}\n`);
+    for (const finding of all) process.stderr.write(`- ${finding.file}:${finding.line} [${finding.rule}] ${finding.sample}\n`);
     process.stderr.write('remediation: keep operator-owned execution and user-as-client language\n');
     process.exit(1);
   }
