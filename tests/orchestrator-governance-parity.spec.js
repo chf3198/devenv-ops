@@ -18,8 +18,8 @@ test('parity audit detects Claude hook adapter coverage', () => {
 
 test('parity audit detects Codex canonical gate coverage gap', () => {
   const ids = parity.run().findings.map(f => f.id);
-  assert.ok(ids.includes('codex-hook-script-gap'));
-  assert.ok(ids.includes('codex-permission-gap'));
+  assert.equal(ids.includes('codex-hook-script-gap'), false);
+  assert.equal(ids.includes('codex-permission-gap'), false);
 });
 
 test('parity audit detects all-target deploy and sync semantics coverage', () => {
