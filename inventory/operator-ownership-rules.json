@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "scopedFiles": [
+    "instructions/operator-identity-context.instructions.md"
+  ],
+  "assertions": [
+    {
+      "id": "operator-owned-execution",
+      "description": "Execution is operator-owned within authorization boundaries",
+      "patterns": [
+        "operator-owned",
+        "operator ownership",
+        "you are the operator",
+        "execution is operator"
+      ]
+    },
+    {
+      "id": "user-client-design-uat",
+      "description": "User is client for design direction and rare UAT",
+      "patterns": [
+        "user is the client",
+        "design",
+        "rare uat"
+      ]
+    },
+    {
+      "id": "no-manual-delegation",
+      "description": "No delegated manual execution steps to user",
+      "patterns": [
+        "never ask the user",
+        "do not ask user",
+        "do not delegate"
+      ]
+    }
+  ]
+}
