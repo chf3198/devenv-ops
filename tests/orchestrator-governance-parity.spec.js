@@ -52,3 +52,9 @@ test('strict mode exits cleanly when parity is complete', () => {
 test('diff helper models strict failure requirements', () => {
   assert.deepEqual(parity.diff(['goal_lens.py'], []), ['goal_lens.py']);
 });
+
+test('run() includes wiki_docs_memory findings in result', () => {
+  const result = parity.run();
+  const wikiFindings = result.findings.filter(f => f.id.startsWith('wiki-'));
+  assert.ok(Array.isArray(wikiFindings), 'wiki findings array present');
+});
