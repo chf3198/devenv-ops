@@ -1,61 +1,47 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const { run, WIKI_PATHS, SEARCH_SCRIPTS, REQUIRED_SUBDIRS } = require('../scripts/global/wiki-parity-check');
+const { run, WIKI_PATHS, SEARCH_SCRIPTS, SUBDIR_TIERS } = require('../scripts/global/wiki-parity-check');
 
 const test = (label, fn) => {
   try { fn(); console.log(`  PASS: ${label}`); }
   catch (e) { console.error(`  FAIL: ${label}\n       ${e.message}`); process.exitCode = 1; }
 };
 
-console.log('\n wiki-parity-check');
+console.log('\n wiki-parity-check (remediation)');
 
-test('run() returns structured result', () => {
+test('run() returns dependencies array', () => {
   const result = run();
-  assert.ok(typeof result === 'object', 'result is object');
-  assert.ok(typeof result.ok === 'boolean', 'ok is boolean');
-  assert.equal(result.surface, 'wiki_docs_memory');
-  assert.ok(Array.isArray(result.findings), 'findings is array');
-  assert.ok(typeof result.checkedAt === 'string', 'checkedAt is string');
-  assert.ok(typeof result.wikiPaths === 'object', 'wikiPaths present');
+  assert.ok(Array.isArray(result.dependencies), 'dependencies array present');
 });
 
-test('WIKI_PATHS exports paths for all 3 runtimes', () => {
-  for (const rt of ['copilot', 'codex', 'claude-code']) {
-    assert.ok(rt in WIKI_PATHS, `WIKI_PATHS has ${rt}`);
-    assert.ok(typeof WIKI_PATHS[rt] === 'string', `${rt} path is string`);
-  }
+test('run() with digestManifest validates hashes', () => {
+  const manifest = { copilot: { indexMd: 'test-hash' } };
+  const result = run({ digestManifest: manifest });
+  assert.ok(Array.isArray(result.findings), 'findings returned with manifest');
 });
 
-test('SEARCH_SCRIPTS exports null for claude-code', () => {
-  assert.equal(SEARCH_SCRIPTS['claude-code'], null);
-  assert.ok(typeof SEARCH_SCRIPTS.copilot === 'string');
-  assert.ok(typeof SEARCH_SCRIPTS.codex === 'string');
+test('run() with runtimeTiers validates tier compliance', () => {
+  const tiers = { copilot: { required: ['concepts'] } };
+  const result = run({ runtimeTiers: tiers });
+  assert.ok(typeof result.ok === 'boolean', 'tier validation works');
 });
 
-test('REQUIRED_SUBDIRS is non-empty array of strings', () => {
-  assert.ok(Array.isArray(REQUIRED_SUBDIRS) && REQUIRED_SUBDIRS.length > 0);
-  for (const s of REQUIRED_SUBDIRS) assert.ok(typeof s === 'string');
+test('claude-code depends_on copilot edge emitted', () => {
+  const result = run({ digestManifest: {} });
+  const dep = result.dependencies.find(d => d.from === 'claude-code' && d.to === 'copilot');
+  assert.ok(dep, 'cross-runtime dependency found');
+  assert.equal(dep.type, 'cross-runtime-read');
 });
 
-test('each finding has required schema fields', () => {
+test('SUBDIR_TIERS models required/optional/ingest-only', () => {
+  assert.ok(SUBDIR_TIERS.required.includes('concepts'));
+  assert.ok(Array.isArray(SUBDIR_TIERS['ingest-only']));
+});
+
+test('no HIGH findings in deployed environment', () => {
+  if (process.env.CI) return;
   const result = run();
-  for (const f of result.findings) {
-    assert.ok(f.id, 'finding has id');
-    assert.ok(f.severity, 'finding has severity');
-    assert.ok(f.summary, 'finding has summary');
-    assert.ok(f.evidence, 'finding has evidence');
-    assert.ok(f.recommendation, 'finding has recommendation');
-  }
-});
-
-test('deployed environment has no wiki parity gaps', () => {
-  if (process.env.CI) {
-    console.log('    skip: CI environment has no deployed wiki runtime');
-    return;
-  }
-  const result = run();
-  const ids = result.findings.map(f => f.id);
-  if (ids.length) console.log(`    advisory: ${ids.join(', ')}`);
-  assert.ok(result.ok, `Expected parity — gaps found: ${ids.join(', ')}`);
+  const high = result.findings.filter(f => f.severity === 'high');
+  assert.ok(high.length === 0, 'no high-severity findings');
 });

@@ -1,7 +1,11 @@
 {
   "epic": 1912,
   "goal": "Equivalent governance outcomes across Claude Code, Copilot, and Codex",
-  "runtimes": ["claude-code", "copilot", "codex"],
+  "runtimes": [
+    "claude-code",
+    "copilot",
+    "codex"
+  ],
   "canonicalSurfaces": [
     "instructions",
     "skills_or_commands",
@@ -35,11 +39,22 @@
     "stop_reminder.py"
   ],
   "runtimeEventNotes": {
-    "codex": ["PermissionRequest is Codex-native and must be mapped or waived"],
-    "copilot": ["PreCompact and SubagentStart are currently wired"],
-    "claude-code": ["Claude Code supports hooks through settings.json"]
+    "codex": [
+      "PermissionRequest is Codex-native and must be mapped or waived"
+    ],
+    "copilot": [
+      "PreCompact and SubagentStart are currently wired"
+    ],
+    "claude-code": [
+      "Claude Code supports hooks through settings.json"
+    ]
   },
-  "deployTargets": ["copilot", "codex", "claude", "all"],
+  "deployTargets": [
+    "copilot",
+    "codex",
+    "claude",
+    "all"
+  ],
   "strictAcceptance": {
     "hooks": "Every supported runtime has equivalent gate outcomes",
     "deploy": "Operators can deploy one, any pair, or all three runtimes clearly",
@@ -55,14 +70,24 @@
         "searchScript": "~/.copilot/scripts/wiki-search.js",
         "deployTarget": "copilot",
         "status": "full",
-        "subdirs": ["concepts", "entities", "sources", "syntheses", "skills"]
+        "subdirs": [
+          "concepts",
+          "entities",
+          "sources",
+          "syntheses",
+          "skills"
+        ]
       },
       "codex": {
         "wikiPath": "~/.codex/devenv-ops/wiki/",
         "searchScript": "~/.codex/devenv-ops/scripts/wiki-search.js",
         "deployTarget": "codex",
         "status": "partial",
-        "subdirs": ["concepts", "entities", "skills"],
+        "subdirs": [
+          "concepts",
+          "entities",
+          "skills"
+        ],
         "notes": "sources/ and syntheses/ are ingest-only; not deployed to Codex"
       },
       "claude-code": {
@@ -73,6 +98,50 @@
         "notes": "Reads from ~/.copilot/wiki/ via wiki-knowledge.instructions.md; search command is node ~/.copilot/scripts/wiki-search.js"
       }
     },
+    "digestManifest": {
+      "copilot": {
+        "indexMd": "1153dc560d2034cc97c9ec53b4cc4b6a0f7d7299e4f83333fe70967b40f468d8"
+      },
+      "codex": {
+        "indexMd": "1153dc560d2034cc97c9ec53b4cc4b6a0f7d7299e4f83333fe70967b40f468d8"
+      }
+    },
+    "runtimeTiers": {
+      "copilot": {
+        "required": [
+          "concepts",
+          "entities"
+        ],
+        "optional": [
+          "skills"
+        ],
+        "ingest-only": [
+          "sources",
+          "syntheses"
+        ]
+      },
+      "codex": {
+        "required": [
+          "concepts",
+          "entities"
+        ],
+        "optional": [
+          "skills"
+        ]
+      },
+      "claude-code": {
+        "note": "cross-runtime read; inherits copilot tiers"
+      }
+    },
+    "dependencies": [
+      {
+        "from": "claude-code",
+        "to": "copilot",
+        "type": "cross-runtime-read",
+        "status": "expected",
+        "impact": "claude-code inherits copilot wiki health"
+      }
+    ],
     "parityGaps": [
       "claude-code has no dedicated wiki home — reads Copilot runtime by design",
       "codex wiki missing sources/ and syntheses/ (ingest-only artifacts; expected)"
